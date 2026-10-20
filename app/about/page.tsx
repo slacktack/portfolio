@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "@/components/icons";
+import { HireCard } from "@/components/hire-card";
 import { OperatorCard } from "@/components/operator-card";
 import { Reveal } from "@/components/reveal";
 import { SectionHeading, SectionLabel } from "@/components/section-heading";
@@ -15,6 +16,12 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <>
+      <section className="section-tight">
+        <div className="wrap hire-wrap">
+          <HireCard />
+        </div>
+      </section>
+
       <section className="page-hero">
         <div className="wrap page-hero-grid">
           <div className="page-hero-copy">

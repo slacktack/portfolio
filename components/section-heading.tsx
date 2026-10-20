@@ -36,7 +36,6 @@ export function SectionHeading({
         <SectionLabel number={number}>{label}</SectionLabel>
         <h2 className="display-2 section-title">
           {title}
-          <sup>{number}</sup>
         </h2>
         {note ? <p className="head-note">{note}</p> : null}
       </div>

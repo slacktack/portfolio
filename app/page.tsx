@@ -46,7 +46,7 @@ export default function HomePage() {
           <span className="hl">
             <span className="skyx-shot" aria-hidden="true">
               <span className="skyx-p99">
-                p99 <b>19.8</b>ms
+                p99 <b>20</b>ms
               </span>
               <svg viewBox="0 0 120 40" preserveAspectRatio="none">
                 <path d="M0 30 L14 26 L28 31 L42 20 L56 24 L70 12 L84 18 L98 8 L120 5" />
@@ -94,7 +94,7 @@ export default function HomePage() {
                   The work that <span className="serif">disappears.</span>
                 </>
               }
-              note="Seven production systems. Four surfaces here. Every one has a pager story."
+              note="Production systems at real scale. Every one has a pager story."
             />
           </Reveal>
 
@@ -123,6 +123,7 @@ export default function HomePage() {
 
                   <h3 className="system-title">{system.title}</h3>
                   <p className="system-promise">{system.promise}</p>
+                  {system.pager ? <p className="system-pager">{system.pager}</p> : null}
 
                   <div className="system-metrics">
                     {system.metrics.slice(0, 3).map((metric) => (

@@ -1,3 +1,4 @@
+import { Pulse } from "@/components/pulse";
 import Link from "next/link";
 import { profile } from "@/lib/site";
 import { ArrowUpRight } from "@/components/icons";
@@ -81,6 +82,9 @@ export function SiteFooter() {
           ))}
         </div>
 
+        <div className="footer-pulse">
+          <Pulse />
+        </div>
         <div className="footer-bottom">
           <span>© 2026 Tushar Gautam · Built with intent, always evolving</span>
           <span className="perf-badge">

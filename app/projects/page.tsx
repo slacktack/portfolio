@@ -155,7 +155,7 @@ export default function ProjectsPage() {
               number="02"
               label="Dashboards, design system and bots"
               title={<>The tools behind the product.</>}
-              note="Internal tools are not public, so this is the design system they share and what each one does."
+              note="One design system, and every internal tool runs on it."
             />
           </Reveal>
           <InternalTools />

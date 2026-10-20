@@ -108,6 +108,23 @@ export function Journey() {
         return m;
       });
 
+      const startLabel = (() => {
+        const cv = document.createElement("canvas");
+        cv.width = 320;
+        cv.height = 56;
+        const c2 = cv.getContext("2d");
+        if (c2) {
+          c2.font = "600 28px ui-monospace, Menlo, monospace";
+          c2.fillStyle = "rgba(255,247,238,0.92)";
+          c2.textBaseline = "middle";
+          c2.fillText("BLR → GOI · search", 4, 28);
+        }
+        const sp = new THREE.Sprite(track(new THREE.SpriteMaterial({ map: track(new THREE.CanvasTexture(cv)), transparent: true, depthWrite: false })));
+        sp.scale.set(4.4, 0.77, 1);
+        sp.position.set(core.position.x + 3.1, core.position.y + 0.9, core.position.z);
+        scene.add(sp);
+        return sp;
+      })();
       // 02 fan-out: 17 light streaks converging on the axis, each with a small mono label
       const labelFor = (text: string) => {
         const cv = document.createElement("canvas");
@@ -269,11 +286,12 @@ export function Journey() {
         rings.forEach((r, i) => {
           const k = (t * 0.25 + i / rings.length) % 1;
           r.scale.setScalar(1 + k * 7);
-          (r.material as InstanceType<typeof THREE.MeshBasicMaterial>).opacity = (1 - k) * 0.35 * Math.max(0, 1 - eased * 3);
+          (r.material as InstanceType<typeof THREE.MeshBasicMaterial>).opacity = (1 - k) * 0.55 * Math.max(0, 1 - eased * 3);
         });
 
+        (startLabel.material as InstanceType<typeof THREE.SpriteMaterial>).opacity = Math.max(0, 1 - eased * 6);
         const gather = Math.min(Math.max((eased - 0.28) / 0.3, 0), 1);
-        const show = Math.min(Math.max((eased - 0.12) / 0.18, 0), 1) * (1 - Math.min(Math.max((eased - 0.62) / 0.12, 0), 1));
+        const show = Math.min(Math.max((eased - 0.02) / 0.14, 0), 1) * (1 - Math.min(Math.max((eased - 0.62) / 0.12, 0), 1));
         streaks.forEach((st) => {
           st.mat.uniforms.uHead.value = Math.min(1.05, 0.1 + gather * 1.1 + ((t * 0.18 + st.phase) % 1) * 0.0);
           st.mat.uniforms.uAlpha.value = show;

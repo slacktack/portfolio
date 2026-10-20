@@ -69,6 +69,7 @@ export type SystemCase = {
   constraints: string[];
   architecture: { label: string; detail: string }[];
   rail: string[];
+  pager?: string;
   hardPart: { title: string; body: string }[];
   broke?: { title: string; body: string };
   differently: string[];
@@ -194,6 +195,7 @@ export const systems: SystemCase[] = [
       "A daily-swept comparison store",
       "Single-instance cron guards",
     ],
+    pager: "The average comparison took five seconds. The worst took four and a half minutes. We went after the tail.",
     hardPart: [
       {
         title: "Identity first, prices live",
@@ -333,6 +335,7 @@ export const systems: SystemCase[] = [
       { label: "Serve", detail: "Rust + mmap indexes" },
     ],
     rail: ["Python training", "Rust hot path", "Node integration", "Parity tests"],
+    pager: 'Forty-four queries have two defensible answers. The system says "ambiguous" instead of guessing.',
     hardPart: [
       {
         title: "Calibration is the product",
@@ -405,6 +408,7 @@ export const systems: SystemCase[] = [
       { label: "Validate", detail: "Schema + golden set" },
     ],
     rail: ["Groq + OpenRouter", "Self-improving cache", "Golden benchmark", "Extraction schema"],
+    pager: "We measured a reranker first. Retrieval recall was 103 of 103, so we never built it.",
     hardPart: [
       {
         title: "An evaluation harness, not a vibe",
@@ -577,7 +581,7 @@ export const systems: SystemCase[] = [
     promise: "A private AI platform, run on one machine.",
     category: "AI infrastructure",
     year: "2026",
-    role: "Builder · Buyhatke",
+    role: "Sole builder",
     stack: ["Node.js", "LM Studio", "llama.cpp", "OpenAI API"],
     metrics: [
       { value: "4", label: "Models resident", note: "Never loaded on traffic" },
@@ -612,6 +616,7 @@ export const systems: SystemCase[] = [
       "Deadlines with fallback to the next model",
       "A health and monitor endpoint",
     ],
+    pager: "The runbook said to evict models. The live machine showed zero swap and a quarter of memory used.",
     hardPart: [
       {
         title: "Measure the machine before touching it",
@@ -660,7 +665,7 @@ export const systems: SystemCase[] = [
     promise: "At checkout, show the shopper how to pay less.",
     category: "Checkout savings",
     year: "2026",
-    role: "Builder · Buyhatke",
+    role: "Sole builder",
     stack: ["TypeScript", "Svelte", "Chrome extension"],
     metrics: [
       { value: "1,254", label: "Automated tests" },
@@ -688,6 +693,7 @@ export const systems: SystemCase[] = [
       { label: "Show the route", detail: "Savings now and later, step by step" },
     ],
     rail: ["Best offers and My cards views", "Saved-now vs saved-later", "Step-by-step guidance", "Review before paying"],
+    pager: "Every rule in it came from a real cart that produced a wrong number.",
     hardPart: [
       {
         title: "Honesty is the product",

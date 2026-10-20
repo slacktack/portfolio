@@ -44,8 +44,12 @@ const inWindow = (dep: number, w: string | null) => !w || (w === "Morning" ? dep
 
 export function CacheKeyLab() {
   const [q, setQ] = useState<Q>(base);
-  const [log, setLog] = useState<{ text: string; hit: boolean }[]>([]);
-  const [stats, setStats] = useState({ hits: 0, misses: 0 });
+  const [log, setLog] = useState<{ text: string; hit: boolean }[]>([
+    { text: "Sort: cheapest", hit: true },
+    { text: "Airline 6E", hit: true },
+    { text: "Date 13 Nov", hit: false },
+  ]);
+  const [stats, setStats] = useState({ hits: 2, misses: 1 });
   const [busy, setBusy] = useState(false);
   const seen = useRef<Set<string>>(new Set([keyOf(base).join("|")]));
   const timer = useRef<number | undefined>(undefined);
@@ -102,8 +106,8 @@ export function CacheKeyLab() {
             <button onClick={() => change(`Adults ${(q.adults % 4) + 1}`, { ...q, adults: (q.adults % 4) + 1 })}>
               {q.adults} adult{q.adults > 1 ? "s" : ""}
             </button>
-            <button onClick={() => change("Add child, age 7", { ...q, ages: [...q.ages, 7].slice(-3) })}>+ child (7)</button>
-            <button onClick={() => change("Add infant, age 1", { ...q, ages: [...q.ages, 1].slice(-3) })}>+ infant (1)</button>
+            <button onClick={() => change("Add child, age 7", { ...q, ages: [...q.ages, 7].slice(-3) })}>+ child, age 7</button>
+            <button onClick={() => change("Add infant, age 1", { ...q, ages: [...q.ages, 1].slice(-3) })}>+ infant, age 1</button>
             <button onClick={() => change("Clear passengers", { ...q, ages: [] })}>clear</button>
           </div>
         </div>
