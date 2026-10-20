@@ -307,7 +307,7 @@ export const systems: SystemCase[] = [
     metrics: [
       { value: "1.18M+", label: "Labeled examples" },
       { value: "0.0104", label: "Expected calibration error" },
-      { value: "20ms", label: "p99 latency" },
+      { value: "20ms", label: "p99 latency", note: "End to end. 4.6ms in the engine" },
       { value: "232ms", label: "Cold start" },
     ],
     artifact: "categorizer",
@@ -378,10 +378,10 @@ export const systems: SystemCase[] = [
     role: "SDE-1 Backend · Buyhatke",
     stack: ["Groq", "OpenRouter", "BGE-M3", "LanceDB", "Python", "TypeScript"],
     metrics: [
-      { value: "99%", label: "Extraction accuracy" },
-      { value: "BGE-M3", label: "Embedding model" },
-      { value: "LanceDB", label: "Vector store" },
-      { value: "Golden", label: "Benchmark harness" },
+      { value: "211", label: "Golden test cases", note: "27 product categories" },
+      { value: "0 / 211", label: "Cache regressions" },
+      { value: "~4%", label: "Queries needing an LLM call" },
+      { value: "245", label: "Product categories served" },
     ],
     artifact: "search",
     summary:
@@ -427,10 +427,10 @@ export const systems: SystemCase[] = [
       "Schema design",
     ],
     receipts: [
-      { label: "Extraction", value: "99%", detail: "Golden benchmark accuracy" },
-      { label: "Embeddings", value: "BGE-M3", detail: "Dense retrieval" },
-      { label: "Vector store", value: "LanceDB", detail: "Candidate search" },
-      { label: "Models", value: "Groq + OpenRouter", detail: "Provider routing" },
+      { label: "Golden set", value: "211 cases", detail: "Grown from 103, across 27 categories" },
+      { label: "Cache regressions", value: "0 / 211", detail: "After the precision gate" },
+      { label: "LLM call rate", value: "~4%", detail: "Down from ~5% after brand suppression" },
+      { label: "Categories", value: "245", detail: "Beauty, diet, electronics, fashion" },
     ],
   },
   {
