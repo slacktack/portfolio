@@ -49,7 +49,8 @@ export type ArtifactKind =
   | "search"
   | "cabs"
   | "observability"
-  | "llm";
+  | "llm"
+  | "pay";
 
 export type SystemCase = {
   slug: string;
@@ -651,6 +652,65 @@ export const systems: SystemCase[] = [
       { label: "Concurrency", value: "4", detail: "Parallel requests per model" },
     ],
   },
+  {
+    slug: "best-way-to-pay",
+    index: "09",
+    title: "Best way to pay",
+    shortTitle: "Best way to pay",
+    promise: "Never promise money the shopper won't get.",
+    category: "Checkout savings",
+    year: "2026",
+    role: "Builder · Buyhatke",
+    stack: ["TypeScript", "Vite", "JSON", "CDN"],
+    metrics: [
+      { value: "1,254", label: "Automated tests" },
+      { value: "81", label: "Test files" },
+      { value: "96", label: "Files in one feature branch" },
+      { value: "1", label: "Rule", note: "If it can't be proven, it isn't shown" },
+    ],
+    artifact: "pay",
+    summary:
+      "A checkout panel that tells shoppers which card, offer or wallet saves them the most, built so every figure on screen can be backed out of the page.",
+    problem: [
+      "Checkout pages are full of offers that sound better than they are: instalment plans, percentage coupons on a base nobody can see, bank offers with fine print.",
+      "A savings panel that overpromises is worse than none. The failure mode is telling someone they will save money they will not.",
+    ],
+    constraints: [
+      "Every merchant renders checkout differently.",
+      "The number shown has to match the number the shopper actually pays.",
+      "Behavior must be switchable per site without shipping the extension again.",
+      "It has to be tested against real carts, not just clean fixtures.",
+    ],
+    architecture: [
+      { label: "Read", detail: "Understand the cart on the page" },
+      { label: "Price", detail: "Work out what each option really saves" },
+      { label: "Prove", detail: "Drop anything that cannot be verified" },
+      { label: "Show", detail: "One honest recommendation" },
+    ],
+    rail: ["Per-site configs", "Remote kill switch", "Real-cart test suite", "Honest by default"],
+    hardPart: [
+      {
+        title: "Honesty as a rule",
+        body: "Every rule in the system was learned from a real cart that produced a wrong number. The bar is simple: a figure that cannot be backed out of the page is not shown.",
+      },
+      {
+        title: "Configuration, not releases",
+        body: "Each site's behavior lives in a small config served from a CDN, with a kill switch per site. A merchant changes its page and the fix ships as a merge, not a store review.",
+      },
+      {
+        title: "Tested against the real thing",
+        body: "The suite runs against recorded real checkout pages. 1,254 tests over 81 files is what lets the rules keep changing safely.",
+      },
+    ],
+    differently: [],
+    proves: ["Product honesty under messy inputs", "Test discipline at scale", "Remote configuration design", "Shipping without redeploys"],
+    receipts: [
+      { label: "Tests", value: "1,254", detail: "All green at handoff" },
+      { label: "Test files", value: "81", detail: "Across merchants and rules" },
+      { label: "Branch size", value: "96 files", detail: "One feature branch" },
+      { label: "Rollout", value: "Per site", detail: "Config plus kill switch" },
+    ],
+  },
 ];
 
 export type Project = {
@@ -1194,6 +1254,56 @@ export type LedgerEntry = {
 // Counts are authored commits vs repo total, from `git log --author`.
 export const ledger: LedgerEntry[] = [
   {
+    name: "Best Way To Pay",
+    line: "A checkout panel that recommends the card or offer that saves most, and never overstates.",
+    proof: "1,254 tests over 81 files, run against real recorded checkout pages.",
+    mine: 0,
+    total: 0,
+    span: "2026",
+    stack: ["TypeScript", "Vite"],
+    group: "work",
+  },
+  {
+    name: "App alerting system",
+    line: "Threshold, rate and silence alerts on app analytics events.",
+    proof: "Chat pings when it matters, and one digest email per window instead of a flood.",
+    mine: 0,
+    total: 0,
+    span: "2026",
+    stack: ["Node.js", "OpenObserve"],
+    group: "work",
+  },
+  {
+    name: "Daily analytics rollup",
+    line: "A nightly rollup that finds unusual movement by site and flags it.",
+    proof: "Compares each day with a baseline window and posts only the deviations that matter.",
+    mine: 0,
+    total: 0,
+    span: "2026",
+    stack: ["Node.js", "OpenObserve"],
+    group: "work",
+  },
+  {
+    name: "NexusIntel",
+    line: "Communication intelligence for chat workspaces: sentiment, blockers and dependencies across teams.",
+    proof: "A seven-tab analysis UI over the workspace's own conversations.",
+    mine: 0,
+    total: 0,
+    span: "2026",
+    stack: ["Node.js", "Vite", "LLM"],
+    group: "personal",
+  },
+  {
+    name: "Internal chat assistant",
+    line: "A company chat LLM with a playground, API docs and vision support.",
+    proof: "Trusts known vision models and warns instead of blocking on unknown ones.",
+    mine: 17,
+    total: 17,
+    span: "Feb – Oct 2026",
+    stack: ["TypeScript", "Vite", "LLM"],
+    group: "work",
+  },
+  {
     name: "Cat-LLM",
     line: "Natural-language product search with a vector cache, built alone.",
     proof:
@@ -1379,5 +1489,45 @@ export const ledger: LedgerEntry[] = [
     span: "Jul 2025",
     stack: ["React Native", "TypeScript"],
     group: "personal",
+  },
+];
+
+
+export const internalTools = [
+  {
+    name: "Halo design system",
+    kind: "Design system",
+    line: "Every token and component in one reference page. The ads dashboard and its sister tools are built on it.",
+    points: ["A calm, airy dark system after an earlier heavier direction was dropped", "One live reference page to check first when anything looks off"],
+  },
+  {
+    name: "Ads campaign dashboard",
+    kind: "Marketing platform",
+    line: "Campaigns, ad slots and offers in one workspace, with analytics for the team that runs them.",
+    points: ["Campaign and ad management, slot planning and offer configuration", "Role-aware access for editors and admins"],
+  },
+  {
+    name: "Feature-tracking dashboard",
+    kind: "Product analytics",
+    line: "Event analytics for product features across the extension and the apps.",
+    points: ["Dashboards migrated and kept in step with the company log platform", "Used by the product team to see what people actually use"],
+  },
+  {
+    name: "Internal analytics dashboard",
+    kind: "Operations",
+    line: "Internal reporting with filters, premium views and CSV export for non-engineers.",
+    points: ["Built for people who live in spreadsheets", "Same design language as the rest"],
+  },
+  {
+    name: "WhatsApp support admin",
+    kind: "Operations",
+    line: "The operations and health view for an AI-assisted WhatsApp support stack.",
+    points: ["Escalations, health and throughput at a glance"],
+  },
+  {
+    name: "Telegram deal bots",
+    kind: "Automation",
+    line: "Price-drop alerts and personalised deals delivered to Telegram, image and history link included.",
+    points: ["Event-driven delivery behind a queue", "Separate bots for separate jobs, so one can change without touching the other"],
   },
 ];

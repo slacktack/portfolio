@@ -363,6 +363,36 @@ function Llm() {
   );
 }
 
+function Pay() {
+  const options = [
+    { n: "Credit card offer", v: "₹312 off", top: true },
+    { n: "UPI cashback", v: "₹150 back" },
+    { n: "Instalment plan", v: "Not shown" },
+  ];
+  return (
+    <Panel
+      title="Checkout · best way to pay"
+      chip="Verified"
+      stats={[
+        { v: "1,254", l: "tests" },
+        { v: "81", l: "files" },
+        { v: "0", l: "overstated" },
+      ]}
+    >
+      <ul className="la-cands la-rides">
+        {options.map((o, i) => (
+          <li key={o.n} className={o.top ? "is-top" : undefined} style={idx(i)}>
+            <span>{o.n}</span>
+            <span className="la-k">{o.top ? "best" : o.v === "Not shown" ? "can't be proven" : ""}</span>
+            <b>{o.v}</b>
+          </li>
+        ))}
+      </ul>
+      <p className="la-foot-note">If a saving cannot be backed out of the page, it is not shown.</p>
+    </Panel>
+  );
+}
+
 export function SystemArtifact({ kind }: { kind: ArtifactKind }) {
   switch (kind) {
     case "flights":
@@ -381,6 +411,8 @@ export function SystemArtifact({ kind }: { kind: ArtifactKind }) {
       return <Observability />;
     case "llm":
       return <Llm />;
+    case "pay":
+      return <Pay />;
     default:
       return null;
   }

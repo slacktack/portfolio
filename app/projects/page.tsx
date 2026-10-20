@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, SparkIcon } from "@/components/icons";
 import { StackTag } from "@/components/brand";
+import { InternalTools } from "@/components/internal-tools";
 import { Ledger } from "@/components/ledger";
 import { LiveFrame } from "@/components/live-frame";
 import { ProjectStage } from "@/components/project-stage";
@@ -147,11 +148,25 @@ export default function ProjectsPage() {
         </div>
       </section>
 
-      <section className="section" id="ledger">
+      <section className="section" id="tools">
         <div className="wrap">
           <Reveal>
             <SectionHeading
               number="02"
+              label="Dashboards, design system and bots"
+              title={<>The tools behind the product.</>}
+              note="Internal tools are not public, so this is the design system they share and what each one does."
+            />
+          </Reveal>
+          <InternalTools />
+        </div>
+      </section>
+
+      <section className="section" id="ledger">
+        <div className="wrap">
+          <Reveal>
+            <SectionHeading
+              number="03"
               label="The workshop"
               title={
                 <>
