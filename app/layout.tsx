@@ -76,10 +76,10 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0e0e0c",
+  themeColor: "#f2efe6",
 };
 
-const themeScript = `(function(){try{var t=localStorage.getItem("tg-theme");if(t!=="day"&&t!=="night"){t="night"}document.documentElement.dataset.theme=t}catch(e){document.documentElement.dataset.theme="night"}})();`;
+const themeScript = `(function(){try{var t=localStorage.getItem("tg-theme");if(t!=="day"&&t!=="night"){t="day"}document.documentElement.dataset.theme=t}catch(e){document.documentElement.dataset.theme="day"}})();`;
 
 const personSchema = {
   "@context": "https://schema.org",
@@ -103,7 +103,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      data-theme="night"
+      data-theme="day"
       className={`${sans.variable} ${display.variable} ${serif.variable} ${mono.variable}`}
       suppressHydrationWarning
     >

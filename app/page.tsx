@@ -4,7 +4,8 @@ import { SystemArtifact } from "@/components/artifacts";
 import { ContactForm } from "@/components/contact-form";
 import { CopyEmail } from "@/components/copy-email";
 import { LogoWall, StackTag } from "@/components/brand";
-import { HeroScene } from "@/components/hero-scene";
+import { HeroCollage } from "@/components/hero-collage";
+import { Journey } from "@/components/journey";
 import { Split } from "@/components/hero-title";
 import { Ledger } from "@/components/ledger";
 import { ProjectStage } from "@/components/project-stage";
@@ -32,72 +33,57 @@ const heroShots = [
 export default function HomePage() {
   return (
     <>
-      <section className="hero2">
-        <HeroScene />
-        <div className="hero2-shade" aria-hidden="true" />
+      <HeroCollage>
+        <span className="skyx-eyebrow">
+          <span className="dot" />
+          Backend engineer · Bangalore · {profile.availability}
+        </span>
 
-        <div className="hero2-copy">
-          <span className="hero2-eyebrow">
-            <span className="dot" />
-            Backend engineer · Bangalore · {profile.availability}
+        <h1 className="skyx-title" aria-label="The invisible layer. P99 or it didn't happen.">
+          <span className="hl">
+            <Split text="THE INVISIBLE" />
           </span>
-
-          <h1 className="hero2-title" aria-label="The invisible layer. P99 or it didn't happen.">
-            <span className="hl">
-              <Split text="THE INVISIBLE" />
+          <span className="hl">
+            <span className="skyx-shot" aria-hidden="true">
+              {heroShots.map((src, i) => (
+                <Image
+                  key={src}
+                  src={src}
+                  alt=""
+                  fill
+                  sizes="(max-width: 760px) 40vw, 14vw"
+                  style={{ animationDelay: `${i * 3}s` }}
+                />
+              ))}
             </span>
-            <span className="hl">
-              <span className="hero2-shot" aria-hidden="true">
-                {heroShots.map((src, i) => (
-                  <Image
-                    key={src}
-                    src={src}
-                    alt=""
-                    fill
-                    sizes="(max-width: 760px) 40vw, 14vw"
-                    style={{ animationDelay: `${i * 3}s` }}
-                  />
-                ))}
-              </span>
-              <Split text="LAYER" start={14} />
-            </span>
-            <span className="hl hl-small">
-              <Split text="P99 OR IT DIDN'T HAPPEN." start={22} />
-            </span>
-          </h1>
+            <Split text="LAYER" start={14} />
+          </span>
+          <span className="hl hl-small">
+            <Split text="P99 OR IT DIDN'T HAPPEN." start={22} />
+          </span>
+        </h1>
 
-          <p className="hero2-sub">
-            Comparison engines and low-latency pipelines at Buyhatke. Flights, hotels, food:
-            many sources in, one answer out.
-          </p>
+        <p className="skyx-sub">
+          Comparison engines and low-latency pipelines at Buyhatke. Flights, hotels, food:
+          many sources in, one answer out.
+        </p>
 
-          <div className="hero2-actions">
-            <Link className="hero2-btn hero2-btn-solid" href="/systems">
-              See the systems
-              <ArrowRight width={14} height={14} />
-            </Link>
-            <a className="hero2-btn" href={profile.resume} target="_blank" rel="noreferrer">
-              <FileIcon width={14} height={14} />
-              Résumé
-            </a>
-          </div>
-
-          <ul className="hero2-stats">
-            <li>
-              <b>478K+</b>
-              <span>requests / day</span>
-            </li>
-            <li>
-              <b>3.79M+</b>
-              <span>events / day</span>
-            </li>
-            <li>
-              <b>20ms</b>
-              <span>p99, hot path</span>
-            </li>
-          </ul>
+        <div className="skyx-actions">
+          <Link className="btn btn-primary" href="/systems">
+            See the systems
+            <ArrowRight width={14} height={14} />
+          </Link>
+          <a className="btn btn-ghost" href={profile.resume} target="_blank" rel="noreferrer">
+            <FileIcon width={14} height={14} />
+            Résumé
+          </a>
         </div>
-      </section>
+      </HeroCollage>
+      <div className="wrap hero-logos">
+        <LogoWall />
+      </div>
+
+      <Journey />
 
       <Marquee items={marqueeMetrics} />
 
@@ -115,8 +101,6 @@ export default function HomePage() {
               note="Seven production systems. Four surfaces here. Every one has a pager story."
             />
           </Reveal>
-
-          <LogoWall />
 
           <div className="systems-list">
             {systems

@@ -16,7 +16,7 @@ function subscribe(onChange: () => void) {
 }
 
 export function ThemeToggle({ withLabel = false, className }: { withLabel?: boolean; className?: string }) {
-  const theme = useSyncExternalStore(subscribe, readTheme, () => "night" as Theme);
+  const theme = useSyncExternalStore(subscribe, readTheme, () => "day" as Theme);
 
   function toggle() {
     const next: Theme = theme === "night" ? "day" : "night";
