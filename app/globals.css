@@ -7890,3 +7890,17 @@ body {
     max-height: 70svh;
   }
 }
+
+.lf-screen {
+  aspect-ratio: 16 / 11;
+  min-height: 420px;
+}
+
+@media (max-width: 900px) {
+  .lf-screen,
+  .lf-portrait .lf-screen {
+    aspect-ratio: auto;
+    height: clamp(480px, 76svh, 760px);
+    max-height: none;
+  }
+}
