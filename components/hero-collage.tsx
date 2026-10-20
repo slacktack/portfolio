@@ -3,32 +3,72 @@
 import Image from "next/image";
 import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import { SkyShader } from "@/components/sky-shader";
-import { PartnerLogo } from "@/components/partner-logo";
 
-type Shot = {
-  kind: "shot";
-  src: string;
-  host: string;
-  style: CSSProperties;
-  w: string;
-  r: number;
-  depth: number;
-};
+type Shot = { kind: "shot"; src: string; host: string; style: CSSProperties; w: string; r: number; depth: number };
+type Obj = { kind: "pass" | "key" | "bill" | "p99"; style: CSSProperties; w: string; r: number; depth: number };
 
-type Chip = { kind: "logo"; id: string; style: CSSProperties; size: number; r: number; depth: number };
-
-const items: (Shot | Chip)[] = [
+const items: (Shot | Obj)[] = [
   { kind: "shot", src: "/assets/projects/flight-tracker.png", host: "flight-tracker-gamma-seven.vercel.app", style: { left: "2%", top: "15%" }, w: "clamp(150px, 17vw, 270px)", r: -6, depth: 0.14 },
-  { kind: "shot", src: "/assets/projects/dream-journal.png", host: "dream-journal-neon-delta.vercel.app", style: { right: "2.5%", top: "13%" }, w: "clamp(150px, 19vw, 300px)", r: 5, depth: 0.2 },
-  { kind: "shot", src: "/assets/projects/train-tracker.png", host: "train-tracker-zeta.vercel.app", style: { left: "5%", bottom: "24%" }, w: "clamp(140px, 17vw, 270px)", r: 4, depth: 0.1 },
-  { kind: "shot", src: "/assets/video/khelo-football.jpg", host: "khelo-football.vercel.app", style: { right: "5%", bottom: "22%" }, w: "clamp(140px, 17vw, 270px)", r: -4, depth: 0.18 },
-  { kind: "logo", id: "mmt", style: { left: "22%", top: "15%" }, size: 64, r: -8, depth: 0.3 },
-  { kind: "logo", id: "booking", style: { right: "23%", top: "19%" }, size: 58, r: 9, depth: 0.24 },
-  { kind: "logo", id: "swiggy", style: { left: "20%", bottom: "30%" }, size: 56, r: 7, depth: 0.28 },
-  { kind: "logo", id: "agoda", style: { right: "21%", bottom: "32%" }, size: 60, r: -7, depth: 0.22 },
-  { kind: "logo", id: "uber", style: { left: "30%", bottom: "20%" }, size: 52, r: -5, depth: 0.16 },
-  { kind: "logo", id: "zomato", style: { right: "31%", bottom: "17%" }, size: 54, r: 6, depth: 0.12 },
+  { kind: "shot", src: "/assets/video/bh-flights.jpg", host: "buyhatke.com/flights", style: { right: "2.5%", top: "13%" }, w: "clamp(150px, 17vw, 270px)", r: 5, depth: 0.2 },
+  { kind: "shot", src: "/assets/projects/train-tracker.png", host: "train-tracker-zeta.vercel.app", style: { left: "5%", bottom: "24%" }, w: "clamp(140px, 16vw, 250px)", r: 4, depth: 0.1 },
+  { kind: "shot", src: "/assets/video/bh-hotels.jpg", host: "buyhatke.com/hotels", style: { right: "5%", bottom: "22%" }, w: "clamp(140px, 16vw, 250px)", r: -4, depth: 0.18 },
+  { kind: "pass", style: { left: "22%", top: "14%" }, w: "clamp(130px, 13vw, 200px)", r: -8, depth: 0.3 },
+  { kind: "key", style: { right: "22%", top: "17%" }, w: "clamp(100px, 9vw, 140px)", r: 9, depth: 0.24 },
+  { kind: "bill", style: { left: "21%", bottom: "27%" }, w: "clamp(86px, 8vw, 120px)", r: 7, depth: 0.28 },
+  { kind: "p99", style: { right: "21%", bottom: "28%" }, w: "clamp(120px, 11vw, 170px)", r: -6, depth: 0.22 },
 ];
+
+function ObjectSticker({ kind }: { kind: Obj["kind"] }) {
+  if (kind === "pass")
+    return (
+      <div className="obj obj-pass">
+        <div className="obj-pass-main">
+          <small>Boarding pass</small>
+          <b>BLR<i>✈</i>GOI</b>
+          <span>1 adult · 17 sources</span>
+        </div>
+        <div className="obj-pass-stub">
+          <em />
+        </div>
+      </div>
+    );
+  if (kind === "key")
+    return (
+      <div className="obj obj-key">
+        <small>Room</small>
+        <b>1204</b>
+        <span className="obj-chip" />
+      </div>
+    );
+  if (kind === "bill")
+    return (
+      <div className="obj obj-bill">
+        <small>Order</small>
+        <p>
+          <span>Biryani</span>
+          <b>₹329</b>
+        </p>
+        <p>
+          <span>Raita</span>
+          <b>₹49</b>
+        </p>
+        <hr />
+        <p>
+          <span>Best</span>
+          <b>₹342</b>
+        </p>
+      </div>
+    );
+  return (
+    <div className="obj obj-p99">
+      <small>p99 · hot path</small>
+      <b>20ms</b>
+      <svg viewBox="0 0 100 24" aria-hidden="true">
+        <path d="M0 18 L14 16 L28 19 L42 12 L56 14 L70 8 L84 11 L100 4" />
+      </svg>
+    </div>
+  );
+}
 
 export function HeroCollage({ children }: { children: ReactNode }) {
   const root = useRef<HTMLElement>(null);
@@ -109,18 +149,19 @@ export function HeroCollage({ children }: { children: ReactNode }) {
 
       {items.map((item, i) => (
         <div
-          key={item.kind === "shot" ? item.src : item.id}
+          key={item.kind === "shot" ? item.src : item.kind}
           className="skx"
           data-kind={item.kind}
           data-n={i}
           data-drag
+          data-cursor="Drag"
           style={
             {
               ...item.style,
               "--r": `${item.r}deg`,
               "--depth": item.depth,
               "--i": i,
-              "--w": item.kind === "shot" ? item.w : `${item.kind === "logo" ? item.size : 0}px`,
+              "--w": item.w,
             } as CSSProperties
           }
         >
@@ -141,9 +182,7 @@ export function HeroCollage({ children }: { children: ReactNode }) {
                 </div>
               </div>
             ) : (
-              <div className="skx-logo">
-                <PartnerLogo id={item.id} size={item.size} />
-              </div>
+              <ObjectSticker kind={item.kind} />
             )}
           </div>
         </div>

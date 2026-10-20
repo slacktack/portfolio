@@ -51,7 +51,7 @@ const projects = [
   {
     name: "Food comparison",
     detail:
-      "Swiggy and Zomato comparison using FSSAI license as the canonical restaurant key. ClickHouse persistence with async disk-spilled writes and live/fallback reads.",
+      "Swiggy and Zomato comparison with canonical restaurant identity. ClickHouse persistence with async disk-spilled writes and live/fallback reads.",
   },
   {
     name: "Query categorizer",

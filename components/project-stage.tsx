@@ -252,7 +252,7 @@ export function ProjectStage({ items }: { items: StageItem[] }) {
         if (!width || !height) return;
         renderer.setSize(width, height, false);
         camera.aspect = width / height;
-        camera.position.z = width < 640 ? 15 : 11.5;
+        camera.position.z = width < 760 ? Math.max(7.6, 2.55 / (0.306 * (width / height))) : 11.5;
         camera.updateProjectionMatrix();
       };
       const resizeObserver = new ResizeObserver(resize);

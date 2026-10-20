@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight, SparkIcon } from "@/components/icons";
 import { StackTag } from "@/components/brand";
 import { Ledger } from "@/components/ledger";
+import { LiveFrame } from "@/components/live-frame";
 import { ProjectStage } from "@/components/project-stage";
 import { Reveal } from "@/components/reveal";
 import { SectionHeading } from "@/components/section-heading";
@@ -93,7 +94,6 @@ export default function ProjectsPage() {
         <div className="wrap">
           <div className="projects-grid">
             {projects.map((project, index) => {
-              const host = new URL(project.live).host.replace(/^www\./, "");
               return (
                 <Reveal
                   className={`project-card ${project.portrait ? "is-portrait" : ""}`}
@@ -101,39 +101,7 @@ export default function ProjectsPage() {
                   delay={index > 3 ? 60 : 0}
                 >
                   <article id={project.slug}>
-                    <a
-                      className="project-shot"
-                      href={project.live}
-                      target="_blank"
-                      rel="noreferrer"
-                      aria-label={`Open ${project.title} live`}
-                    >
-                      <span className="project-browser">
-                        <span className="project-dots" aria-hidden="true">
-                          <i />
-                          <i />
-                          <i />
-                        </span>
-                        <span className="project-url">{host}</span>
-                        <span className="project-live">
-                          <span className="dot" />
-                          Live
-                        </span>
-                      </span>
-                      <span className="project-image">
-                        <Image
-                          src={project.image}
-                          alt={`${project.title} running live`}
-                          width={project.portrait ? 430 : 1440}
-                          height={project.portrait ? 900 : 1000}
-                          sizes="(max-width: 680px) 100vw, (max-width: 1080px) 50vw, 40vw"
-                        />
-                      </span>
-                      <span className="project-open">
-                        Open live
-                        <ArrowUpRight width={12} height={12} />
-                      </span>
-                    </a>
+                    <LiveFrame url={project.live} poster={project.image} title={project.title} portrait={project.portrait} />
 
                     <div className="project-info">
                       <div className="project-kicker">

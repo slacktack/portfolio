@@ -6,6 +6,8 @@ import { SiteFooter } from "@/components/site-footer";
 import { CommandPalette } from "@/components/command-palette";
 import { SmoothScroll } from "@/components/smooth-scroll";
 import { ScrollProgress } from "@/components/scroll-progress";
+import { Cursor } from "@/components/cursor";
+import { PageTransition } from "@/components/page-transition";
 
 const sans = Instrument_Sans({
   subsets: ["latin"],
@@ -125,6 +127,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main id="main">{children}</main>
         <SiteFooter />
         <CommandPalette />
+        <PageTransition />
+        <Cursor />
       </body>
     </html>
   );

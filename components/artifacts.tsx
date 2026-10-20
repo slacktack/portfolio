@@ -131,11 +131,11 @@ function Food() {
   return (
     <Panel
       title="One restaurant, two apps"
-      chip="FSSAI join"
+      chip="Matched"
       stats={[
         { v: "2", l: "platforms" },
-        { v: "FSSAI", l: "identity key" },
-        { v: "Async", l: "ClickHouse writes" },
+        { v: "1", l: "identity" },
+        { v: "Fast", l: "first page" },
       ]}
     >
       <div className="la-merge la-merge-food">
@@ -160,9 +160,9 @@ function Food() {
         </ul>
         <span className="la-join" aria-hidden="true" />
         <div className="la-canon la-canon-ink">
-          <span className="la-k">FSSAI license</span>
-          <strong>1122 3344 5566</strong>
-          <span className="la-k">normalized · verified</span>
+          <span className="la-k">One restaurant</span>
+          <strong>Biryani House</strong>
+          <span className="la-k">matched across apps</span>
           <p>
             <b>1 restaurant</b>
             <span>menus aligned</span>

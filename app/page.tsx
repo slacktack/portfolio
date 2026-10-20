@@ -8,7 +8,7 @@ import { HeroCollage } from "@/components/hero-collage";
 import { Journey } from "@/components/journey";
 import { Split } from "@/components/hero-title";
 import { Ledger } from "@/components/ledger";
-import { ProjectStage } from "@/components/project-stage";
+import { Works } from "@/components/works";
 import { ArrowRight, ArrowUpRight, FileIcon, PlusIcon } from "@/components/icons";
 import { Marquee } from "@/components/marquee";
 import { OperatorCard } from "@/components/operator-card";
@@ -36,7 +36,7 @@ export default function HomePage() {
       <HeroCollage>
         <span className="skyx-eyebrow">
           <span className="dot" />
-          Backend engineer · Bangalore · {profile.availability}
+          Tushar Gautam · Backend engineer · Bangalore
         </span>
 
         <h1 className="skyx-title" aria-label="The invisible layer. P99 or it didn't happen.">
@@ -45,16 +45,12 @@ export default function HomePage() {
           </span>
           <span className="hl">
             <span className="skyx-shot" aria-hidden="true">
-              {heroShots.map((src, i) => (
-                <Image
-                  key={src}
-                  src={src}
-                  alt=""
-                  fill
-                  sizes="(max-width: 760px) 40vw, 14vw"
-                  style={{ animationDelay: `${i * 3}s` }}
-                />
-              ))}
+              <span className="skyx-p99">
+                p99 <b>19.8</b>ms
+              </span>
+              <svg viewBox="0 0 120 40" preserveAspectRatio="none">
+                <path d="M0 30 L14 26 L28 31 L42 20 L56 24 L70 12 L84 18 L98 8 L120 5" />
+              </svg>
             </span>
             <Split text="LAYER" start={14} />
           </span>
@@ -152,47 +148,14 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div className="lab-strip">
-            {labItems.map((item) => (
-              <Link className="lab-card" href="/lab" key={item.slug}>
-                <div className="lab-card-copy">
-                  <strong>{item.title}</strong>
-                  <span>
-                    {item.detail} · {item.year}
-                  </span>
-                </div>
-                <span className="plus" aria-hidden="true">
-                  <PlusIcon width={13} height={13} />
-                </span>
-              </Link>
-            ))}
-          </div>
         </div>
       </section>
 
-      <section className="section garage-home" id="projects">
+      <section className="section works-section" id="projects">
         <div className="wrap">
-          <Reveal>
-            <SectionHeading
-              number="02"
-              label="On stage · live recordings"
-              title={
-                <>
-                  When the docs stop, <span className="serif">I start.</span>
-                </>
-              }
-              note="Recordings of live pages: the Buyhatke products I work on, and the side quests I built after hours. Drag it, use the arrows, or click the front screen to open the real thing."
-            />
-          </Reveal>
-
-          <Reveal>
-            <ProjectStage items={stage} />
-          </Reveal>
-
+          <Works items={stage} />
           <div className="garage-home-foot">
-            <span className="mono">
-              {stage.length} live recordings · nothing mocked up
-            </span>
+            <span className="mono">{stage.length} live recordings · nothing mocked up</span>
             <Link className="text-link" href="/projects">
               Enter the garage
               <ArrowRight width={13} height={13} />

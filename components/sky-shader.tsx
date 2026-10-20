@@ -30,9 +30,9 @@ void main(){
   vec2 p = vec2(uv.x * uAspect, uv.y);
   float y = uv.y + uScroll * 0.08;
 
-  vec3 top = mix(vec3(0.33, 0.56, 0.86), vec3(0.04, 0.06, 0.18), uNight);
-  vec3 mid = mix(vec3(0.93, 0.70, 0.62), vec3(0.22, 0.16, 0.34), uNight);
-  vec3 low = mix(vec3(0.98, 0.90, 0.80), vec3(0.09, 0.09, 0.14), uNight);
+  vec3 top = mix(vec3(0.33, 0.56, 0.86), vec3(0.10, 0.15, 0.42), uNight);
+  vec3 mid = mix(vec3(0.93, 0.70, 0.62), vec3(0.62, 0.30, 0.50), uNight);
+  vec3 low = mix(vec3(0.98, 0.90, 0.80), vec3(0.95, 0.52, 0.38), uNight);
   vec3 col = mix(low, mid, smoothstep(0.05, 0.5, y));
   col = mix(col, top, smoothstep(0.45, 1.0, y));
 
@@ -46,9 +46,9 @@ void main(){
   float rim = clamp((f - f2) * 9.0 + 0.5, 0.0, 1.0);
   float band = smoothstep(0.05, 0.95, y);
 
-  vec3 shadow = mix(vec3(0.62, 0.68, 0.88), vec3(0.20, 0.20, 0.36), uNight);
-  vec3 light = mix(vec3(1.0, 0.95, 0.90), vec3(0.55, 0.50, 0.70), uNight);
-  vec3 warmEdge = mix(vec3(1.0, 0.78, 0.66), vec3(0.8, 0.5, 0.6), uNight);
+  vec3 shadow = mix(vec3(0.62, 0.68, 0.88), vec3(0.30, 0.28, 0.55), uNight);
+  vec3 light = mix(vec3(1.0, 0.95, 0.90), vec3(0.92, 0.66, 0.78), uNight);
+  vec3 warmEdge = mix(vec3(1.0, 0.78, 0.66), vec3(1.0, 0.62, 0.45), uNight);
   vec3 cloud = mix(shadow, light, inner);
   cloud = mix(cloud, warmEdge, rim * (1.0 - inner) * 0.7);
 

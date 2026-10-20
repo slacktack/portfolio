@@ -58,7 +58,7 @@ export default function AboutPage() {
             <p className="lede">
               At Buyhatke, that became comparison engines: a flight pipeline that fans
               out to seven providers, a hotel graph that resolves the same property
-              seven different ways, a food pipeline with a license key as its identity,
+              seven different ways, a food pipeline that knows one kitchen from another,
               a search layer that has to be right on the first query.
             </p>
             <p className="lede">
