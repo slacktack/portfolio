@@ -365,14 +365,14 @@ function Llm() {
 
 function Pay() {
   const options = [
-    { n: "Credit card offer", v: "₹312 off", top: true },
-    { n: "UPI cashback", v: "₹150 back" },
-    { n: "Instalment plan", v: "Not shown" },
+    { n: "Card + coupon + voucher", v: "₹512 saved", top: true },
+    { n: "Bank card offer", v: "₹312 saved" },
+    { n: "UPI cashback", v: "₹150 later" },
   ];
   return (
     <Panel
-      title="Checkout · best way to pay"
-      chip="Verified"
+      title="Best way to pay"
+      chip="Cart scanned"
       stats={[
         { v: "1,254", l: "tests" },
         { v: "81", l: "files" },
@@ -383,12 +383,12 @@ function Pay() {
         {options.map((o, i) => (
           <li key={o.n} className={o.top ? "is-top" : undefined} style={idx(i)}>
             <span>{o.n}</span>
-            <span className="la-k">{o.top ? "best" : o.v === "Not shown" ? "can't be proven" : ""}</span>
+            <span className="la-k">{o.top ? "best route" : ""}</span>
             <b>{o.v}</b>
           </li>
         ))}
       </ul>
-      <p className="la-foot-note">If a saving cannot be backed out of the page, it is not shown.</p>
+      <p className="la-foot-note">Real savings only: anything unprovable is dropped.</p>
     </Panel>
   );
 }
