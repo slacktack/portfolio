@@ -110,36 +110,37 @@ export function Journey() {
 
       const startLabel = (() => {
         const cv = document.createElement("canvas");
-        cv.width = 320;
-        cv.height = 56;
+        cv.width = 480;
+        cv.height = 72;
         const c2 = cv.getContext("2d");
         if (c2) {
-          c2.font = "600 28px ui-monospace, Menlo, monospace";
+          c2.font = "600 40px ui-monospace, Menlo, monospace";
           c2.fillStyle = "rgba(255,247,238,0.92)";
+          c2.textAlign = "center";
           c2.textBaseline = "middle";
-          c2.fillText("BLR → GOI · search", 4, 28);
+          c2.fillText("BLR → GOI · search", 240, 36);
         }
         const sp = new THREE.Sprite(track(new THREE.SpriteMaterial({ map: track(new THREE.CanvasTexture(cv)), transparent: true, depthWrite: false })));
-        sp.scale.set(4.4, 0.77, 1);
-        sp.position.set(core.position.x + 3.1, core.position.y + 0.9, core.position.z);
+        sp.scale.set(5.2, 0.78, 1);
+        sp.position.set(core.position.x, core.position.y + 1.7, core.position.z);
         scene.add(sp);
         return sp;
       })();
       // 02 fan-out: 17 light streaks converging on the axis, each with a small mono label
       const labelFor = (text: string) => {
         const cv = document.createElement("canvas");
-        cv.width = 256;
-        cv.height = 48;
+        cv.width = 384;
+        cv.height = 72;
         const c2 = cv.getContext("2d");
         if (c2) {
-          c2.font = "500 26px ui-monospace, Menlo, monospace";
-          c2.fillStyle = "rgba(255,247,238,0.85)";
+          c2.font = "600 38px ui-monospace, Menlo, monospace";
+          c2.fillStyle = "rgba(255,247,238,0.92)";
           c2.textBaseline = "middle";
-          c2.fillText(text, 4, 24);
+          c2.fillText(text, 6, 36);
         }
         const tx = track(new THREE.CanvasTexture(cv));
         const sp = new THREE.Sprite(track(new THREE.SpriteMaterial({ map: tx, transparent: true, depthWrite: false, opacity: 0 })));
-        sp.scale.set(2.8, 0.52, 1);
+        sp.scale.set(5.4, 1.02, 1);
         return sp;
       };
       const names = ["MakeMyTrip", "Booking.com", "Agoda", "Goibibo", "Cleartrip", "Expedia", "Kayak", "Skyscanner", "Ixigo", "EaseMyTrip", "Trip.com", "Klook", "Swiggy", "Zomato", "Uber", "Ola", "Rapido"];
@@ -326,7 +327,7 @@ export function Journey() {
         });
         pg.attributes.position.needsUpdate = true;
 
-        const ch = Math.min(chapters.length - 1, Math.floor(eased * chapters.length * 0.999));
+        const ch = Math.min(chapters.length - 1, Math.floor(Math.min(eased * 1.12, 1) * chapters.length * 0.999));
         if (ch !== lastChapter) {
           lastChapter = ch;
           setActive(ch);
@@ -375,7 +376,7 @@ export function Journey() {
         <div className="journey-ui wrap">
           <div className="journey-top">
             <span>The life of a request</span>
-            <span>{String(pct).padStart(2, "0")}%</span>
+            <span>{pct}%</span>
           </div>
           <div className="journey-copy" key={active}>
             <span className="journey-k">{c.k}</span>

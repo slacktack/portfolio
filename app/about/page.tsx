@@ -18,6 +18,10 @@ export default function AboutPage() {
     <>
       <section className="section-tight">
         <div className="wrap hire-wrap">
+          <span className="eyebrow" style={{ marginBottom: 18 }}>
+            <span className="dot" />
+            About · operator manual
+          </span>
           <HireCard />
         </div>
       </section>
@@ -25,10 +29,6 @@ export default function AboutPage() {
       <section className="page-hero">
         <div className="wrap page-hero-grid">
           <div className="page-hero-copy">
-            <span className="eyebrow">
-              <span className="dot" />
-              About · operator manual
-            </span>
             <h1 className="display-1">
               Backend by choice. <span className="serif">Curious by default.</span>
             </h1>

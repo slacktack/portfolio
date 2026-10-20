@@ -8178,3 +8178,88 @@ body {
   font-size: calc(var(--fs) * 0.8);
   color: var(--muted);
 }
+
+/* round 3 */
+.skyx-shot {
+  display: inline-block;
+  position: relative;
+  vertical-align: -0.06em;
+}
+
+.skyx-p99 {
+  position: absolute;
+  left: 50%;
+  top: 38%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+}
+
+.journey-top span:last-child {
+  font-variant-numeric: tabular-nums;
+}
+
+.hire-wrap + .page-hero {
+  padding-top: 0;
+}
+
+.page-hero > .wrap:first-child .eyebrow {
+  margin-bottom: 4px;
+}
+
+@media (max-width: 760px) {
+  .skyx {
+    min-height: auto;
+    padding-bottom: 56px;
+    place-items: start center;
+  }
+
+  .skyx-actions .btn {
+    min-height: 44px;
+    padding: 0 18px;
+    font-size: 0.85rem;
+    letter-spacing: 0;
+  }
+
+  .hero-logos .logo-wall-label {
+    display: block;
+    position: absolute;
+    margin-top: -4px;
+    font-size: 9px;
+  }
+
+  .hero-logos .logo-wall {
+    padding-top: 26px;
+    position: relative;
+  }
+}
+
+.la-body {
+  justify-content: flex-start;
+  padding-top: 1cqh;
+}
+
+.la-cands.la-rides,
+.la-chat,
+.la-body > .la-cands {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+@media (max-width: 760px) {
+  .hero-logos .logo-wall-label {
+    position: static;
+    display: block;
+    margin: 0 0 8px;
+  }
+
+  .hero-logos .logo-wall {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding-top: 14px;
+  }
+
+  .hero-logos .logo-wall-track {
+    width: 100%;
+  }
+}
