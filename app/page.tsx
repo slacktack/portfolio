@@ -101,7 +101,7 @@ export default function HomePage() {
           <div className="systems-list">
             {systems
               .filter((system) =>
-                ["flights", "hotels", "categorizer", "observability", "local-llm", "best-way-to-pay"].includes(system.slug)
+                ["flights", "hotels", "categorizer", "observability", "local-llm", "best-way-to-pay", "deal-bots"].includes(system.slug)
               )
               .map((system) => (
               <article className="system-card" key={system.slug}>

@@ -8123,3 +8123,58 @@ body {
     gap: 4px;
   }
 }
+
+.la-chat {
+  display: grid;
+  gap: 1.2cqh;
+  align-content: center;
+}
+
+.la-chat p {
+  margin: 0;
+  max-width: 82%;
+  padding: 0.8em 1.1em;
+  border-radius: 1.2em;
+  font-family: var(--font-sans), sans-serif;
+  font-size: calc(var(--fs) * 1.05);
+  line-height: 1.35;
+  animation: la-pop 8s ease-out infinite backwards;
+  animation-delay: calc(var(--i) * 0.6s);
+}
+
+.la-chat .me {
+  justify-self: end;
+  background: var(--accent);
+  color: #fff;
+  border-bottom-right-radius: 0.3em;
+}
+
+.la-chat .bot {
+  justify-self: start;
+  background: var(--paper);
+  border: 1px solid var(--line-strong);
+  border-bottom-left-radius: 0.3em;
+}
+
+.la-chat .deal {
+  display: grid;
+  gap: 0.3em;
+  max-width: 92%;
+}
+
+.la-chat .deal b {
+  font-size: calc(var(--fs) * 0.85);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.la-chat .deal s {
+  color: var(--muted);
+}
+
+.la-chat .deal em {
+  font-style: normal;
+  font-size: calc(var(--fs) * 0.8);
+  color: var(--muted);
+}

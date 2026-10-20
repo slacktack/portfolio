@@ -50,7 +50,8 @@ export type ArtifactKind =
   | "cabs"
   | "observability"
   | "llm"
-  | "pay";
+  | "pay"
+  | "bot";
 
 export type SystemCase = {
   slug: string;
@@ -715,6 +716,65 @@ export const systems: SystemCase[] = [
       { label: "Test files", value: "81", detail: "Across merchants and rules" },
       { label: "Feature branch", value: "34K lines", detail: "96 files" },
       { label: "Overstated savings", value: "0", detail: "Unprovable figures are dropped" },
+    ],
+  },
+  {
+    slug: "deal-bots",
+    index: "10",
+    title: "Telegram deal bots",
+    shortTitle: "Deal bots",
+    promise: "Tell a bot what you want. It watches the price for you.",
+    category: "Conversational alerts",
+    year: "2025 — now",
+    role: "Sole builder",
+    stack: ["Node.js", "Telegram", "Kafka", "LLM", "MySQL"],
+    metrics: [
+      { value: "2", label: "Separate bots", note: "Different jobs, different lifecycles" },
+      { value: "20 min", label: "Deal sweep cadence" },
+      { value: "1", label: "Message per deal", note: "Edited in place on a price drop" },
+      { value: "Chat", label: "Interface", note: "Add, edit, pause, stop" },
+    ],
+    artifact: "bot",
+    summary:
+      "Telegram bots that turn a plain-language request into a tracked deal. They post price drops with the picture and history, and update the original message when the price moves again.",
+    problem: [
+      "Most people never set a price alert, because setting one is a form. A chat is not a form: you say what you want and you are done.",
+      "The hard part is everything after the message: understanding the request, finding deals, not spamming, and keeping one deal as one message even as the price keeps changing.",
+    ],
+    constraints: [
+      "Requests arrive as free text in any phrasing.",
+      "Understanding a request is slow and must not block the bot.",
+      "People should be able to pause, edit and stop without ever leaving the chat.",
+      "A price drop should update what the person already saw, not add noise.",
+    ],
+    architecture: [
+      { label: "Chat", detail: "Commands and buttons in Telegram" },
+      { label: "Understand", detail: "Requests parsed off the main path" },
+      { label: "Match", detail: "Deals checked on a steady schedule" },
+      { label: "Deliver", detail: "One message per deal, updated as prices move" },
+    ],
+    rail: ["Understanding is queued, not blocking", "Pause, edit and stop in chat", "One bot per job", "Halted deals can be revived"],
+    hardPart: [
+      {
+        title: "Slow work stays off the chat path",
+        body: "Understanding a request takes time, so it runs through a queue and the bot answers instantly. The conversation stays fast while the thinking happens behind it.",
+      },
+      {
+        title: "One deal, one message",
+        body: "When a price drops again, the original message is edited with the new price and the saving, not followed by another notification. People see the story of a deal in one place.",
+      },
+      {
+        title: "Separate bots for separate jobs",
+        body: "Broadcast deals and personalised tracking are different products with different risks, so they are different bots. One can change without touching the other.",
+      },
+    ],
+    differently: [],
+    proves: ["Event-driven design", "Conversational product design", "Queue-based decoupling", "Respecting the user's attention"],
+    receipts: [
+      { label: "Bots", value: "2", detail: "Broadcast and personalised" },
+      { label: "Sweep", value: "20 min", detail: "Scheduled deal matching" },
+      { label: "Updates", value: "In place", detail: "One message per deal" },
+      { label: "Controls", value: "In chat", detail: "Add, edit, pause, stop" },
     ],
   },
 ];
