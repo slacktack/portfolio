@@ -409,7 +409,7 @@ function Bot() {
           Track Sony WH-1000XM5 under ₹22,000
         </p>
         <p className="bot" style={idx(1)}>
-          Done. I'll tell you when it drops.
+          Done. I&apos;ll tell you when it drops.
         </p>
         <p className="bot deal" style={idx(2)}>
           <b>Price drop</b>
