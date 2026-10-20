@@ -48,7 +48,8 @@ export type ArtifactKind =
   | "categorizer"
   | "search"
   | "cabs"
-  | "observability";
+  | "observability"
+  | "llm";
 
 export type SystemCase = {
   slug: string;
@@ -586,6 +587,89 @@ export const systems: SystemCase[] = [
       { label: "Dashboards", value: "108", detail: "One query layer" },
     ],
   },
+  {
+    slug: "local-llm",
+    index: "08",
+    title: "Local AI platform",
+    shortTitle: "Local AI",
+    promise: "A private AI platform, run on one machine.",
+    category: "AI infrastructure",
+    year: "2026",
+    role: "Builder · Buyhatke",
+    stack: ["Node.js", "LM Studio", "llama.cpp", "OpenAI API"],
+    metrics: [
+      { value: "4", label: "Models resident", note: "Never loaded on traffic" },
+      { value: "117 GB", label: "In use", note: "Of 512 GB unified memory" },
+      { value: "0 MB", label: "Swap", note: "Verified live" },
+      { value: "4 × 32K", label: "Parallel × context", note: "Per model" },
+    ],
+    artifact: "llm",
+    summary:
+      "One OpenAI-compatible endpoint in front of a Mac Studio running four resident models, a safe proxy to free-tier models, and task services like OCR. Private by default, cheap to call, and measured before it was tuned.",
+    problem: [
+      "Teams want language models for OCR, chat, search and internal tools. Cloud calls cost money on every request, send data off the building, and drift when a provider changes a model.",
+      "The goal was one private endpoint that speaks the API everyone already knows, keeps the right models warm, and degrades gracefully when something hangs.",
+    ],
+    constraints: [
+      "Models have to stay resident. A cold load on a user's request is a failed request.",
+      "Decoding on this hardware is limited by memory bandwidth, not by raw compute.",
+      "Several model families with different strengths, including vision input.",
+      "Free-tier models are only reachable through an official client, and must never be given the ability to run anything.",
+      "Anything that can hang needs a deadline and a fallback.",
+    ],
+    architecture: [
+      { label: "Clients", detail: "Apps, scripts, internal tools" },
+      { label: "Bridge", detail: "One OpenAI-compatible API, queued" },
+      { label: "Model rack", detail: "Four resident local models" },
+      { label: "Task services", detail: "OCR and other endpoints" },
+      { label: "Fallbacks", detail: "Isolated free-tier proxy" },
+    ],
+    rail: [
+      "Models pinned in memory",
+      "Tool-less, stateless free-tier proxy",
+      "Deadlines with fallback to the next model",
+      "A health and monitor endpoint",
+    ],
+    hardPart: [
+      {
+        title: "Measure the machine before touching it",
+        body: "An optimization runbook written without access to the host blamed memory pressure and suggested evicting models. Checking the live machine showed about a quarter of memory in use and zero swap. The real lever was the precision of the attention cache, on a chip where decoding is bound by memory bandwidth. The runbook was superseded by verified findings.",
+      },
+      {
+        title: "Keep the models resident",
+        body: "All four models are loaded once, fully offloaded to the GPU and pinned in memory, so traffic never pays a load. With the footprint fixed, the job becomes getting the most throughput out of it, not shrinking it.",
+      },
+      {
+        title: "Make the free tier safe to expose",
+        body: "Free models only answer the official client, so the bridge runs that client headless in its own isolated config. Every tool permission is rejected, each request gets a fresh session that is deleted afterwards, the process is supervised, and a model that goes quiet is aborted and replaced by the next one in line.",
+      },
+      {
+        title: "Know where an LLM does not belong",
+        body: "The same engineer built the zero-LLM categorizer, a golden-benchmark search pipeline, and an OCR system that reads documents by layout with no model training. Good AI work is as much about where the model stays out of the request path as where it goes in.",
+      },
+    ],
+    broke: {
+      title: "The runbook that was wrong",
+      body: "The first tuning plan was written from the outside and told us to free memory by evicting models. The live host said otherwise. The correction was written up with the commands that proved it, and no model was evicted.",
+    },
+    differently: [
+      "Verify the host first, write the runbook second.",
+      "Put every tunable behind one reload script, so a change and its rollback are the same size.",
+    ],
+    proves: [
+      "LLM serving and capacity planning",
+      "Performance diagnosis on real hardware",
+      "OpenAI-compatible API design",
+      "Safe proxying of untrusted capability",
+      "Evaluation discipline",
+    ],
+    receipts: [
+      { label: "Models", value: "4", detail: "Gemma, Qwen, two GPT-OSS sizes" },
+      { label: "Memory", value: "~117 GB", detail: "Of 512 GB, measured 2026-09-17" },
+      { label: "Swap", value: "0 MB", detail: "Fully resident" },
+      { label: "Concurrency", value: "4", detail: "Parallel requests per model" },
+    ],
+  },
 ];
 
 export type Project = {
@@ -962,6 +1046,11 @@ export const currently = [
 ];
 
 export const labItems = [
+  { slug: "cache-key", title: "Cache key lab", detail: "Which change misses the cache", year: "Interactive" },
+  { slug: "deadlines", title: "Deadline race", detail: "Eight partners, one straggler", year: "Interactive" },
+  { slug: "identity", title: "Identity lab", detail: "Same name, different hotel", year: "Interactive" },
+  { slug: "logs", title: "Alerting lab", detail: "Threshold, rate and absence", year: "Interactive" },
+  { slug: "memcached", title: "Memcached clone", detail: "C++ and kqueue, in a terminal", year: "Interactive" },
   {
     slug: "load-balancer",
     title: "Go enterprise load balancer",

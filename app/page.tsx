@@ -4,7 +4,8 @@ import { SystemArtifact } from "@/components/artifacts";
 import { ContactForm } from "@/components/contact-form";
 import { CopyEmail } from "@/components/copy-email";
 import { LogoWall, StackTag } from "@/components/brand";
-import { SkyHero } from "@/components/sky-hero";
+import { HeroScene } from "@/components/hero-scene";
+import { Split } from "@/components/hero-title";
 import { Ledger } from "@/components/ledger";
 import { ProjectStage } from "@/components/project-stage";
 import { ArrowRight, ArrowUpRight, FileIcon, PlusIcon } from "@/components/icons";
@@ -31,53 +32,72 @@ const heroShots = [
 export default function HomePage() {
   return (
     <>
-      <SkyHero>
-        <span className="eyebrow">
-          <span className="dot" />
-          Bangalore · Backend engineer · {profile.availability}
-        </span>
+      <section className="hero2">
+        <HeroScene />
+        <div className="hero2-shade" aria-hidden="true" />
 
-        <h1 className="sky-title">
-          <span className="sky-line">
-            The invisible
-            <span className="sky-shot" aria-hidden="true">
-              {heroShots.map((src, i) => (
-                <Image
-                  key={src}
-                  src={src}
-                  alt=""
-                  fill
-                  sizes="(max-width: 760px) 40vw, 14vw"
-                  style={{ animationDelay: `${i * 3}s` }}
-                />
-              ))}
-            </span>
-            layer
+        <div className="hero2-copy">
+          <span className="hero2-eyebrow">
+            <span className="dot" />
+            Backend engineer · Bangalore · {profile.availability}
           </span>
-          <span className="sky-line2">P99 or it didn&apos;t happen.</span>
-        </h1>
 
-        <p className="sky-sub">
-          I&apos;m Tushar. I build comparison engines and low-latency pipelines at Buyhatke, and I
-          reverse-engineer APIs for sport. Last measured: <strong>478K+ requests a day</strong> and
-          a <strong>p99 of 20ms</strong> on the hottest path.
-        </p>
+          <h1 className="hero2-title" aria-label="The invisible layer. P99 or it didn't happen.">
+            <span className="hl">
+              <Split text="THE INVISIBLE" />
+            </span>
+            <span className="hl">
+              <span className="hero2-shot" aria-hidden="true">
+                {heroShots.map((src, i) => (
+                  <Image
+                    key={src}
+                    src={src}
+                    alt=""
+                    fill
+                    sizes="(max-width: 760px) 40vw, 14vw"
+                    style={{ animationDelay: `${i * 3}s` }}
+                  />
+                ))}
+              </span>
+              <Split text="LAYER" start={14} />
+            </span>
+            <span className="hl hl-small">
+              <Split text="P99 OR IT DIDN'T HAPPEN." start={22} />
+            </span>
+          </h1>
 
-        <div className="sky-actions">
-          <Link className="btn btn-primary" href="/systems">
-            Explore the systems
-            <ArrowRight width={14} height={14} />
-          </Link>
-          <a className="btn btn-ghost" href={profile.resume} target="_blank" rel="noreferrer">
-            <FileIcon width={14} height={14} />
-            Download résumé
-          </a>
+          <p className="hero2-sub">
+            Comparison engines and low-latency pipelines at Buyhatke. Flights, hotels, food:
+            many sources in, one answer out.
+          </p>
+
+          <div className="hero2-actions">
+            <Link className="hero2-btn hero2-btn-solid" href="/systems">
+              See the systems
+              <ArrowRight width={14} height={14} />
+            </Link>
+            <a className="hero2-btn" href={profile.resume} target="_blank" rel="noreferrer">
+              <FileIcon width={14} height={14} />
+              Résumé
+            </a>
+          </div>
+
+          <ul className="hero2-stats">
+            <li>
+              <b>478K+</b>
+              <span>requests / day</span>
+            </li>
+            <li>
+              <b>3.79M+</b>
+              <span>events / day</span>
+            </li>
+            <li>
+              <b>20ms</b>
+              <span>p99, hot path</span>
+            </li>
+          </ul>
         </div>
-
-        <a className="sky-cue mono" href="#systems">
-          Meet the work ↓
-        </a>
-      </SkyHero>
+      </section>
 
       <Marquee items={marqueeMetrics} />
 
@@ -101,7 +121,7 @@ export default function HomePage() {
           <div className="systems-list">
             {systems
               .filter((system) =>
-                ["flights", "hotels", "categorizer", "observability"].includes(system.slug)
+                ["flights", "hotels", "categorizer", "observability", "local-llm"].includes(system.slug)
               )
               .map((system) => (
               <article className="system-card" key={system.slug}>

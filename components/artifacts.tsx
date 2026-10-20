@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
-import { PartnerLogo } from "@/components/brand";
+import { PartnerLogo } from "@/components/partner-logo";
 import type { ArtifactKind } from "@/lib/site";
 
 const idx = (i: number) => ({ "--i": i }) as CSSProperties;
@@ -330,6 +330,39 @@ function Observability() {
   );
 }
 
+function Llm() {
+  const models = [
+    { n: "gpt-oss-120b", q: "MXFP4", gb: 63.4, w: 100 },
+    { n: "qwen3.6-35b-a3b", q: "Q4_K_M", gb: 22.1, w: 35 },
+    { n: "gemma-4-31b", q: "Q4_K_M", gb: 19.9, w: 31 },
+    { n: "gpt-oss-20b", q: "MLX", gb: 12.1, w: 19 },
+  ];
+  return (
+    <Panel
+      title="Model rack · 512 GB"
+      chip="All resident"
+      stats={[
+        { v: "4", l: "models warm" },
+        { v: "117 GB", l: "in use" },
+        { v: "0 MB", l: "swap" },
+      ]}
+    >
+      <ul className="la-cands la-rack">
+        {models.map((m, i) => (
+          <li key={m.n} className={i === 0 ? "is-top" : undefined} style={idx(i)}>
+            <span>{m.n}</span>
+            <span className="la-bar" style={val(m.w)}>
+              <i />
+            </span>
+            <b>{m.gb} GB</b>
+          </li>
+        ))}
+      </ul>
+      <p className="la-foot-note">One OpenAI-compatible endpoint · pinned in memory · OCR and vision routes</p>
+    </Panel>
+  );
+}
+
 export function SystemArtifact({ kind }: { kind: ArtifactKind }) {
   switch (kind) {
     case "flights":
@@ -346,6 +379,8 @@ export function SystemArtifact({ kind }: { kind: ArtifactKind }) {
       return <Cabs />;
     case "observability":
       return <Observability />;
+    case "llm":
+      return <Llm />;
     default:
       return null;
   }

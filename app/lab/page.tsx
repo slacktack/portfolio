@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowUpRight } from "@/components/icons";
+import { CacheKeyLab } from "@/components/lab-cache-key";
+import { DeadlineLab } from "@/components/lab-deadline";
+import { IdentityLab } from "@/components/lab-identity";
 import { LoadBalancerDemo } from "@/components/load-balancer-demo";
+import { LogStreamLab } from "@/components/lab-logs";
+import { MemcachedLab } from "@/components/lab-memcached";
 import { Reveal } from "@/components/reveal";
 import { SectionHeading } from "@/components/section-heading";
 import { profile } from "@/lib/site";
@@ -9,7 +14,7 @@ import { profile } from "@/lib/site";
 export const metadata: Metadata = {
   title: "The lab",
   description:
-    "Experiments in systems engineering: a weighted Go load balancer you can break, and VortexVault, a dual C++ / Rust vector database.",
+    "Interactive experiments in systems engineering: cache design, tail latency, identity resolution, alerting, a Memcached clone, a Go load balancer and a dual C++ / Rust vector database.",
 };
 
 export default function LabPage() {
@@ -40,11 +45,97 @@ export default function LabPage() {
         </div>
       </section>
 
+      <section className="section-tight" id="cache-key">
+        <div className="wrap">
+          <Reveal>
+            <SectionHeading
+              className="head-compact"
+              number="01"
+              label="Flights · cache design"
+              title={<>Change one thing. Watch the cache decide.</>}
+              note="A flight search is expensive. Refining it should not be. Tap the controls: the ones that change the answer miss the cache, the ones that only reshape it never leave the building."
+            />
+          </Reveal>
+          <Reveal>
+            <CacheKeyLab />
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="section-tight" id="deadlines">
+        <div className="wrap">
+          <Reveal>
+            <SectionHeading
+              className="head-compact"
+              number="02"
+              label="Hotels · stragglers"
+              title={<>Average latency is a <span className="serif">liar.</span></>}
+              note="Eight partners race. One of them hangs. Drag the time budget and see what the user waits for, with and without a deadline."
+            />
+          </Reveal>
+          <Reveal>
+            <DeadlineLab />
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="section-tight" id="identity">
+        <div className="wrap">
+          <Reveal>
+            <SectionHeading
+              className="head-compact"
+              number="03"
+              label="Hotels · identity"
+              title={<>Same name is not the <span className="serif">same hotel.</span></>}
+              note="Seven partner records around one real hotel, two of them impostors. Move the gates and find the setting that merges the truth and nothing else."
+            />
+          </Reveal>
+          <Reveal>
+            <IdentityLab />
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="section-tight" id="logs">
+        <div className="wrap">
+          <Reveal>
+            <SectionHeading
+              className="head-compact"
+              number="04"
+              label="Observability · alerting"
+              title={<>Silence is a <span className="serif">signal.</span></>}
+              note="A live stream of service logs with threshold, rate and absence alerts. Kill a service and see how long it takes to notice."
+            />
+          </Reveal>
+          <Reveal>
+            <LogStreamLab />
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="section-tight" id="memcached">
+        <div className="wrap">
+          <Reveal>
+            <SectionHeading
+              className="head-compact"
+              number="05"
+              label="Systems · from scratch"
+              title={<>Memcached, <span className="serif">rebuilt.</span></>}
+              note="Written in C++ to understand how a cache really works. Type commands into the browser simulation of it and watch keys expire."
+            />
+          </Reveal>
+          <Reveal>
+            <MemcachedLab />
+          </Reveal>
+        </div>
+      </section>
+
       <section className="section-tight" id="load-balancer">
         <div className="wrap">
           <Reveal>
             <SectionHeading
-              number="01"
+              className="head-compact"
+              number="06"
               label="Build · Go load balancer"
               title={
                 <>
@@ -92,7 +183,8 @@ export default function LabPage() {
         <div className="wrap">
           <Reveal>
             <SectionHeading
-              number="02"
+              className="head-compact"
+              number="07"
               label="Build · VortexVault"
               title={
                 <>
