@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <>
-      <section className="section-tight">
+      <section className="section-tight" style={{ paddingBottom: 0 }}>
         <div className="wrap hire-wrap">
           <span className="eyebrow" style={{ marginBottom: 18 }}>
             <span className="dot" />

@@ -61,8 +61,8 @@ function ObjectSticker({ kind }: { kind: Obj["kind"] }) {
     );
   return (
     <div className="obj obj-p99">
-      <small>p99 · hot path</small>
-      <b>20ms</b>
+      <small>Requests / day</small>
+      <b>478K+</b>
       <svg viewBox="0 0 100 24" aria-hidden="true">
         <path d="M0 18 L14 16 L28 19 L42 12 L56 14 L70 8 L84 11 L100 4" />
       </svg>

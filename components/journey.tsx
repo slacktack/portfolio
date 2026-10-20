@@ -122,7 +122,7 @@ export function Journey() {
         }
         const sp = new THREE.Sprite(track(new THREE.SpriteMaterial({ map: track(new THREE.CanvasTexture(cv)), transparent: true, depthWrite: false })));
         sp.scale.set(5.2, 0.78, 1);
-        sp.position.set(core.position.x, core.position.y + 1.7, core.position.z);
+        sp.position.set(core.position.x, core.position.y - 1.6, core.position.z);
         scene.add(sp);
         return sp;
       })();
