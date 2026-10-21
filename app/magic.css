@@ -393,3 +393,206 @@ html {
 .system-pager {
   font-size: 1rem;
 }
+
+/* ---- no index numerals on labels ---- */
+.section-label .num,
+.section-label .line {
+  display: none;
+}
+
+/* ---- tactile buttons ---- */
+.btn {
+  box-shadow: 0 4px 0 0 color-mix(in srgb, var(--ink) 88%, transparent);
+  transition: transform 0.16s var(--ease-out), box-shadow 0.16s var(--ease-out),
+    background 0.22s var(--ease-out), color 0.22s var(--ease-out), border-color 0.22s var(--ease-out);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 0 color-mix(in srgb, var(--ink) 88%, transparent);
+}
+
+.btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 0 color-mix(in srgb, var(--ink) 88%, transparent);
+}
+
+.btn-primary {
+  box-shadow: 0 4px 0 0 var(--accent);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 0 0 #12110e;
+}
+
+.btn-ghost {
+  background: rgba(255, 253, 246, 0.55);
+  box-shadow: 0 4px 0 0 var(--line-strong);
+}
+
+/* ---- receipts: sticky notes ---- */
+.receipt {
+  --note: #fff3b0;
+  background: var(--note);
+  border: 0;
+  color: #14130f;
+  --ink: #14130f;
+  --muted: #5b564a;
+  --line: rgba(20, 19, 15, 0.18);
+  border-radius: 3px;
+  box-shadow: 0 18px 30px -16px rgba(18, 17, 14, 0.38), 0 2px 0 rgba(18, 17, 14, 0.06);
+}
+
+.receipt:nth-child(2) { --note: #ffd1dc; }
+.receipt:nth-child(3) { --note: #cfe3ff; }
+.receipt:nth-child(4) { --note: #d6f5df; }
+.receipt:nth-child(5) { --note: #ffe0c2; }
+.receipt:nth-child(6) { --note: #e4d9ff; }
+
+.receipt-big b {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+/* ---- ledger ---- */
+.ledger-main h3 {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.5rem, 2.4vw, 2.3rem);
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+
+.ledger-row {
+  transition: background 0.3s var(--ease-out), padding 0.3s var(--ease-out);
+}
+
+.ledger-row:hover {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.meter-n {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+/* ---- contact: blueprint world ---- */
+.contact {
+  --paper: #f6f1e4;
+  --accent: #ffd24a;
+  --accent-ink: #14130f;
+  background: #2447e0;
+  color: #f6f1e4;
+}
+
+.contact::before {
+  opacity: 1;
+  background-image: linear-gradient(to right, rgba(246, 241, 228, 0.12) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(246, 241, 228, 0.12) 1px, transparent 1px);
+}
+
+.contact .display-2 {
+  font-size: clamp(2.8rem, 6.4vw, 6.4rem);
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+}
+
+.contact .display-2 .serif {
+  color: #ffd24a;
+}
+
+.contact-link {
+  border-color: rgba(246, 241, 228, 0.45);
+}
+
+.email-big {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.http-form {
+  --paper: #14130f;
+  --ink: #14130f;
+  --accent: #e8491d;
+  --accent-ink: #fff8f4;
+  border: 0;
+  border-radius: 22px;
+  background: #fffdf6;
+  color: #14130f;
+  rotate: 1deg;
+  box-shadow: 0 40px 70px -30px rgba(8, 14, 60, 0.7), 0 0 0 6px rgba(255, 253, 246, 0.25);
+}
+
+.http-head {
+  border-bottom-color: rgba(20, 19, 15, 0.14);
+  font-size: 10px;
+}
+
+.field label,
+.http-status {
+  font-size: 10px;
+}
+
+.field input,
+.field textarea {
+  border-bottom-color: rgba(20, 19, 15, 0.28);
+}
+
+.http-status.ok {
+  color: #2f6b4f;
+}
+
+/* ---- footer: giant wordmark ---- */
+.footer-giant {
+  overflow: hidden;
+  margin-top: 28px;
+  line-height: 0.74;
+  text-align: center;
+  user-select: none;
+}
+
+.footer-giant span {
+  display: block;
+  font-family: var(--font-display), sans-serif;
+  font-size: 15.4vw;
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  white-space: nowrap;
+  color: transparent;
+  background: linear-gradient(100deg, var(--ink) 20%, var(--accent) 50%, var(--ink) 80%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: giant-sheen 9s ease-in-out infinite alternate;
+}
+
+@keyframes giant-sheen {
+  to {
+    background-position: 100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-giant span {
+    animation: none;
+  }
+}
+
+.display-2 .serif,
+.display-3 .serif,
+.section-title .serif,
+.skyx-title .serif {
+  font-family: var(--font-serif), serif;
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: -0.02em;
+}
+
+.contact-note,
+.contact-note span {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}

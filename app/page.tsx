@@ -442,7 +442,7 @@ export default function HomePage() {
           <div className="contact-copy">
             <span className="eyebrow">
               <span className="dot" />
-              07 — Contact
+              Contact
             </span>
             <h2 className="display-2">
               Have a hard problem? <span className="serif">Good.</span>

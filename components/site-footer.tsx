@@ -95,6 +95,9 @@ export function SiteFooter() {
           <a href="#main">Back to top ↑</a>
         </div>
       </div>
+    <div className="footer-giant" aria-hidden="true">
+        <span>Tushar Gautam</span>
+      </div>
     </footer>
   );
 }
