@@ -49,7 +49,7 @@ export default async function SystemCasePage({ params }: PageProps) {
 
   return (
     <>
-      <section className="case-hero">
+      <section className="case-hero" data-system={system.slug}>
         <div className="wrap">
           <div className="breadcrumb">
             <Link href="/">Home</Link>

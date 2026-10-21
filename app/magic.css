@@ -279,32 +279,38 @@ html {
   box-shadow: 0 -24px 48px -28px rgba(18, 17, 14, 0.45), 0 40px 80px -50px rgba(18, 17, 14, 0.5);
 }
 
-.system-card[data-system="hotels"] {
+.system-card[data-system="hotels"],
+.case-hero[data-system="hotels"] {
   --w-bg: #e8491d;
   --w-fg: #fff6ec;
   --w-accent: #12110e;
 }
-.system-card[data-system="categorizer"] {
+.system-card[data-system="categorizer"],
+.case-hero[data-system="categorizer"] {
   --w-bg: #f4c542;
   --w-fg: #14130f;
   --w-accent: #c23a12;
 }
-.system-card[data-system="observability"] {
+.system-card[data-system="observability"],
+.case-hero[data-system="observability"] {
   --w-bg: #1f5a43;
   --w-fg: #f2efe6;
   --w-accent: #ffc24b;
 }
-.system-card[data-system="local-llm"] {
+.system-card[data-system="local-llm"],
+.case-hero[data-system="local-llm"] {
   --w-bg: #b9a7f7;
   --w-fg: #14130f;
   --w-accent: #2447e0;
 }
-.system-card[data-system="best-way-to-pay"] {
+.system-card[data-system="best-way-to-pay"],
+.case-hero[data-system="best-way-to-pay"] {
   --w-bg: #f6a8bd;
   --w-fg: #14130f;
   --w-accent: #b3341c;
 }
-.system-card[data-system="deal-bots"] {
+.system-card[data-system="deal-bots"],
+.case-hero[data-system="deal-bots"] {
   --w-bg: #8fd0f2;
   --w-fg: #10202b;
   --w-accent: #c23a12;
@@ -601,7 +607,8 @@ html {
 
 /* ---- inner pages: colour-world header slabs ---- */
 .page-hero,
-.lab-hero {
+.lab-hero,
+.case-hero {
   --w-bg: #2447e0;
   --w-fg: #f6f1e4;
   --w-accent: #ffd24a;
@@ -623,7 +630,8 @@ html {
 }
 
 .page-hero::before,
-.lab-hero::before {
+.lab-hero::before,
+.case-hero::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -636,7 +644,8 @@ html {
 }
 
 .page-hero .display-1,
-.lab-hero h1 {
+.lab-hero h1,
+.case-hero .display-1 {
   font-size: clamp(3rem, 7.2vw, 7.4rem);
   letter-spacing: -0.045em;
   line-height: 0.94;
@@ -644,12 +653,14 @@ html {
 }
 
 .page-hero .display-1 .serif,
-.lab-hero h1 .serif {
+.lab-hero h1 .serif,
+.case-hero .display-1 .serif {
   color: var(--w-accent);
 }
 
 .page-hero .eyebrow,
-.lab-hero .eyebrow {
+.lab-hero .eyebrow,
+.case-hero .eyebrow {
   color: var(--muted);
 }
 
@@ -754,4 +765,84 @@ body:has(.hdr-nav a[aria-current="page"][href="/about"]) .page-hero {
 
 .btn {
   translate: var(--mx, 0) var(--my, 0);
+}
+
+/* ---- case studies + articles ---- */
+.case-hero[data-system="food"] {
+  --w-bg: #3fbf8f;
+  --w-fg: #0b2a1f;
+  --w-accent: #12110e;
+}
+.case-hero[data-system="cabs"] {
+  --w-bg: #14130f;
+  --w-fg: #f6f1e4;
+  --w-accent: #f4c542;
+}
+.case-hero[data-system="search"] {
+  --w-bg: #7a5cff;
+  --w-fg: #f6f1e4;
+  --w-accent: #ffd24a;
+}
+
+.case-hero {
+  --hero-top: 92px;
+  padding-block: clamp(38px, 5vw, 72px) clamp(32px, 4.4vw, 60px);
+}
+
+.case-hero .case-title {
+  max-width: 14ch;
+  font-size: clamp(3rem, 7.4vw, 7.6rem);
+  line-height: 0.94;
+}
+
+.case-hero .case-promise {
+  color: var(--muted);
+}
+
+.case-hero .tag {
+  border-color: var(--line-strong);
+  color: var(--w-fg);
+}
+
+.case-hero .breadcrumb,
+.case-hero .breadcrumb a {
+  color: var(--muted);
+}
+
+.case-hero .case-meta {
+  border-top-color: var(--line);
+  color: var(--muted);
+}
+
+.case-hero .case-meta b {
+  color: var(--w-fg);
+}
+
+.article-head {
+  --a-bg: #f4c542;
+  --ink: #14130f;
+  --muted: #3a362c;
+  --line: rgba(20, 19, 15, 0.22);
+  max-width: none;
+  margin-top: 8px;
+  padding: clamp(28px, 4.4vw, 60px);
+  border: 0;
+  border-radius: clamp(22px, 3vw, 40px);
+  background: var(--a-bg);
+  color: #14130f;
+}
+
+.article[data-note="232ms-cold-start"] .article-head {
+  --a-bg: #f6a8bd;
+}
+.article[data-note="the-quota-is-the-architecture"] .article-head {
+  --a-bg: #8fd0f2;
+}
+
+.article-title {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 800;
+  font-size: clamp(2.6rem, 6.6vw, 6.2rem);
+  line-height: 0.94;
+  letter-spacing: -0.045em;
 }

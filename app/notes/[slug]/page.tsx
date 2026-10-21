@@ -44,7 +44,7 @@ export default async function NotePage({ params }: PageProps) {
   };
 
   return (
-    <article className="article">
+    <article className="article" data-note={note.slug}>
       <div className="wrap-narrow">
         <div className="breadcrumb">
           <Link href="/">Home</Link>
