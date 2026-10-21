@@ -290,6 +290,8 @@ export function Journey() {
           (r.material as InstanceType<typeof THREE.MeshBasicMaterial>).opacity = (1 - k) * 0.55 * Math.max(0, 1 - eased * 3);
         });
 
+        const wideView = camera.aspect > 1.1;
+        startLabel.position.set(core.position.x + (wideView ? 4.6 : 0), core.position.y + (wideView ? 0.2 : -1.6), core.position.z);
         (startLabel.material as InstanceType<typeof THREE.SpriteMaterial>).opacity = Math.max(0, 1 - eased * 6);
         const gather = Math.min(Math.max((eased - 0.28) / 0.3, 0), 1);
         const show = Math.min(Math.max((eased - 0.02) / 0.14, 0), 1) * (1 - Math.min(Math.max((eased - 0.62) / 0.12, 0), 1));
