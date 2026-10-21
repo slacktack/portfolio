@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { SystemArtifact } from "@/components/artifacts";
 import { ContactForm } from "@/components/contact-form";
 import { CopyEmail } from "@/components/copy-email";
@@ -97,8 +98,13 @@ export default function HomePage() {
               .filter((system) =>
                 ["flights", "hotels", "categorizer", "observability", "local-llm", "best-way-to-pay", "deal-bots"].includes(system.slug)
               )
-              .map((system) => (
-              <article className="system-card" key={system.slug}>
+              .map((system, k) => (
+              <article
+                className="system-card"
+                key={system.slug}
+                data-system={system.slug}
+                style={{ "--k": k } as CSSProperties}
+              >
                 <Link
                   className="system-art"
                   href={`/systems/${system.slug}`}
@@ -109,7 +115,7 @@ export default function HomePage() {
 
                 <div className="system-copy">
                   <div className="system-kicker">
-                    <span className="index">{system.index}</span>
+                    <span className="index">{String(k + 1).padStart(2, "0")}</span>
                     <span>{system.category}</span>
                     <span className="line" />
                     <span>{system.year}</span>

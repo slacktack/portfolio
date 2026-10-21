@@ -250,3 +250,146 @@ html {
 .skyx-shot {
   font-family: var(--font-sans), sans-serif;
 }
+
+/* ---- systems: stacked colour worlds ---- */
+.systems-list {
+  display: block;
+  border-top: 0;
+  padding-bottom: 4vh;
+}
+
+.system-card {
+  --w-bg: #2447e0;
+  --w-fg: #f6f1e4;
+  --w-accent: #ffd24a;
+  --ink: var(--w-fg);
+  --muted: color-mix(in srgb, var(--w-fg) 74%, transparent);
+  --muted-2: color-mix(in srgb, var(--w-fg) 56%, transparent);
+  --line: color-mix(in srgb, var(--w-fg) 24%, transparent);
+  --line-strong: color-mix(in srgb, var(--w-fg) 40%, transparent);
+  --accent: var(--w-accent);
+  position: sticky;
+  top: calc(var(--header-h) + 8px + var(--k, 0) * 14px);
+  margin-bottom: clamp(18px, 4vh, 40px);
+  padding: clamp(20px, 3.4vw, 52px);
+  border: 0;
+  border-radius: clamp(22px, 3vw, 40px);
+  background: var(--w-bg);
+  color: var(--w-fg);
+  box-shadow: 0 -24px 48px -28px rgba(18, 17, 14, 0.45), 0 40px 80px -50px rgba(18, 17, 14, 0.5);
+}
+
+.system-card[data-system="hotels"] {
+  --w-bg: #e8491d;
+  --w-fg: #fff6ec;
+  --w-accent: #12110e;
+}
+.system-card[data-system="categorizer"] {
+  --w-bg: #f4c542;
+  --w-fg: #14130f;
+  --w-accent: #c23a12;
+}
+.system-card[data-system="observability"] {
+  --w-bg: #1f5a43;
+  --w-fg: #f2efe6;
+  --w-accent: #ffc24b;
+}
+.system-card[data-system="local-llm"] {
+  --w-bg: #b9a7f7;
+  --w-fg: #14130f;
+  --w-accent: #2447e0;
+}
+.system-card[data-system="best-way-to-pay"] {
+  --w-bg: #f6a8bd;
+  --w-fg: #14130f;
+  --w-accent: #b3341c;
+}
+.system-card[data-system="deal-bots"] {
+  --w-bg: #8fd0f2;
+  --w-fg: #10202b;
+  --w-accent: #c23a12;
+}
+
+.system-card .system-art {
+  --ink: #12110e;
+  --muted: #6d685c;
+  --muted-2: #8b8577;
+  --line: #d5cfc0;
+  --line-strong: #bab2a0;
+  --accent: #e8491d;
+  --paper: #f2efe6;
+  --surface: #e7e1d2;
+  border: 0;
+  border-radius: clamp(14px, 1.8vw, 24px);
+  background: #f2efe6;
+  color: #12110e;
+  box-shadow: 0 30px 60px -28px rgba(18, 17, 14, 0.55), 0 0 0 6px rgba(255, 253, 246, 0.9);
+  rotate: -1deg;
+}
+
+.system-card:nth-child(even) .system-art {
+  rotate: 1deg;
+}
+
+.system-card .system-title {
+  font-size: clamp(2.2rem, 4.6vw, 4.6rem);
+  letter-spacing: -0.04em;
+  line-height: 0.96;
+}
+
+.system-card .system-metric b {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.6rem, 2.6vw, 2.5rem);
+  letter-spacing: -0.03em;
+}
+
+.system-card .system-kicker .index {
+  color: var(--w-accent);
+}
+
+.system-card .text-link {
+  border-color: currentColor;
+}
+
+/* ---- works: tiles crumble away to reveal the frame ---- */
+.work-media {
+  position: relative;
+}
+
+.work-tiles {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  pointer-events: none;
+}
+
+.work-tiles i {
+  background: var(--tile);
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.18);
+  transition: opacity 0.18s linear var(--d, 0ms), transform 0.45s var(--ease-out) var(--d, 0ms);
+}
+
+.work-media[data-in] .work-tiles i {
+  opacity: 0;
+  transform: scale(0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .work-tiles {
+    display: none;
+  }
+}
+
+.system-kicker,
+.system-metric span {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.system-pager {
+  font-size: 1rem;
+}
