@@ -114,7 +114,7 @@ export function Journey() {
         cv.height = 72;
         const c2 = cv.getContext("2d");
         if (c2) {
-          c2.font = "600 40px system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif";
+          c2.font = "600 40px system-ui, -apple-system, Helvetica, Arial, sans-serif";
           c2.fillStyle = "rgba(255,247,238,0.92)";
           c2.textAlign = "center";
           c2.textBaseline = "middle";
@@ -133,7 +133,7 @@ export function Journey() {
         cv.height = 72;
         const c2 = cv.getContext("2d");
         if (c2) {
-          c2.font = "600 38px system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif";
+          c2.font = "600 38px system-ui, -apple-system, Helvetica, Arial, sans-serif";
           c2.fillStyle = "rgba(255,247,238,0.92)";
           c2.textBaseline = "middle";
           c2.fillText(text, 6, 36);
@@ -202,7 +202,7 @@ export function Journey() {
         cx.fill();
         cx.stroke();
         cx.fillStyle = "rgba(255,247,238,0.6)";
-        cx.font = "500 28px system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif";
+        cx.font = "500 28px system-ui, -apple-system, Helvetica, Arial, sans-serif";
         cx.fillText("BEST FARE · BLR → GOI · 1 ADULT", 56, 92);
         cx.fillStyle = "#fff7ee";
         cx.font = "800 200px 'Helvetica Neue', Arial, sans-serif";
@@ -210,7 +210,7 @@ export function Journey() {
         cx.fillStyle = "#ff5a2b";
         cx.fillRect(56, 360, 120, 4);
         cx.fillStyle = "rgba(255,247,238,0.55)";
-        cx.font = "500 26px system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif";
+        cx.font = "500 26px system-ui, -apple-system, Helvetica, Arial, sans-serif";
         cx.fillText("simulated example", 56, 430);
       }
       const cardTex = track(new THREE.CanvasTexture(card));
