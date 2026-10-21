@@ -12,7 +12,7 @@ const columns: { title: string; links: FooterLink[] }[] = [
       { href: "/systems", label: "All systems" },
       { href: "/systems/flights", label: "Flights" },
       { href: "/systems/hotels", label: "Hotels" },
-      { href: "/systems/observability", label: "OpenObserver" },
+      { href: "/systems/observability", label: "Observability" },
     ],
   },
   {
