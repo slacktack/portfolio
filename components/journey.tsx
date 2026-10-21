@@ -372,7 +372,12 @@ export function Journey() {
 
   return (
     <section className="journey" ref={wrapRef} aria-label="The life of a request">
-      <div className="journey-sticky">
+      <div className="journey-sticky" data-chapter={active}>
+        <div className="journey-aurora" aria-hidden="true">
+          {chapters.map((_, i) => (
+            <i key={i} className={i === active ? "is-on" : undefined} />
+          ))}
+        </div>
         <div className="journey-stage" ref={hostRef} aria-hidden="true" />
         <div className="journey-vignette" aria-hidden="true" />
         <div className="journey-ui wrap">
