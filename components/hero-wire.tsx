@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 type P = { x: number; y: number; px: number; py: number };
 
 const N = 16;
-const ORDER = [0, 4, 5, 1, 3, 7, 6, 2];
+const ORDER = [6, 2, 0, 4, 5, 1, 3, 7];
 
 export function HeroWire() {
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -61,7 +61,7 @@ export function HeroWire() {
 
     const step = () => {
       const pts = anchors();
-      const loop = pts.length > 2 ? pts.length : pts.length - 1;
+      const loop = Math.max(pts.length - 1, 0);
       while (chains.length > loop) chains.pop();
       for (let c = 0; c < loop; c++) {
         const a = pts[c];

@@ -33,7 +33,7 @@ export default function HomePage() {
 
         <h1 className="skyx-title" aria-label="The invisible layer. P99 or it didn't happen.">
           <span className="hl">
-            <Split text="THE INVISIBLE" />
+            <Split text="The invisible" />
           </span>
           <span className="hl">
             <span className="skyx-shot" aria-hidden="true">
@@ -44,10 +44,12 @@ export default function HomePage() {
                 <path d="M0 30 L14 26 L28 31 L42 20 L56 24 L70 12 L84 18 L98 8 L120 5" />
               </svg>
             </span>
-            <Split text="LAYER" start={14} />
+            <span className="serif">
+              <Split text="layer." start={14} />
+            </span>
           </span>
           <span className="hl hl-small">
-            <Split text="P99 OR IT DIDN'T HAPPEN." start={22} />
+            <Split text="p99 or it didn't happen." start={22} />
           </span>
         </h1>
 

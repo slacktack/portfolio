@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Archivo, Caveat, Instrument_Sans, Instrument_Serif, JetBrains_Mono } from "next/font/google";
+import { Bricolage_Grotesque, Caveat, Instrument_Sans, Instrument_Serif, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import "./magic.css";
 import { SiteHeader } from "@/components/site-header";
@@ -16,9 +16,9 @@ const sans = Instrument_Sans({
   variable: "--font-sans",
 });
 
-const display = Archivo({
+const display = Bricolage_Grotesque({
   subsets: ["latin"],
-  axes: ["wdth"],
+  axes: ["opsz", "wdth"],
   display: "swap",
   variable: "--font-display",
 });
@@ -40,7 +40,7 @@ const hand = Caveat({
 const mono = JetBrains_Mono({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-mono",
+  variable: "--font-code",
 });
 
 export const metadata: Metadata = {

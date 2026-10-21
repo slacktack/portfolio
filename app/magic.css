@@ -181,3 +181,72 @@
     animation: none;
   }
 }
+
+/* ---- type: mono is for real code only ---- */
+:root {
+  --font-mono: var(--font-sans), "Helvetica Neue", Arial, sans-serif;
+}
+
+.receipt-terminal,
+.code-block,
+.lab2-terminal,
+.lab2-prompt,
+.lab2-log li span,
+pre,
+code,
+kbd {
+  font-family: var(--font-code), ui-monospace, monospace;
+}
+
+html {
+  font-variant-numeric: lining-nums;
+}
+
+.skyx-title,
+.display-1,
+.display-2,
+.display-3,
+.journey-copy h2,
+.works-head h2,
+.work-meta h3,
+.stage-info h3,
+.ledger-head h3,
+.system-title,
+.meter-n,
+.hdr-brand {
+  font-stretch: 100%;
+  font-weight: 800;
+  text-transform: none;
+}
+
+/* ---- hero headline ---- */
+.skyx-title {
+  letter-spacing: -0.045em;
+  line-height: 0.92;
+  color: #12110e;
+}
+
+.skyx-title .hl {
+  font-size: clamp(2.7rem, 7.4vw, 8.6rem);
+  padding-block: 0;
+}
+
+.skyx-title .hl .serif {
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: -0.03em;
+  color: var(--accent);
+}
+
+.skyx-title .hl-small {
+  font-family: var(--font-serif), serif;
+  font-size: clamp(1.25rem, 2.9vw, 3rem);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: rgba(18, 17, 14, 0.78);
+}
+
+.skyx-shot {
+  font-family: var(--font-sans), sans-serif;
+}
