@@ -4709,7 +4709,7 @@ button:hover .arrow {
 
 /* live artifact panels */
 .la {
-  --fs: clamp(9px, 1.9cqi, 17px);
+  --fs: clamp(8px, 1.65cqi, 15px);
   position: absolute;
   inset: 0;
   z-index: 1;
@@ -8287,3 +8287,49 @@ body {
   }
 }
 
+
+/* projects: two even columns so live frames never overlap */
+.project-card:nth-child(n) {
+  grid-column: span 6;
+}
+
+.project-card > article,
+.project-card .lf {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.projects-grid {
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .projects-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .project-card:nth-child(n) {
+    grid-column: 1 / -1;
+  }
+}
+
+.lf-screen {
+  overflow: hidden;
+}
+
+.lf-frame {
+  max-width: none;
+}
+
+.system-art {
+  aspect-ratio: 5 / 4;
+}
+
+.la-records li,
+.la-cands li {
+  padding: 0.55em 0.8em;
+}
+
+.la-merge {
+  grid-template-columns: minmax(0, 1.4fr) auto minmax(0, 1fr);
+}

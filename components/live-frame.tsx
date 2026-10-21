@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
+const DESKTOP_W = 1000;
+
 type Props = {
   url: string;
   poster: string;
@@ -11,15 +13,17 @@ type Props = {
 };
 
 export function LiveFrame({ url, poster, title, portrait }: Props) {
-  const box = useRef<HTMLDivElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
   const [near, setNear] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [active, setActive] = useState(false);
   const [key, setKey] = useState(0);
+  const screen = useRef<HTMLDivElement>(null);
+  const [box, setBox] = useState({ w: 0, h: 0 });
   const host = new URL(url).host.replace(/^www\./, "");
 
   useEffect(() => {
-    const el = box.current;
+    const el = wrapRef.current;
     if (!el) return;
     const io = new IntersectionObserver(
       ([e]) => {
@@ -32,8 +36,23 @@ export function LiveFrame({ url, poster, title, portrait }: Props) {
     return () => io.disconnect();
   }, []);
 
+  useEffect(() => {
+    const el = screen.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setBox({ w: el.clientWidth, h: el.clientHeight }));
+    ro.observe(el);
+    setBox({ w: el.clientWidth, h: el.clientHeight });
+    return () => ro.disconnect();
+  }, []);
+
+  const scale = !portrait && box.w && box.w < DESKTOP_W ? box.w / DESKTOP_W : 1;
+  const frameStyle =
+    scale < 1
+      ? { width: DESKTOP_W, height: box.h / scale, transform: `scale(${scale})`, transformOrigin: "0 0" }
+      : undefined;
+
   return (
-    <div className={`lf ${portrait ? "lf-portrait" : ""}`} ref={box}>
+    <div className={`lf ${portrait ? "lf-portrait" : ""}`} ref={wrapRef}>
       <div className="lf-bar">
         <span className="lf-dots" aria-hidden="true">
           <i />
@@ -48,12 +67,13 @@ export function LiveFrame({ url, poster, title, portrait }: Props) {
           ↗
         </a>
       </div>
-      <div className={`lf-screen ${active ? "is-active" : ""}`}>
+      <div className={`lf-screen ${active ? "is-active" : ""}`} ref={screen}>
         <Image className="lf-poster" src={poster} alt="" fill sizes="(max-width: 760px) 100vw, 50vw" style={{ opacity: loaded ? 0 : 1 }} />
         {near ? (
           <iframe
             key={key}
             className="lf-frame"
+            style={frameStyle}
             src={url}
             title={`${title}, running live`}
             loading="lazy"
