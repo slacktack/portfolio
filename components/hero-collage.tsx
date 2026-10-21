@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import { SkyShader } from "@/components/sky-shader";
+import { HeroWire } from "@/components/hero-wire";
 
 type Shot = { kind: "shot"; src: string; host: string; style: CSSProperties; w: string; r: number; depth: number };
 type Obj = { kind: "pass" | "key" | "bill" | "p99"; style: CSSProperties; w: string; r: number; depth: number };
@@ -14,8 +15,8 @@ const items: (Shot | Obj)[] = [
   { kind: "shot", src: "/assets/video/bh-hotels.jpg", host: "buyhatke.com/hotels", style: { right: "5%", bottom: "22%" }, w: "clamp(140px, 16vw, 250px)", r: -4, depth: 0.18 },
   { kind: "pass", style: { left: "22%", top: "14%" }, w: "clamp(130px, 13vw, 200px)", r: -8, depth: 0.3 },
   { kind: "key", style: { right: "22%", top: "17%" }, w: "clamp(100px, 9vw, 140px)", r: 9, depth: 0.24 },
-  { kind: "bill", style: { left: "21%", bottom: "27%" }, w: "clamp(86px, 8vw, 120px)", r: 7, depth: 0.28 },
-  { kind: "p99", style: { right: "21%", bottom: "28%" }, w: "clamp(120px, 11vw, 170px)", r: -6, depth: 0.22 },
+  { kind: "bill", style: { left: "21%", bottom: "19%" }, w: "clamp(86px, 8vw, 120px)", r: 7, depth: 0.28 },
+  { kind: "p99", style: { right: "20%", bottom: "19%" }, w: "clamp(120px, 11vw, 170px)", r: -6, depth: 0.22 },
 ];
 
 function ObjectSticker({ kind }: { kind: Obj["kind"] }) {
@@ -146,6 +147,20 @@ export function HeroCollage({ children }: { children: ReactNode }) {
     <section className="skyx" ref={root}>
       <SkyShader />
       <div className="skyx-grid" aria-hidden="true" />
+      <HeroWire />
+
+      <div className="skyx-note skyx-note-drag" aria-hidden="true">
+        <svg viewBox="0 0 90 60" fill="none">
+          <path d="M6 8c18-6 44-4 62 18 6 8 10 16 12 26M80 54l-7-10m7 10l11-8" />
+        </svg>
+        <span>pick me up</span>
+      </div>
+      <div className="skyx-note skyx-note-prod" aria-hidden="true">
+        <svg viewBox="0 0 90 60" fill="none">
+          <path d="M84 6C62 2 34 12 22 42M22 42l2-14m-2 14l13-5" />
+        </svg>
+        <span>real prod number. not a mockup.</span>
+      </div>
 
       {items.map((item, i) => (
         <div
@@ -168,15 +183,10 @@ export function HeroCollage({ children }: { children: ReactNode }) {
           <div className="skx-in">
             {item.kind === "shot" ? (
               <div className="skx-browser">
-                <div className="skx-bar">
-                  <i />
-                  <i />
-                  <i />
-                  <span>{item.host}</span>
-                  <em>
-                    <b /> Live
-                  </em>
-                </div>
+                <span className="skx-tape">{item.host}</span>
+                <span className="skx-live">
+                  <b /> Live
+                </span>
                 <div className="skx-screen">
                   <Image src={item.src} alt="" fill sizes="(max-width: 760px) 30vw, 20vw" draggable={false} />
                 </div>

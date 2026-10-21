@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Archivo, Instrument_Sans, Instrument_Serif, JetBrains_Mono } from "next/font/google";
+import { Archivo, Caveat, Instrument_Sans, Instrument_Serif, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import "./magic.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CommandPalette } from "@/components/command-palette";
@@ -28,6 +29,12 @@ const serif = Instrument_Serif({
   style: ["normal", "italic"],
   display: "swap",
   variable: "--font-serif",
+});
+
+const hand = Caveat({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-hand",
 });
 
 const mono = JetBrains_Mono({
@@ -106,7 +113,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       data-theme="day"
-      className={`${sans.variable} ${display.variable} ${serif.variable} ${mono.variable}`}
+      className={`${sans.variable} ${display.variable} ${serif.variable} ${mono.variable} ${hand.variable}`}
       suppressHydrationWarning
     >
       <head>
