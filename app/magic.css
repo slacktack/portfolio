@@ -692,3 +692,49 @@ body:has(.hdr-nav a[aria-current="page"][href="/about"]) .page-hero {
 .skx[data-held] {
   transition: none;
 }
+
+@media (max-width: 760px) {
+  .skyx-title .hl {
+    font-size: clamp(2.7rem, 12.6vw, 4.4rem);
+  }
+
+  .system-card {
+    position: relative;
+    top: auto;
+    grid-template-columns: 1fr;
+  }
+
+  .footer-giant span {
+    font-size: 17vw;
+  }
+}
+
+/* ---- notes: paper-stock cards ---- */
+.note-card {
+  --n-bg: #ffe9a8;
+  --ink: #14130f;
+  --muted: #5b564a;
+  --line: rgba(20, 19, 15, 0.18);
+  border: 0;
+  border-radius: 22px;
+  background: var(--n-bg);
+  color: #14130f;
+  transition: transform 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out);
+}
+
+.note-card:nth-child(2) { --n-bg: #cfe3ff; }
+.note-card:nth-child(3) { --n-bg: #ffd1dc; }
+.note-card:nth-child(4) { --n-bg: #d6f5df; }
+.note-card:nth-child(5) { --n-bg: #e4d9ff; }
+.note-card:nth-child(6) { --n-bg: #ffe0c2; }
+
+.note-card:hover {
+  transform: translateY(-6px) rotate(-0.6deg);
+  box-shadow: 0 26px 40px -22px rgba(18, 17, 14, 0.45);
+}
+
+.note-title {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
