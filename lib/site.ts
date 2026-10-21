@@ -1194,7 +1194,7 @@ export const stage: StageItem[] = [
   {
     slug: "bh-flights",
     title: "Flights",
-    tagline: "The pipeline behind it: fan-out, quotas, polling.",
+    tagline: "A real search, Delhi to Mumbai: hundreds of fares, every airline, one list.",
     tag: "Buyhatke",
     href: "https://buyhatke.com/flights",
     video: "/assets/video/bh-flights.mp4",
@@ -1203,7 +1203,7 @@ export const stage: StageItem[] = [
   {
     slug: "bh-hotels",
     title: "Hotels",
-    tagline: "The live-compare gateway and provider mapping.",
+    tagline: "Pick dates and see price per day. The compare itself runs in the extension.",
     tag: "Buyhatke",
     href: "https://buyhatke.com/hotels",
     video: "/assets/video/bh-hotels.mp4",
@@ -1212,7 +1212,7 @@ export const stage: StageItem[] = [
   {
     slug: "bh-food",
     title: "Food compare",
-    tagline: "One restaurant identity across Swiggy and Zomato.",
+    tagline: "Swiggy, Zomato and more, side by side, with fees and coupons counted.",
     tag: "Buyhatke",
     href: "https://buyhatke.com/food-compare",
     video: "/assets/video/bh-food.mp4",
@@ -1221,20 +1221,11 @@ export const stage: StageItem[] = [
   {
     slug: "bh-grocery",
     title: "Grocery compare",
-    tagline: "Cheapest basket across stores, built by a chat assistant.",
+    tagline: "Instamart, Blinkit and Zepto prices side by side, product by product.",
     tag: "Buyhatke",
     href: "https://buyhatke.com/grocery-price-comparison",
     video: "/assets/video/bh-grocery.mp4",
     poster: "/assets/video/bh-grocery.jpg",
-  },
-  {
-    slug: "bh-flight-alerts",
-    title: "Price alerts",
-    tagline: "Millions of price checks, deduped and delivered.",
-    tag: "Buyhatke",
-    href: "https://buyhatke.com/flight-alerts",
-    video: "/assets/video/bh-flight-alerts.mp4",
-    poster: "/assets/video/bh-flight-alerts.jpg",
   },
   {
     slug: "flight-tracker",
@@ -1353,6 +1344,16 @@ export const ledger: LedgerEntry[] = [
     total: 17,
     span: "Feb – Oct 2026",
     stack: ["TypeScript", "Vite", "LLM"],
+    group: "work",
+  },
+  {
+    name: "Price alert pipeline",
+    line: "The backend that watches prices and emails people when they drop, now hotel-aware.",
+    proof: "Hotel alerts were reusing stale links and the generic template. Fixed so they carry fresh booking links and a hotel-specific email.",
+    mine: 13,
+    total: 157,
+    span: "2025 – 2026",
+    stack: ["Go", "Node.js", "MySQL"],
     group: "work",
   },
   {
