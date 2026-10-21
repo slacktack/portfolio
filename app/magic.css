@@ -581,6 +581,8 @@ html {
   }
 }
 
+.display-1 .serif,
+.lab-hero h1 .serif,
 .display-2 .serif,
 .display-3 .serif,
 .section-title .serif,
@@ -595,4 +597,83 @@ html {
 .contact-note span {
   font-size: 12px;
   letter-spacing: 0.04em;
+}
+
+/* ---- inner pages: colour-world header slabs ---- */
+.page-hero,
+.lab-hero {
+  --w-bg: #2447e0;
+  --w-fg: #f6f1e4;
+  --w-accent: #ffd24a;
+  --ink: var(--w-fg);
+  --muted: color-mix(in srgb, var(--w-fg) 76%, transparent);
+  --muted-2: color-mix(in srgb, var(--w-fg) 58%, transparent);
+  --line: color-mix(in srgb, var(--w-fg) 26%, transparent);
+  --line-strong: color-mix(in srgb, var(--w-fg) 42%, transparent);
+  --accent: var(--w-accent);
+  position: relative;
+  isolation: isolate;
+  margin: var(--hero-top, 92px) clamp(10px, 1.6vw, 24px) 0;
+  padding-block: clamp(46px, 6.4vw, 96px) clamp(40px, 5.6vw, 84px);
+  border: 0;
+  border-radius: clamp(24px, 3.4vw, 48px);
+  background: var(--w-bg);
+  color: var(--w-fg);
+  overflow: hidden;
+}
+
+.page-hero::before,
+.lab-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: linear-gradient(to right, color-mix(in srgb, var(--w-fg) 11%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--w-fg) 11%, transparent) 1px, transparent 1px);
+  background-size: 38px 38px;
+  -webkit-mask-image: radial-gradient(120% 90% at 85% 0%, #000 0%, transparent 72%);
+  mask-image: radial-gradient(120% 90% at 85% 0%, #000 0%, transparent 72%);
+}
+
+.page-hero .display-1,
+.lab-hero h1 {
+  font-size: clamp(3rem, 7.2vw, 7.4rem);
+  letter-spacing: -0.045em;
+  line-height: 0.94;
+  color: var(--w-fg);
+}
+
+.page-hero .display-1 .serif,
+.lab-hero h1 .serif {
+  color: var(--w-accent);
+}
+
+.page-hero .eyebrow,
+.lab-hero .eyebrow {
+  color: var(--muted);
+}
+
+body:has(.hdr-nav a[aria-current="page"][href="/projects"]) .page-hero {
+  --w-bg: #e8491d;
+  --w-fg: #fff6ec;
+  --w-accent: #14130f;
+}
+
+body:has(.hdr-nav a[aria-current="page"][href="/lab"]) .lab-hero {
+  --w-bg: #f4c542;
+  --w-fg: #14130f;
+  --w-accent: #c23a12;
+}
+
+body:has(.hdr-nav a[aria-current="page"][href="/notes"]) .page-hero {
+  --w-bg: #1f5a43;
+  --w-fg: #f2efe6;
+  --w-accent: #ffc24b;
+}
+
+body:has(.hdr-nav a[aria-current="page"][href="/about"]) .page-hero {
+  --w-bg: #b9a7f7;
+  --w-fg: #14130f;
+  --w-accent: #2447e0;
+  --hero-top: 18px;
 }
