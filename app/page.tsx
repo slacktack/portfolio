@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { SystemArtifact } from "@/components/artifacts";
 import { ContactForm } from "@/components/contact-form";
 import { CopyEmail } from "@/components/copy-email";
@@ -9,13 +8,12 @@ import { Journey } from "@/components/journey";
 import { Split } from "@/components/hero-title";
 import { Ledger } from "@/components/ledger";
 import { Works } from "@/components/works";
-import { ArrowRight, ArrowUpRight, FileIcon, PlusIcon } from "@/components/icons";
+import { ArrowRight, ArrowUpRight, FileIcon } from "@/components/icons";
 import { Marquee } from "@/components/marquee";
 import { OperatorCard } from "@/components/operator-card";
 import { Reveal } from "@/components/reveal";
 import { SectionHeading, SectionLabel } from "@/components/section-heading";
 import {
-  labItems,
   marqueeMetrics,
   notes,
   principles,
@@ -23,12 +21,6 @@ import {
   stage,
   systems,
 } from "@/lib/site";
-
-const heroShots = [
-  "/assets/projects/flight-tracker.png",
-  "/assets/projects/train-tracker.png",
-  "/assets/projects/dream-journal.png",
-];
 
 export default function HomePage() {
   return (

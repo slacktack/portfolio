@@ -78,7 +78,7 @@ export function HeroWire() {
           chains[c] = ch;
         }
         const dist = Math.hypot(b.x - a.x, b.y - a.y);
-        const rest = (dist * 1.14) / (N - 1);
+        const rest = (dist * 1.06) / (N - 1);
         for (let i = 1; i < N - 1; i++) {
           const p = ch[i];
           const vx = (p.x - p.px) * 0.97;
