@@ -84,9 +84,16 @@ export function HeroCollage({ children }: { children: ReactNode }) {
         el.style.setProperty("--sy", String(Math.min(window.scrollY, 900)));
       });
     };
+    const onMove = (e: PointerEvent) => {
+      const r = el.getBoundingClientRect();
+      el.style.setProperty("--px", String(((e.clientX - r.left) / r.width - 0.5) * 2));
+      el.style.setProperty("--py", String(((e.clientY - r.top) / r.height - 0.5) * 2));
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
+    el.addEventListener("pointermove", onMove, { passive: true });
     return () => {
       window.removeEventListener("scroll", onScroll);
+      el.removeEventListener("pointermove", onMove);
       cancelAnimationFrame(raf);
     };
   }, []);

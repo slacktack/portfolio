@@ -677,3 +677,18 @@ body:has(.hdr-nav a[aria-current="page"][href="/about"]) .page-hero {
   --w-accent: #2447e0;
   --hero-top: 18px;
 }
+
+/* ---- hero: pointer parallax ---- */
+.skx {
+  transform: translate3d(
+      calc(var(--dx, 0px) + var(--px, 0) * var(--depth) * -46px),
+      calc(var(--dy, 0px) + var(--py, 0) * var(--depth) * -34px + var(--sy, 0) * var(--depth) * -0.35px),
+      0
+    )
+    rotate(calc(var(--r) + var(--tilt, 0deg) + var(--px, 0) * var(--depth) * 3deg));
+  transition: transform 0.9s var(--ease-out);
+}
+
+.skx[data-held] {
+  transition: none;
+}
