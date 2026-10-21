@@ -738,3 +738,20 @@ body:has(.hdr-nav a[aria-current="page"][href="/about"]) .page-hero {
   font-weight: 800;
   letter-spacing: -0.03em;
 }
+
+/* ---- night: keep hero annotations legible ---- */
+[data-theme="night"] .skyx-note {
+  color: #f6f1e4;
+}
+
+[data-theme="night"] .skyx-note svg {
+  stroke: #f6f1e4;
+}
+
+[data-theme="night"] .skyx-title .hl-small {
+  color: rgba(246, 241, 228, 0.86);
+}
+
+.btn {
+  translate: var(--mx, 0) var(--my, 0);
+}

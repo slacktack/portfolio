@@ -19,7 +19,22 @@ export function Cursor() {
     let state = "";
     let text = "";
 
+    let magnet: HTMLElement | null = null;
+    const pull = (e: PointerEvent) => {
+      const b = (e.target as Element | null)?.closest?.<HTMLElement>(".btn");
+      if (magnet && magnet !== b) {
+        magnet.style.removeProperty("--mx");
+        magnet.style.removeProperty("--my");
+      }
+      magnet = b ?? null;
+      if (!b) return;
+      const r = b.getBoundingClientRect();
+      b.style.setProperty("--mx", `${((e.clientX - r.left) / r.width - 0.5) * 10}px`);
+      b.style.setProperty("--my", `${((e.clientY - r.top) / r.height - 0.5) * 8}px`);
+    };
+
     const move = (e: PointerEvent) => {
+      pull(e);
       x = e.clientX;
       y = e.clientY;
       const t = (e.target as Element | null)?.closest?.("[data-cursor], a, button, [role=button], input, textarea, select, summary");
