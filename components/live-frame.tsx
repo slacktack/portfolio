@@ -10,9 +10,10 @@ type Props = {
   poster: string;
   title: string;
   portrait?: boolean;
+  embed?: boolean;
 };
 
-export function LiveFrame({ url, poster, title, portrait }: Props) {
+export function LiveFrame({ url, poster, title, portrait, embed = true }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [near, setNear] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -27,14 +28,14 @@ export function LiveFrame({ url, poster, title, portrait }: Props) {
     if (!el) return;
     const io = new IntersectionObserver(
       ([e]) => {
-        if (e.isIntersecting) setNear(true);
+        if (e.isIntersecting && embed) setNear(true);
         else setActive(false);
       },
       { rootMargin: "200px 0px", threshold: 0.01 }
     );
     io.observe(el);
     return () => io.disconnect();
-  }, []);
+  }, [embed]);
 
   useEffect(() => {
     const el = screen.current;
@@ -82,7 +83,11 @@ export function LiveFrame({ url, poster, title, portrait }: Props) {
             onLoad={() => setLoaded(true)}
           />
         ) : null}
-        {!active ? (
+        {!embed ? (
+          <a className="lf-cover" data-cursor="Open" href={url} target="_blank" rel="noreferrer" aria-label={`Open ${title} live`}>
+            <span>Open the live app</span>
+          </a>
+        ) : !active ? (
           <button type="button" className="lf-cover" data-cursor="Run" onClick={() => setActive(true)} aria-label={`Use ${title} here`}>
             <span>{loaded ? "Tap to use it here" : "Starting live app…"}</span>
           </button>

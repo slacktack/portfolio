@@ -10,7 +10,6 @@ const names: Record<string, string> = {
   "/lab": "Lab",
   "/notes": "Notes",
   "/about": "About",
-  "/resume": "Résumé",
 };
 
 const nameFor = (path: string) => {

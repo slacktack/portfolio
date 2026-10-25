@@ -9,7 +9,7 @@ import { Journey } from "@/components/journey";
 import { Split } from "@/components/hero-title";
 import { Ledger } from "@/components/ledger";
 import { Works } from "@/components/works";
-import { ArrowRight, ArrowUpRight, FileIcon } from "@/components/icons";
+import { ArrowRight, ArrowUpRight, MailIcon } from "@/components/icons";
 import { Marquee } from "@/components/marquee";
 import { OperatorCard } from "@/components/operator-card";
 import { Reveal } from "@/components/reveal";
@@ -64,9 +64,9 @@ export default function HomePage() {
             See the systems
             <ArrowRight width={14} height={14} />
           </Link>
-          <a className="btn btn-ghost" href={profile.resume} target="_blank" rel="noreferrer">
-            <FileIcon width={14} height={14} />
-            Résumé
+          <a className="btn btn-ghost" href={`mailto:${profile.email}`}>
+            <MailIcon width={14} height={14} />
+            Email me
           </a>
         </div>
       </HeroCollage>
@@ -368,8 +368,8 @@ export default function HomePage() {
               inclination.
             </h2>
             <p className="lede">
-              I studied electronics at IIIT Kota, then found the part of computing I
-              actually loved: the layer underneath the product. The queue. The quota.
+              I found the part of computing I actually loved: the layer
+              underneath the product. The queue. The quota.
               The pipeline that has to stay correct when half its inputs are late.
             </p>
             <p className="lede">
@@ -452,23 +452,6 @@ export default function HomePage() {
               start with a constraint: a latency target, a quota, a pipeline that
               keeps falling over at the worst possible time.
             </p>
-
-            <div className="contact-links">
-              {profile.socials
-                .filter((social) => social.label !== "Email")
-                .map((social) => (
-                  <a
-                    className="contact-link"
-                    href={social.href}
-                    key={social.label}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {social.label}
-                    <ArrowUpRight width={11} height={11} />
-                  </a>
-                ))}
-            </div>
 
             <div className="email-row">
               <a className="email-big" href={`mailto:${profile.email}`}>

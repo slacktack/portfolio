@@ -35,6 +35,29 @@ function Work({ item, index }: { item: StageItem; index: number }) {
     io.observe(el);
     return () => io.disconnect();
   }, []);
+  // No hover on touch: play whichever recording is centred on screen.
+  useEffect(() => {
+    const el = media.current;
+    if (!el || !window.matchMedia("(hover: none)").matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        const v = video.current;
+        if (!v) return;
+        if (e.isIntersecting) {
+          if (!v.src) v.src = item.video;
+          v.dataset.on = "";
+          v.play().catch(() => {});
+        } else {
+          delete v.dataset.on;
+          v.pause();
+        }
+      },
+      { threshold: 0.7 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [item.video]);
   const play = () => {
     const v = video.current;
     if (!v) return;

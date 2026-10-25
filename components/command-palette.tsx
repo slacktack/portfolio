@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { notes, profile, projects, systems } from "@/lib/site";
 import {
-  ArrowUpRight,
-  FileIcon,
   FlaskIcon,
   HomeIcon,
   LayersIcon,
@@ -152,14 +150,6 @@ export function CommandPalette() {
       icon: <UserIcon width={12} height={12} />,
       action: () => navigate("/about"),
     },
-    {
-      id: "resume-page",
-      label: "Resume",
-      sub: "Page",
-      group: "Pages",
-      icon: <FileIcon width={12} height={12} />,
-      action: () => navigate("/resume"),
-    },
     ...systems.map((system) => ({
       id: `system-${system.slug}`,
       label: system.title,
@@ -191,17 +181,6 @@ export function CommandPalette() {
       group: "Actions",
       icon: <MailIcon width={12} height={12} />,
       action: copyEmail,
-    },
-    {
-      id: "download-resume",
-      label: "Download resume",
-      sub: "PDF",
-      group: "Actions",
-      icon: <ArrowUpRight width={12} height={12} />,
-      action: () => {
-        window.open(profile.resume, "_blank", "noopener,noreferrer");
-        close();
-      },
     },
     {
       id: "toggle-theme",

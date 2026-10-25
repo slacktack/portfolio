@@ -9,16 +9,7 @@ export const profile = {
   tagline: "I build the invisible layer.",
   description:
     "Backend engineer in Bangalore building comparison engines, low-latency pipelines, and systems that hold at 3.79M events a day.",
-  resume: "/resume.pdf",
   socials: [
-    { label: "GitHub", href: "https://github.com/tushar-xo", handle: "tushar-xo" },
-    {
-      label: "LinkedIn",
-      href: "https://www.linkedin.com/in/tushar-gautam-002661227/",
-      handle: "tushar-gautam",
-    },
-    { label: "LeetCode", href: "https://leetcode.com/u/tusharstyles/", handle: "tusharstyles" },
-    { label: "Instagram", href: "https://instagram.com/tushar._xo", handle: "tushar._xo" },
     { label: "Email", href: "mailto:tgautam380@gmail.com", handle: "tgautam380" },
   ],
 };
@@ -775,10 +766,10 @@ export type Project = {
   stack: string[];
   image: string;
   live: string;
-  repo: string;
   highlight: string;
   note: string;
   portrait?: boolean;
+  embed?: boolean;
 };
 
 export const projects: Project[] = [
@@ -793,7 +784,6 @@ export const projects: Project[] = [
     stack: ["Next.js", "TypeScript", "MapLibre", "TanStack Query", "Upstash"],
     image: "/assets/projects/flight-tracker.png",
     live: "https://flight-tracker-gamma-seven.vercel.app",
-    repo: "https://github.com/slacktack/flight-tracker",
     highlight: "3 fallback feeds",
     note: "When a feed goes dark, the map does not. OpenSky and adsb.lol take over without a reload.",
   },
@@ -808,7 +798,6 @@ export const projects: Project[] = [
     stack: ["Next.js", "TypeScript", "LLM", "Edge TTS", "Canvas", "WebAudio"],
     image: "/assets/projects/dream-journal.png",
     live: "https://dream-journal-neon-delta.vercel.app",
-    repo: "https://github.com/slacktack/Dream-Journal",
     highlight: "30 sec / 4 acts",
     note: "The renderer is canvas, the score is WebAudio, and the export is MediaRecorder. No ffmpeg on a server.",
   },
@@ -823,7 +812,6 @@ export const projects: Project[] = [
     stack: ["Next.js", "TypeScript", "MapLibre", "TanStack Query", "Redis"],
     image: "/assets/projects/train-tracker.png",
     live: "https://train-tracker-zeta.vercel.app",
-    repo: "https://github.com/slacktack/Train-Tracker",
     highlight: "2,346 trains live",
     note: "Theme-aware basemap, speed-based markers, and a bottom sheet that survives a thumb.",
   },
@@ -838,7 +826,6 @@ export const projects: Project[] = [
     stack: ["Next.js", "React", "Tailwind", "Vision API", "Product search"],
     image: "/assets/projects/wardrobe-ai.png",
     live: "https://wardrobe-ai-plum-two.vercel.app",
-    repo: "https://github.com/slacktack/wardrobe-ai",
     highlight: "fit → product",
     note: "One upload, many pieces, one ranked answer per piece.",
     portrait: true,
@@ -854,7 +841,6 @@ export const projects: Project[] = [
     stack: ["React", "Vite", "TypeScript", "Kind", "Kubernetes"],
     image: "/assets/projects/k8-wizard.png",
     live: "https://k8-wizard.vercel.app",
-    repo: "https://github.com/slacktack/k8-wizard",
     highlight: "70 lessons",
     note: "The terminal is not a screenshot. Type the command, watch the cluster respond.",
   },
@@ -869,9 +855,37 @@ export const projects: Project[] = [
     stack: ["SvelteKit", "TypeScript", "Vercel"],
     image: "/assets/video/khelo-football.jpg",
     live: "https://khelo-football.vercel.app",
-    repo: "https://github.com/slacktack/khelo-football",
     highlight: "1966 – 2022 squads",
     note: "Roll the dice, build the XI, then watch the whole tournament play out.",
+  },
+  {
+    slug: "chauka-cricket",
+    title: "Chauka",
+    tagline: "Every ball, live. The day's play in one place.",
+    description:
+      "A mobile-first cricket companion: live, upcoming and finished matches, ball-by-ball commentary, scorecards, series tables and ICC rankings. Server-side providers cache and degrade gracefully, so the page keeps scoring when a source stumbles.",
+    category: "Live sports data",
+    year: "2026",
+    stack: ["Next.js", "TypeScript", "Tailwind", "PWA"],
+    image: "/assets/projects/chauka-cricket.jpg",
+    live: "https://cricket-stats-eta.vercel.app",
+    highlight: "11 live matches",
+    note: "Auto-refreshing feed, win probability, followed teams, and a bottom nav built for one thumb.",
+  },
+  {
+    slug: "touchline-football",
+    title: "Touchline",
+    tagline: "Live football scores, stats and tables.",
+    description:
+      "Every match across 156 competitions on one matchday board: live scores, date strip, league pages, team and player profiles, standings and search. Fast server rendering with a quiet, dense layout that reads at a glance.",
+    category: "Live sports data",
+    year: "2026",
+    stack: ["Next.js", "TypeScript", "Tailwind", "Server Actions"],
+    image: "/assets/projects/touchline-football.jpg",
+    live: "https://football-stats-alpha-woad.vercel.app",
+    highlight: "487 matches / day",
+    note: "One board for the whole football day, from the Premier League to the lower tiers.",
+    embed: false,
   },
 ];
 
@@ -1082,26 +1096,6 @@ export const notes: Note[] = [
 
 export const timeline = [
   {
-    year: "2018",
-    title: "ICSE · 93.2%",
-    body: "St. Paul's Convent School, Dasuya. First computer, first curiosity about how the internet actually works.",
-  },
-  {
-    year: "2020",
-    title: "CBSE PCM · 89%",
-    body: "Kautilya Senior Secondary School. Physics, chemistry, maths, and a growing pile of code experiments.",
-  },
-  {
-    year: "2021",
-    title: "IIIT Kota · ECE",
-    body: "Electronics and communication engineering. Systems, signals, and the first real engineering habits.",
-  },
-  {
-    year: "2025",
-    title: "B.Tech · GPA 8.58",
-    body: "Graduated with a degree in ECE and a head start in backend engineering.",
-  },
-  {
     year: "2025",
     title: "Buyhatke · SDE Intern",
     body: "Built a cab comparison system from scratch. Learned what production traffic does to a clean design.",
@@ -1280,6 +1274,24 @@ export const stage: StageItem[] = [
     href: "https://k8-wizard.vercel.app",
     video: "/assets/video/k8-wizard.mp4",
     poster: "/assets/video/k8-wizard.jpg",
+  },
+  {
+    slug: "chauka-cricket",
+    title: "Chauka",
+    tagline: "Every ball, live. The day's play in one place.",
+    tag: "After hours",
+    href: "https://cricket-stats-eta.vercel.app",
+    video: "/assets/video/chauka-cricket.mp4",
+    poster: "/assets/video/chauka-cricket.jpg",
+  },
+  {
+    slug: "touchline-football",
+    title: "Touchline",
+    tagline: "Live football scores, stats and tables.",
+    tag: "After hours",
+    href: "https://football-stats-alpha-woad.vercel.app",
+    video: "/assets/video/touchline-football.mp4",
+    poster: "/assets/video/touchline-football.jpg",
   },
 ];
 

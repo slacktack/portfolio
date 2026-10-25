@@ -171,8 +171,8 @@ export default function LabPage() {
 
           <div className="lab-footer-note">
             <span>Simulation only · routing state resets on reload</span>
-            <a className="text-link" href={profile.socials[0].href} target="_blank" rel="noreferrer">
-              Source on GitHub
+            <a className="text-link" href={`mailto:${profile.email}`}>
+              Talk to me about it
               <ArrowUpRight width={12} height={12} />
             </a>
           </div>

@@ -95,8 +95,8 @@ export function SiteHeader() {
             <kbd>⌘K</kbd>
           </button>
           <ThemeToggle className="hdr-btn" />
-          <a className="hdr-cta no-print" href={profile.resume} target="_blank" rel="noreferrer">
-            Résumé
+          <a className="hdr-cta no-print" href={`mailto:${profile.email}`}>
+            Email me
             <ArrowUpRight width={13} height={13} />
           </a>
           <button
@@ -122,7 +122,7 @@ export function SiteHeader() {
           </div>
 
           <nav className="menu-links" aria-label="Mobile">
-            {[...links, { href: "/resume", label: "Résumé" }].map((link, i) => (
+            {links.map((link, i) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -139,15 +139,6 @@ export function SiteHeader() {
             <a className="menu-mail" href={`mailto:${profile.email}`}>
               {profile.email}
             </a>
-            <div>
-              {profile.socials
-                .filter((social) => social.label !== "Email")
-                .map((social) => (
-                  <a key={social.label} href={social.href} target="_blank" rel="noreferrer">
-                    {social.label}
-                  </a>
-                ))}
-            </div>
           </div>
         </div>
       ) : null}

@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Caveat, Instrument_Sans, Instrument_Serif, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import "./magic.css";
+import "./journey.css";
+import "./mobile.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CommandPalette } from "@/components/command-palette";
@@ -96,16 +98,8 @@ const personSchema = {
   name: "Tushar Gautam",
   jobTitle: "Backend Engineer",
   worksFor: { "@type": "Organization", name: "Buyhatke Internet Private Limited" },
-  alumniOf: { "@type": "CollegeOrUniversity", name: "IIIT Kota" },
   address: { "@type": "PostalAddress", addressLocality: "Bangalore", addressCountry: "IN" },
   email: "mailto:tgautam380@gmail.com",
-  url: "https://github.com/tushar-xo",
-  sameAs: [
-    "https://github.com/tushar-xo",
-    "https://www.linkedin.com/in/tushar-gautam-002661227/",
-    "https://leetcode.com/u/tusharstyles/",
-    "https://instagram.com/tushar._xo",
-  ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

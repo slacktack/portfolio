@@ -13,7 +13,7 @@ import { projects, stage } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Projects",
   description:
-    "Live side quests: a reverse-engineered flight map, a dream-trailer studio, live train tracking, a vision stylist, and a Kubernetes curriculum.",
+    "Live side quests: a reverse-engineered flight map, a dream-trailer studio, live train tracking, a vision stylist, a Kubernetes curriculum, and live cricket and football scoreboards.",
 };
 
 const rules = [
@@ -101,7 +101,7 @@ export default function ProjectsPage() {
                   delay={index > 3 ? 60 : 0}
                 >
                   <article id={project.slug}>
-                    <LiveFrame url={project.live} poster={project.image} title={project.title} portrait={project.portrait} />
+                    <LiveFrame url={project.live} poster={project.image} title={project.title} portrait={project.portrait} embed={project.embed !== false} />
 
                     <div className="project-info">
                       <div className="project-kicker">
@@ -132,8 +132,8 @@ export default function ProjectsPage() {
                           <span className="project-highlight">
                             {project.highlight}
                           </span>
-                          <a href={project.repo} target="_blank" rel="noreferrer">
-                            GitHub
+                          <a href={project.live} target="_blank" rel="noreferrer">
+                            Open live
                             <ArrowUpRight width={11} height={11} />
                           </a>
                         </div>
@@ -206,15 +206,6 @@ export default function ProjectsPage() {
                 See the production work
                 <ArrowRight width={14} height={14} />
               </Link>
-              <a
-                className="text-link"
-                href="https://github.com/slacktack?tab=repositories"
-                target="_blank"
-                rel="noreferrer"
-              >
-                All repositories
-                <ArrowUpRight width={12} height={12} />
-              </a>
             </div>
           </div>
         </div>

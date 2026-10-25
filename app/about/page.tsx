@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowRight, ArrowUpRight } from "@/components/icons";
+import { ArrowUpRight } from "@/components/icons";
 import { HireCard } from "@/components/hire-card";
 import { OperatorCard } from "@/components/operator-card";
 import { Reveal } from "@/components/reveal";
@@ -57,10 +56,9 @@ export default function AboutPage() {
               I found the interesting part <span className="serif">underneath.</span>
             </h2>
             <p className="lede">
-              I grew up in Punjab, studied electronics at IIIT Kota, and spent most of
-              college pulling things apart to see how they held together. Somewhere
-              between signals and systems, I realized the software I cared about most
-              was the part nobody sees.
+              I have always liked pulling things apart to see how they hold together.
+              Somewhere along the way I realized the software I cared about most was
+              the part nobody sees.
             </p>
             <p className="lede">
               At Buyhatke, that became comparison engines: a flight pipeline that fans
@@ -80,18 +78,10 @@ export default function AboutPage() {
             </p>
 
             <div className="contact-links">
-              {profile.socials.map((social) => (
-                <a
-                  className="text-link"
-                  href={social.href}
-                  key={social.label}
-                  target={social.href.startsWith("http") ? "_blank" : undefined}
-                  rel={social.href.startsWith("http") ? "noreferrer" : undefined}
-                >
-                  {social.label}
-                  <ArrowUpRight width={11} height={11} />
-                </a>
-              ))}
+              <a className="text-link" href={`mailto:${profile.email}`}>
+                {profile.email}
+                <ArrowUpRight width={11} height={11} />
+              </a>
             </div>
           </Reveal>
 
@@ -112,7 +102,7 @@ export default function AboutPage() {
                   A short <span className="serif">timeline.</span>
                 </>
               }
-              note="The paths that led to the pipeline. Not a resume — the resume is one click away if you want the compressed version."
+              note="The paths that led to the pipeline."
             />
           </Reveal>
 
@@ -143,13 +133,6 @@ export default function AboutPage() {
                 ))}
               </div>
 
-              <div className="lab-footer-note">
-                <span>Resume · PDF</span>
-                <Link className="text-link" href="/resume">
-                  Open resume
-                  <ArrowRight width={12} height={12} />
-                </Link>
-              </div>
             </div>
           </div>
         </div>
@@ -184,17 +167,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="section-tight">
-        <div className="wrap">
-          <Link className="next-case" href="/resume">
-            <div>
-              <span>The compressed version</span>
-              <strong>Resume · experience, stack, education</strong>
-            </div>
-            <ArrowUpRight width={18} height={18} />
-          </Link>
-        </div>
-      </section>
     </>
   );
 }

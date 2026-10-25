@@ -22,16 +22,7 @@ const columns: { title: string; links: FooterLink[] }[] = [
       { href: "/lab", label: "The lab" },
       { href: "/notes", label: "Field notes" },
       { href: "/about", label: "About" },
-      { href: "/resume", label: "Resume" },
     ],
-  },
-  {
-    title: "Elsewhere",
-    links: profile.socials.map((social) => ({
-      href: social.href,
-      label: social.label,
-      external: social.href.startsWith("http"),
-    })),
   },
 ];
 
@@ -51,13 +42,8 @@ export function SiteFooter() {
               Backend engineer building the invisible layer. Comparison engines, low-latency
               pipelines, and systems that stay up.
             </p>
-            <a
-              href={profile.resume}
-              target="_blank"
-              rel="noreferrer"
-              className="text-link"
-            >
-              Download resume
+            <a href={`mailto:${profile.email}`} className="text-link">
+              {profile.email}
               <ArrowUpRight width={12} height={12} />
             </a>
           </div>

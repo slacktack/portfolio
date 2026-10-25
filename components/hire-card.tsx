@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { ArrowUpRight } from "@/components/icons";
 import { profile } from "@/lib/site";
 
@@ -7,7 +6,6 @@ const facts = [
   { k: "Owns", v: "Flight, hotel and food comparison backends; a zero-LLM categorizer; a private local-AI platform; the company's log platform." },
   { k: "Scale", v: "478K+ requests and 3.79M+ result events a day. 12.5B log events across 201 streams." },
   { k: "Works in", v: "Node.js, TypeScript, Go, Rust, Python, ClickHouse, Redis, MySQL." },
-  { k: "School", v: "IIIT Kota, Electronics and Communication, GPA 8.58." },
 ];
 
 export function HireCard() {
@@ -31,9 +29,6 @@ export function HireCard() {
           Email Tushar
           <ArrowUpRight width={13} height={13} />
         </a>
-        <Link className="btn btn-ghost" href="/resume">
-          Résumé
-        </Link>
       </div>
     </aside>
   );
