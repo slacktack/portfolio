@@ -1,87 +1,94 @@
-import { Pulse } from "@/components/pulse";
+"use client";
+
 import Link from "next/link";
-import { profile } from "@/lib/site";
+import { useState } from "react";
+import { ContactForm } from "@/components/contact-form";
+import { CopyEmail } from "@/components/copy-email";
+import { Scene3D } from "@/components/scene3d";
 import { ArrowUpRight } from "@/components/icons";
+import { profile } from "@/lib/site";
 
-type FooterLink = { href: string; label: string; external?: boolean };
-
-const columns: { title: string; links: FooterLink[] }[] = [
-  {
-    title: "Systems",
-    links: [
-      { href: "/systems", label: "All systems" },
-      { href: "/systems/flights", label: "Flights" },
-      { href: "/systems/hotels", label: "Hotels" },
-      { href: "/systems/observability", label: "Observability" },
-    ],
-  },
-  {
-    title: "Explore",
-    links: [
-      { href: "/projects", label: "Projects" },
-      { href: "/lab", label: "The lab" },
-      { href: "/notes", label: "Field notes" },
-      { href: "/about", label: "About" },
-    ],
-  },
+const links = [
+  { href: "/systems", label: "Systems" },
+  { href: "/projects", label: "Projects" },
+  { href: "/lab", label: "Lab" },
+  { href: "/notes", label: "Notes" },
+  { href: "/about", label: "About" },
 ];
 
 export function SiteFooter() {
+  const [open, setOpen] = useState(false);
+
+
   return (
-    <footer className="site-footer">
-      <div className="wrap">
-        <div className="footer-top">
-          <div className="footer-brand">
-            <Link href="/" className="hdr-brand footer-wordmark" aria-label="Tushar Gautam, home">
-              <span>tushar</span>
-              <span>
-                gautam<i>.</i>
-              </span>
-            </Link>
-            <p>
-              Backend engineer building the invisible layer. Comparison engines, low-latency
-              pipelines, and systems that stay up.
-            </p>
-            <a href={`mailto:${profile.email}`} className="text-link">
-              {profile.email}
-              <ArrowUpRight width={12} height={12} />
-            </a>
-          </div>
-
-          {columns.map((column) => (
-            <div className="footer-col" key={column.title}>
-              <h3>{column.title}</h3>
-              <ul>
-                {column.links.map((link) => (
-                  <li key={link.label}>
-                    {link.external ? (
-                      <a href={link.href} target="_blank" rel="noreferrer">
-                        {link.label}
-                      </a>
-                    ) : (
-                      <Link href={link.href}>{link.label}</Link>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-
-        <div className="footer-pulse">
-          <Pulse />
-        </div>
-        <div className="footer-bottom">
-          <span>© 2026 Tushar Gautam · Built with intent, always evolving</span>
-          <span className="perf-badge">
-            <span className="dot" />
-            Performance budget: &lt;120KB JS · LCP &lt;1.5s
+    <footer className="finale">
+      <div className="finale-top wrap">
+        <Link href="/" className="hdr-brand finale-brand" aria-label="Tushar Gautam, home">
+          <span>tushar</span>
+          <span>
+            gautam<i>.</i>
           </span>
-          <span>No cookies. No trackers. Just requests.</span>
-          <a href="#main">Back to top ↑</a>
+        </Link>
+        <a className="finale-mail-btn" href={`mailto:${profile.email}`} aria-label="Email Tushar">
+          <ArrowUpRight width={22} height={22} />
+        </a>
+      </div>
+
+      <div className="finale-grid wrap">
+        <div className="finale-art">
+          <Scene3D kind="finale" mode="card" className="finale-scene" />
+        </div>
+
+        <div className="finale-copy">
+          <span className="finale-hello">A good constraint starts with a hello.</span>
+          <h2>
+            Have a hard problem? <span className="serif">Good.</span>
+          </h2>
+          <p>
+            I&apos;m open to backend roles and systems work. Tell me the latency target, the quota,
+            or the pipeline that keeps falling over at the worst possible time.
+          </p>
+
+          <div className="finale-actions">
+            <a className="chunk chunk-primary" href={`mailto:${profile.email}`}>
+              Send mail
+            </a>
+            <CopyEmail email={profile.email} />
+            <button
+              type="button"
+              className="chunk"
+              aria-expanded={open}
+              aria-controls="finale-form"
+              onClick={() => setOpen((v) => !v)}
+            >
+              {open ? "Close" : "Write here"}
+            </button>
+          </div>
+          <a className="finale-address" href={`mailto:${profile.email}`}>
+            {profile.email}
+          </a>
+
+          <div className="finale-form" id="finale-form" data-open={open ? "" : undefined}>
+            <div>
+              <ContactForm email={profile.email} />
+            </div>
+          </div>
         </div>
       </div>
-    <div className="footer-giant" aria-hidden="true">
+
+      <div className="finale-bottom wrap">
+        <nav aria-label="Footer">
+          {links.map((l) => (
+            <Link key={l.href} href={l.href}>
+              {l.label}
+            </Link>
+          ))}
+        </nav>
+        <span>Bangalore · usually replies within a day</span>
+        <a href="#main">Back to top ↑</a>
+      </div>
+
+      <div className="footer-giant" aria-hidden="true">
         <span>Tushar Gautam</span>
       </div>
     </footer>

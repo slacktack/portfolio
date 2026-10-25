@@ -125,7 +125,7 @@ export function LogoWall() {
           <div className="logo-wall-group" key={copy}>
             {wall.map((id) => (
               <span className="logo-wall-item" key={id}>
-                <PartnerLogo id={id} size={40} />
+                <PartnerLogo id={id} size={24} />
                 <b>{partners[id].name}</b>
               </span>
             ))}

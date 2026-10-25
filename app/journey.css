@@ -1,7 +1,7 @@
 .journey {
   position: relative;
-  height: 520vh;
-  background: #070810;
+  height: 400vh;
+  background: #0a1250;
   color: #f4f1ea;
 }
 
@@ -11,7 +11,7 @@
   height: 100vh;
   height: 100svh;
   overflow: hidden;
-  background: #070810;
+  background: #0a1250;
 }
 
 .journey-stage,
@@ -31,8 +31,8 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(90deg, rgba(7, 8, 16, 0.92) 0 30%, rgba(7, 8, 16, 0.45) 46%, transparent 62%),
-    linear-gradient(0deg, rgba(7, 8, 16, 0.55), transparent 22%);
+  background: linear-gradient(90deg, rgba(9, 16, 80, 0.92) 0 30%, rgba(9, 16, 80, 0.45) 46%, transparent 62%),
+    linear-gradient(0deg, rgba(9, 16, 80, 0.55), transparent 22%);
 }
 
 .journey-ui {
@@ -83,14 +83,14 @@
   font-size: 12px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #ff7a45;
+  color: #f2cf9e;
   transition: color 0.5s;
 }
 
-.journey-sticky[data-chapter="1"] .journey-k { color: #7fa0ff; }
-.journey-sticky[data-chapter="2"] .journey-k { color: #c3a2ff; }
-.journey-sticky[data-chapter="3"] .journey-k { color: #5be3bf; }
-.journey-sticky[data-chapter="4"] .journey-k { color: #ffc24b; }
+.journey-sticky[data-chapter="1"] .journey-k { color: #9db1ff; }
+.journey-sticky[data-chapter="2"] .journey-k { color: #b9c0f4; }
+.journey-sticky[data-chapter="3"] .journey-k { color: #f6b9a3; }
+.journey-sticky[data-chapter="4"] .journey-k { color: #ff8b78; }
 
 .journey-copy h2 {
   margin: 12px 0 14px;
@@ -162,7 +162,7 @@
 }
 
 .journey-dots button.is-on::after {
-  background: #ff7a45;
+  background: #f2cf9e;
 }
 
 .journey-dots button:focus-visible {
@@ -222,13 +222,13 @@
 
 @media (max-width: 760px) {
   .journey {
-    height: 460vh;
+    height: 360vh;
   }
 
   /* scene sits in the top part of the frame, copy panel below */
   .journey-vignette {
-    background: linear-gradient(0deg, rgba(7, 8, 16, 0.96) 0 28%, rgba(7, 8, 16, 0.7) 40%, transparent 62%),
-      radial-gradient(ellipse 90% 60% at 50% 30%, transparent 45%, rgba(7, 8, 16, 0.55));
+    background: linear-gradient(0deg, rgba(9, 16, 80, 0.97) 0 28%, rgba(9, 16, 80, 0.7) 40%, transparent 62%),
+      radial-gradient(ellipse 90% 60% at 50% 30%, transparent 45%, rgba(9, 16, 80, 0.55));
   }
 
   .journey-ui {

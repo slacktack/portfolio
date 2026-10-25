@@ -5,6 +5,7 @@ import { StackTag } from "@/components/brand";
 import { SystemArtifact } from "@/components/artifacts";
 import { ArrowRight, ArrowUpRight } from "@/components/icons";
 import { Reveal } from "@/components/reveal";
+import { ImmersiveHero } from "@/components/scene3d";
 import { getNextSystem, getSystem, systems } from "@/lib/site";
 
 type PageProps = {
@@ -29,12 +30,26 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
+const immersive: Record<string, { k: string; t: string; d: string }[]> = {
+  flights: [
+    { k: "Departing", t: "One search, leaving now.", d: "BLR to GOI. The request is on its way to seven providers at once." },
+    { k: "Closing in", t: "Seven answers, one deadline.", d: "Every provider replies on its own clock. The best fare is whichever lands under the deadline." },
+    { k: "Arrived", t: "One price, before they look away.", d: "Partial results are kept, stragglers are settled, and the list is already sorted." },
+  ],
+  hotels: [
+    { k: "At the door", t: "Seven records, one hotel.", d: "Seven catalogs, seven names for the same property, and a wrong merge is worse than a missing one." },
+    { k: "The lobby", t: "Resolved to one identity.", d: "The hotel is matched to a single canonical record before any price is asked for." },
+    { k: "The room", t: "Then the price, live.", d: "Prices are fetched in real time for these dates and these guests. Identity is stored. Price never is." },
+  ],
+};
+
 const toc = [
   { id: "problem", label: "Problem" },
   { id: "constraints", label: "Constraints" },
   { id: "architecture", label: "Architecture" },
   { id: "hard-part", label: "The hard part" },
   { id: "broke", label: "What broke" },
+  { id: "flaws", label: "What still hurts" },
   { id: "differently", label: "Differently" },
   { id: "proves", label: "What it proves" },
   { id: "receipts", label: "Receipts" },
@@ -93,10 +108,14 @@ export default async function SystemCasePage({ params }: PageProps) {
         </div>
       </section>
 
+      {immersive[system.slug] ? <ImmersiveHero kind={system.slug as "flights" | "hotels"} chapters={immersive[system.slug]} /> : null}
+
       <div className="wrap">
-        <div className="case-artifact">
-          <SystemArtifact kind={system.artifact} />
-        </div>
+        {immersive[system.slug] ? null : (
+          <div className="case-artifact">
+            <SystemArtifact kind={system.artifact} />
+          </div>
+        )}
 
         <div className="case-metrics">
           {system.metrics.map((metric) => (
@@ -114,7 +133,7 @@ export default async function SystemCasePage({ params }: PageProps) {
               <h2>On this page</h2>
               <nav className="case-toc" aria-label="Case study sections">
                 {toc
-                  .filter((item) => (item.id === "broke" ? Boolean(system.broke) : item.id === "differently" ? system.differently.length > 0 : true))
+                  .filter((item) => (item.id === "broke" ? Boolean(system.broke) : item.id === "flaws" ? Boolean(system.flaws?.length) : item.id === "differently" ? system.differently.length > 0 : true))
                   .map((item) => (
                   <a href={`#${item.id}`} key={item.id}>
                     {item.label}
@@ -242,11 +261,32 @@ export default async function SystemCasePage({ params }: PageProps) {
             </Reveal>
             ) : null}
 
+            {system.flaws?.length ? (
+            <Reveal>
+              <section className="case-section" id="flaws">
+                <div className="case-section-label">
+                  <span className="num">06</span>
+                  <span className="line" />
+                  <span>What still hurts</span>
+                </div>
+                <h2>The parts I would not defend yet.</h2>
+                <div className="flaw-grid">
+                  {system.flaws.map((flaw) => (
+                    <div className="flaw-card" key={flaw.title}>
+                      <strong>{flaw.title}</strong>
+                      <p>{flaw.body}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </Reveal>
+            ) : null}
+
             {system.differently.length ? (
             <Reveal>
               <section className="case-section" id="differently">
                 <div className="case-section-label">
-                  <span className="num">06</span>
+                  <span className="num">07</span>
                   <span className="line" />
                   <span>Differently</span>
                 </div>
@@ -263,7 +303,7 @@ export default async function SystemCasePage({ params }: PageProps) {
             <Reveal>
               <section className="case-section" id="proves">
                 <div className="case-section-label">
-                  <span className="num">07</span>
+                  <span className="num">08</span>
                   <span className="line" />
                   <span>What it proves</span>
                 </div>
@@ -281,7 +321,7 @@ export default async function SystemCasePage({ params }: PageProps) {
             <Reveal>
               <section className="case-section" id="receipts">
                 <div className="case-section-label">
-                  <span className="num">08</span>
+                  <span className="num">09</span>
                   <span className="line" />
                   <span>Receipts</span>
                 </div>

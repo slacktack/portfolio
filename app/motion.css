@@ -1,0 +1,137 @@
+/* lenis owns smooth scrolling on desktop; touch keeps native momentum */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+html.lenis {
+  scroll-behavior: auto;
+}
+
+/* page curtain: transform only, quicker in, longer out */
+.pt-panel {
+  will-change: transform;
+  transform: translate3d(0, 100%, 0);
+}
+
+.pt[data-phase="in"] .pt-panel {
+  animation: pt-in 0.38s cubic-bezier(0.7, 0, 0.2, 1) forwards;
+}
+
+.pt[data-phase="out"] .pt-panel {
+  transform: translate3d(0, 0, 0);
+  animation: pt-out 0.62s cubic-bezier(0.7, 0, 0.2, 1) forwards;
+}
+
+@keyframes pt-in {
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes pt-out {
+  to {
+    transform: translate3d(0, -100%, 0);
+  }
+}
+
+/* the new page rises as the curtain lifts */
+html[data-nav="enter"] main > * {
+  animation: page-enter 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+  }
+}
+
+/* theme switch: the new theme wipes out from the button */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 2;
+}
+
+/* reveals: composited, with a gentler travel */
+.reveal.is-armed {
+  transform: translate3d(0, 26px, 0);
+  will-change: opacity, transform;
+}
+
+.reveal.is-armed.is-visible {
+  transform: none;
+  will-change: auto;
+}
+
+.reveal {
+  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* baseline easing so nothing snaps */
+a,
+button,
+.btn,
+.chunk,
+.text-link {
+  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+  transition-duration: 0.25s;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* phones: tactile press instead of hover */
+@media (hover: none) {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  .btn:active,
+  .hdr-menu:active,
+  .hdr-btn:active,
+  .scar:active,
+  .work-pills a:active,
+  .systems-index-card:active,
+  .note-card:active {
+    transform: scale(0.97);
+  }
+
+  .menu-links a {
+    transition: transform 0.2s, opacity 0.2s;
+  }
+}
+
+/* menu sheet slides instead of popping */
+.menu {
+  animation: menu-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -14px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-nav="enter"] main > *,
+  .menu {
+    animation: none;
+  }
+}

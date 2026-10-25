@@ -1,27 +1,32 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { SystemArtifact } from "@/components/artifacts";
-import { ContactForm } from "@/components/contact-form";
-import { CopyEmail } from "@/components/copy-email";
-import { LogoWall, StackTag } from "@/components/brand";
+import { LogoWall } from "@/components/brand";
 import { HeroCollage } from "@/components/hero-collage";
 import { Journey } from "@/components/journey";
 import { Split } from "@/components/hero-title";
-import { Ledger } from "@/components/ledger";
 import { Works } from "@/components/works";
-import { ArrowRight, ArrowUpRight, MailIcon } from "@/components/icons";
-import { Marquee } from "@/components/marquee";
-import { OperatorCard } from "@/components/operator-card";
+import { ArrowRight, MailIcon } from "@/components/icons";
 import { Reveal } from "@/components/reveal";
-import { SectionHeading, SectionLabel } from "@/components/section-heading";
-import {
-  marqueeMetrics,
-  notes,
-  principles,
-  profile,
-  stage,
-  systems,
-} from "@/lib/site";
+import { SectionHeading } from "@/components/section-heading";
+import { SystemsStack } from "@/components/systems-stack";
+import { getSystem, profile, stage, systems } from "@/lib/site";
+const homeSystems = ["flights", "hotels", "best-way-to-pay", "grocery"]
+  .map((slug) => getSystem(slug))
+  .filter((system): system is NonNullable<typeof system> => Boolean(system));
+
+const homeStage = ["bh-flights", "bh-hotels", "bh-food", "bh-grocery", "train-tracker", "flight-tracker"]
+  .map((slug) => stage.find((item) => item.slug === slug))
+  .filter((item): item is NonNullable<typeof item> => Boolean(item));
+
+const payFlaws = getSystem("best-way-to-pay")?.flaws ?? [];
+const hotelPager = getSystem("hotels")?.pager;
+const scars = [
+  ...payFlaws.slice(0, 3).map((f) => ({ slug: "best-way-to-pay", anchor: "flaws", label: "Best way to pay", title: f.title, body: f.body })),
+  ...(hotelPager
+    ? [{ slug: "hotels", anchor: "hard-part", label: "Hotel comparison", title: "The worst compare took four and a half minutes", body: hotelPager }]
+    : []),
+];
 
 export default function HomePage() {
   return (
@@ -76,9 +81,7 @@ export default function HomePage() {
 
       <Journey />
 
-      <Marquee items={marqueeMetrics} />
-
-      <section className="section" id="systems">
+      <section className="section home-systems" id="systems">
         <div className="wrap">
           <Reveal>
             <SectionHeading
@@ -89,16 +92,12 @@ export default function HomePage() {
                   The work that <span className="serif">disappears.</span>
                 </>
               }
-              note="Production systems at real scale. Every one has a pager story."
+              note={`Four of the ${systems.length}. Open one to go deep: the architecture, the failures, and what still hurts.`}
             />
           </Reveal>
 
-          <div className="systems-list">
-            {systems
-              .filter((system) =>
-                ["flights", "hotels", "categorizer", "observability", "local-llm", "best-way-to-pay", "deal-bots"].includes(system.slug)
-              )
-              .map((system, k) => (
+          <SystemsStack>
+            {homeSystems.map((system, k) => (
               <article
                 className="system-card"
                 key={system.slug}
@@ -123,7 +122,6 @@ export default function HomePage() {
 
                   <h3 className="system-title">{system.title}</h3>
                   <p className="system-promise">{system.promise}</p>
-                  {system.pager ? <p className="system-pager">{system.pager}</p> : null}
 
                   <div className="system-metrics">
                     {system.metrics.slice(0, 3).map((metric) => (
@@ -134,12 +132,6 @@ export default function HomePage() {
                     ))}
                   </div>
 
-                  <div className="system-tags">
-                    {system.stack.slice(0, 4).map((tag) => (
-                      <StackTag name={tag} key={tag} />
-                    ))}
-                  </div>
-
                   <Link className="text-link system-link" href={`/systems/${system.slug}`}>
                     Read the case study
                     <ArrowRight width={13} height={13} />
@@ -147,14 +139,20 @@ export default function HomePage() {
                 </div>
               </article>
             ))}
-          </div>
+          </SystemsStack>
 
+          <div className="home-more">
+            <Link className="text-link" href="/systems">
+              All {systems.length} systems
+              <ArrowRight width={13} height={13} />
+            </Link>
+          </div>
         </div>
       </section>
 
       <section className="section works-section" id="projects">
         <div className="wrap">
-          <Works items={stage} />
+          <Works items={homeStage} />
           <div className="garage-home-foot">
             <span className="mono">{stage.length} live recordings · nothing mocked up</span>
             <Link className="text-link" href="/projects">
@@ -165,308 +163,34 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="section" id="ledger">
+      <section className="section scars" id="scars">
         <div className="wrap">
           <Reveal>
             <SectionHeading
-              number="03"
-              label="The ledger"
+              number="02"
+              label="What still hurts"
               title={
                 <>
-                  Built, shipped, <span className="serif">counted.</span>
+                  Not everything <span className="serif">works.</span>
                 </>
               }
-              note="Authored commits against each repo's total. Where the repo belongs to a team, the entry says so."
-            />
-          </Reveal>
-          <Ledger personalLimit={4} />
-          <div className="ledger-more">
-            <Link className="text-link" href="/projects#ledger">
-              Every after-hours build
-              <ArrowRight width={13} height={13} />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="receipts" id="receipts">
-        <div className="wrap">
-          <Reveal>
-            <SectionHeading
-              number="04"
-              label="Receipts"
-              title={
-                <>
-                  Numbers with <span className="serif">receipts.</span>
-                </>
-              }
-              note="Not a pitch deck. The metrics I can defend, taken from production work and benchmark runs. Screenshots are redacted; the numbers are not."
+              note="The numbers above are the good news. These come straight from the dashboards and the case studies."
             />
           </Reveal>
 
-          <div className="receipts-grid">
-            <div className="receipt">
-              <div className="receipt-head">
-                <span>LOG / FLIGHTS</span>
-                <b>04:12:08</b>
-              </div>
-              <div className="receipt-body">
-                <pre className="receipt-terminal">
-                  <span className="m">$</span> compare --route BLR-GOI{"\n"}
-                  <span className="m">→</span> fanout 7 providers{"\n"}
-                  <span className="m">→</span> create 68,042/hr{"\n"}
-                  <span className="m">→</span> poll 54,117/hr{"\n"}
-                  <span className="g">200 OK</span> 478,291 req/day{"\n"}
-                  <span className="o">p99</span> 20ms · streamed
-                </pre>
-              </div>
-              <div className="receipt-caption">
-                <b>Async fan-out, accounted for.</b>
-                Every provider call has a budget, a deadline, and a trace.
-              </div>
-            </div>
-
-            <div className="receipt">
-              <div className="receipt-head">
-                <span>PROD / FLIGHTS</span>
-                <b>24H</b>
-              </div>
-              <div className="receipt-body">
-                <div className="receipt-big">
-                  <b>478K+</b>
-                  <span>Requests / day · web + mobile</span>
-                </div>
-              </div>
-              <div className="receipt-caption">
-                <b>One pipeline, two clients.</b>
-                The same orchestrator serves web and mobile search without forking
-                the contract.
-              </div>
-            </div>
-
-            <div className="receipt">
-              <div className="receipt-head">
-                <span>LATENCY / 24H</span>
-                <b>p99</b>
-              </div>
-              <div className="receipt-body">
-                <table className="receipt-table">
-                  <thead>
-                    <tr>
-                      <th>Path</th>
-                      <th>p50</th>
-                      <th>p99</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Categorize</td>
-                      <td>4ms</td>
-                      <td>20ms</td>
-                    </tr>
-                    <tr>
-                      <td>Cold start</td>
-                      <td>—</td>
-                      <td>232ms</td>
-                    </tr>
-                    <tr>
-                      <td>Parity drift</td>
-                      <td>—</td>
-                      <td>&lt;0.1%</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div className="receipt-caption">
-                <b>Warm and cold are both real.</b>
-                The p99 is only trustworthy when the cold path is measured too.
-              </div>
-            </div>
-
-            <div className="receipt">
-              <div className="receipt-head">
-                <span>EVENTS / FLIGHTS</span>
-                <b>STREAM</b>
-              </div>
-              <div className="receipt-body">
-                <div className="receipt-big">
-                  <b>3.79M+</b>
-                  <span>Result events / day</span>
-                </div>
-              </div>
-              <div className="receipt-caption">
-                <b>Partial results, one shape.</b>
-                Normalized, deduped, and served before every provider has finished.
-              </div>
-            </div>
-
-            <div className="receipt">
-              <div className="receipt-head">
-                <span>IDENTITY / HOTELS</span>
-                <b>7+ FEEDS</b>
-              </div>
-              <div className="receipt-body">
-                <table className="receipt-table">
-                  <thead>
-                    <tr>
-                      <th>Signal</th>
-                      <th>Weight</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Name similarity</td>
-                      <td>0.35</td>
-                    </tr>
-                    <tr>
-                      <td>Geo distance</td>
-                      <td>0.30</td>
-                    </tr>
-                    <tr>
-                      <td>Amenities</td>
-                      <td>0.20</td>
-                    </tr>
-                    <tr>
-                      <td>Room signature</td>
-                      <td>0.15</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div className="receipt-caption">
-                <b>One hotel, not seven maybes.</b>
-                16K+ comparisons a day against a canonical hotel graph.
-              </div>
-            </div>
-
-            <div className="receipt">
-              <div className="receipt-head">
-                <span>SEARCH / QUALITY</span>
-                <b>BENCH</b>
-              </div>
-              <div className="receipt-body">
-                <div className="receipt-big">
-                  <b>99%</b>
-                  <span>Extraction accuracy · 1.18M examples</span>
-                </div>
-              </div>
-              <div className="receipt-caption">
-                <b>Calibrated, not vibes.</b>
-                ECE 0.0104, verified against a golden benchmark on every change.
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="section" id="about">
-        <div className="wrap about-split">
-          <Reveal className="about-copy">
-            <SectionLabel number="05">The operator</SectionLabel>
-            <h2 className="display-2">
-              Engineer by trade. <span className="serif">Systems person</span> by
-              inclination.
-            </h2>
-            <p className="lede">
-              I found the part of computing I actually loved: the layer
-              underneath the product. The queue. The quota.
-              The pipeline that has to stay correct when half its inputs are late.
-            </p>
-            <p className="lede">
-              At Buyhatke I work on flights, hotels, and food comparison. I like
-              problems where the interface is simple and the system behind it is not.
-              I write about those systems because the details are usually more useful
-              than the outcome.
-            </p>
-
-            <div className="principles">
-              {principles.map((principle) => (
-                <div className="principle" key={principle.num}>
-                  <span className="num">{principle.num}</span>
-                  <strong>{principle.title}</strong>
-                  <p>{principle.body}</p>
-                </div>
-              ))}
-            </div>
-
-            <Link className="text-link" href="/about">
-              More about the operator
-              <ArrowRight width={13} height={13} />
-            </Link>
-          </Reveal>
-
-          <Reveal delay={100}>
-            <OperatorCard />
-          </Reveal>
-        </div>
-      </section>
-
-      <section className="section" id="notes">
-        <div className="wrap">
-          <Reveal>
-            <SectionHeading
-              number="06"
-              label="Field notes"
-              title={
-                <>
-                  Notes from the <span className="serif">lower layers.</span>
-                </>
-              }
-              note="Longer thoughts on latency, quotas, calibration, and the parts of backend work that do not fit in a bullet point."
-            />
-          </Reveal>
-
-          <div className="notes-grid">
-            {notes.map((note) => (
-              <Link className="note-card" href={`/notes/${note.slug}`} key={note.slug}>
-                <div className="note-meta">
-                  <span>{note.category}</span>
-                  <span>
-                    {note.date} · {note.readTime}
-                  </span>
-                </div>
-                <h3 className="note-title">{note.title}</h3>
-                <p className="note-dek">{note.dek}</p>
-                <div className="note-foot">
-                  <span>Read note</span>
-                  <ArrowUpRight width={13} height={13} />
-                </div>
+          <div className="scar-grid">
+            {scars.map((scar) => (
+              <Link className="scar" href={`/systems/${scar.slug}#${scar.anchor}`} key={scar.title}>
+                <span className="scar-k">{scar.label}</span>
+                <strong>{scar.title}</strong>
+                <p>{scar.body}</p>
+                <span className="scar-more">
+                  Read the rest
+                  <ArrowRight width={12} height={12} />
+                </span>
               </Link>
             ))}
           </div>
-        </div>
-      </section>
-
-      <section className="contact section" id="contact">
-        <div className="wrap contact-grid">
-          <div className="contact-copy">
-            <span className="eyebrow">
-              <span className="dot" />
-              Contact
-            </span>
-            <h2 className="display-2">
-              Have a hard problem? <span className="serif">Good.</span>
-            </h2>
-            <p className="lede">
-              I&apos;m open to backend roles and systems work. The best conversations
-              start with a constraint: a latency target, a quota, a pipeline that
-              keeps falling over at the worst possible time.
-            </p>
-
-            <div className="email-row">
-              <a className="email-big" href={`mailto:${profile.email}`}>
-                {profile.email}
-              </a>
-              <CopyEmail email={profile.email} />
-            </div>
-
-            <div className="contact-note">
-              <span>Based in Bangalore · IST (UTC+5:30)</span>
-              <span>Usually replies within a day</span>
-            </div>
-          </div>
-
-          <ContactForm email={profile.email} />
         </div>
       </section>
     </>

@@ -15,7 +15,7 @@ type Opts = {
   onProgress: (pct: number) => void;
 };
 
-const TINTS = ["#ff5a2b", "#3b6bff", "#a66bff", "#1fd1a5", "#ffc24b"].map((c) => new THREE.Color(c));
+const TINTS = ["#f2cf9e", "#3b5cff", "#8f98e8", "#f0a58a", "#e0392b"].map((c) => new THREE.Color(c));
 const LOGOS = [
   "makemytrip", "booking", "agoda", "goibibo", "cleartrip", "expedia", "kayak", "skyscanner", "ixigo",
   "easemytrip", "tripcom", "klook", "swiggy", "zomato", "uber", "ola", "rapido",
@@ -46,7 +46,7 @@ void main(){
   float n = noise(p * 2.2 + vec2(uTime * 0.05, uProg * 3.0));
   float a = exp(-dot(p - vec2(0.06, 0.04), p - vec2(0.06, 0.04)) * 2.6);
   float b = exp(-dot(p + vec2(0.36, 0.3), p + vec2(0.36, 0.3)) * 4.2);
-  vec3 col = vec3(0.027, 0.031, 0.063);
+  vec3 col = vec3(0.035, 0.06, 0.30);
   col += uA * a * (0.42 + n * 0.26);
   col += uB * b * (0.26 + n * 0.2);
   col += (hash(gl_FragCoord.xy + uTime) - 0.5) * 0.012;
@@ -219,7 +219,7 @@ export function createJourneyScene({ host, wrap, chapters, onChapter, onProgress
   const core = new THREE.Mesh(track(new THREE.SphereGeometry(0.2, 32, 32)), fade(track(new THREE.MeshBasicMaterial({ color: new THREE.Color(1.6, 1.4, 1.2) })), 0, 1));
   core.position.set(0, 0, A[0]);
   scene.add(core);
-  const coreHalo = new THREE.Sprite(fade(track(new THREE.SpriteMaterial({ map: glow, color: 0xff7a45, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.4 })), 0, 0.4));
+  const coreHalo = new THREE.Sprite(fade(track(new THREE.SpriteMaterial({ map: glow, color: 0xf2cf9e, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.4 })), 0, 0.4));
   coreHalo.scale.setScalar(3.6);
   coreHalo.position.copy(core.position);
   scene.add(coreHalo);
@@ -345,8 +345,8 @@ export function createJourneyScene({ host, wrap, chapters, onChapter, onProgress
   hub.position.copy(hubPos);
   scene.add(hub);
   const hubWire = new THREE.Mesh(track(new THREE.IcosahedronGeometry(1.15, 1)), fade(track(new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.9 })), 2, 0.9));
-  const hubCore = new THREE.Mesh(track(new THREE.IcosahedronGeometry(0.62, 2)), fade(track(new THREE.MeshBasicMaterial({ color: new THREE.Color(1.1, 1.0, 1.7) })), 2, 1));
-  const hubHalo = new THREE.Sprite(fade(track(new THREE.SpriteMaterial({ map: glow, color: 0x9a7bff, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.35 })), 2, 0.35));
+  const hubCore = new THREE.Mesh(track(new THREE.IcosahedronGeometry(0.62, 2)), fade(track(new THREE.MeshBasicMaterial({ color: new THREE.Color(1.5, 1.3, 1.0) })), 2, 1));
+  const hubHalo = new THREE.Sprite(fade(track(new THREE.SpriteMaterial({ map: glow, color: 0x8f98e8, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.35 })), 2, 0.35));
   hubHalo.scale.setScalar(5);
   const orbitGeo = track(new THREE.TorusGeometry(1.9, 0.012, 6, 120));
   const orbits = [0, 1, 2].map((i) => {
@@ -382,8 +382,8 @@ export function createJourneyScene({ host, wrap, chapters, onChapter, onProgress
   }
   solid.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(cubeN * 3), 3);
   cacheGroup.add(solid, wire);
-  const baseCube = new THREE.Color("#173a46");
-  const hitCube = new THREE.Color(0.2, 1.5, 1.1);
+  const baseCube = new THREE.Color("#1a2a96");
+  const hitCube = new THREE.Color(1.5, 0.95, 0.55);
   const tmpC = new THREE.Color();
 
   // 05 answer: the price card
@@ -405,7 +405,7 @@ export function createJourneyScene({ host, wrap, chapters, onChapter, onProgress
     cctx.fillStyle = "#fff7ee";
     cctx.font = "800 200px 'Helvetica Neue', Arial, sans-serif";
     cctx.fillText("₹4,740", 50, 300);
-    cctx.fillStyle = "#ffc24b";
+    cctx.fillStyle = "#f0b27a";
     cctx.fillRect(56, 358, 140, 5);
     cctx.fillStyle = "rgba(255,247,238,0.55)";
     cctx.font = "500 28px system-ui, -apple-system, Helvetica, Arial, sans-serif";
@@ -417,7 +417,7 @@ export function createJourneyScene({ host, wrap, chapters, onChapter, onProgress
   cardGroup.position.set(0, 0, A[4]);
   scene.add(cardGroup);
   const cardMesh = new THREE.Mesh(track(new THREE.PlaneGeometry(7, 3.5)), fade(track(new THREE.MeshBasicMaterial({ map: cardTex, color: new THREE.Color(0.8, 0.8, 0.8), transparent: true })), 4, 1));
-  const cardGlow = new THREE.Sprite(fade(track(new THREE.SpriteMaterial({ map: glow, color: 0xffb04a, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.28 })), 4, 0.28));
+  const cardGlow = new THREE.Sprite(fade(track(new THREE.SpriteMaterial({ map: glow, color: 0xf0a58a, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.28 })), 4, 0.28));
   cardGlow.scale.set(15, 9, 1);
   cardGlow.position.z = -0.4;
   cardGroup.add(cardGlow, cardMesh);
@@ -426,7 +426,7 @@ export function createJourneyScene({ host, wrap, chapters, onChapter, onProgress
   const sparkData = Array.from({ length: sparkN }, (_, i) => ({ a: rand(i) * Math.PI * 2, r: 2 + rand(i + 1) * 5, s: 0.2 + rand(i + 2) * 0.6, z: rand(i + 3) * 6 }));
   const sparkGeo = track(new THREE.BufferGeometry());
   sparkGeo.setAttribute("position", new THREE.BufferAttribute(sparkPos, 3));
-  const sparkMat = track(new THREE.PointsMaterial({ size: 0.16, map: glow, color: 0xffd48a, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }));
+  const sparkMat = track(new THREE.PointsMaterial({ size: 0.16, map: glow, color: 0xf4e6c8, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }));
   const sparks = new THREE.Points(sparkGeo, sparkMat);
   sparks.frustumCulled = false;
   sparks.position.set(0, 0, A[4]);
@@ -670,7 +670,7 @@ export function createJourneyScene({ host, wrap, chapters, onChapter, onProgress
       fxPass.uniforms.uTime.value = t;
     }
 
-    if (composer && tier < 2) composer.render();
+    if (composer && tier < 1) composer.render();
     else renderer.render(scene, camera);
   };
 
@@ -709,15 +709,14 @@ export function createJourneyScene({ host, wrap, chapters, onChapter, onProgress
 
     // adaptive quality: drop resolution, then post-processing, when frames run long
     frames += 1;
-    if (frames > 40 && tier < 2) {
-      slowFrames = dt > 0.03 ? slowFrames + 1 : Math.max(0, slowFrames - 1);
-      if (slowFrames > 45) {
+    if (frames > 90 && tier < 1) {
+      slowFrames = dt > 0.045 ? slowFrames + 1 : Math.max(0, slowFrames - 1);
+      if (slowFrames > 90) {
         slowFrames = 0;
         tier += 1;
-        if (tier === 1) {
-          dprCap = 1;
-          resize();
-        }
+        // shed the glow, keep a sharp floor instead of dropping to a blurry 1x
+        dprCap = Math.max(1.4, dprCap * 0.85);
+        resize();
       }
     }
   };

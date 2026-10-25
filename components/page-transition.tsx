@@ -17,13 +17,32 @@ const nameFor = (path: string) => {
   return names[path] ?? names[base] ?? "Tushar Gautam";
 };
 
+const CURTAIN_IN = 380;
+const CURTAIN_OUT = 620;
+
 export function PageTransition() {
   const router = useRouter();
   const pathname = usePathname();
   const [phase, setPhase] = useState<"idle" | "in" | "out">("idle");
   const [label, setLabel] = useState("");
-  const target = useRef<string | null>(null);
   const busy = useRef(false);
+  const startedAt = useRef(0);
+  const timers = useRef<number[]>([]);
+
+  const later = (fn: () => void, ms: number) => {
+    timers.current.push(window.setTimeout(fn, ms));
+  };
+
+  const finish = () => {
+    window.scrollTo(0, 0);
+    setPhase("out");
+    document.documentElement.dataset.nav = "enter";
+    later(() => {
+      setPhase("idle");
+      busy.current = false;
+      delete document.documentElement.dataset.nav;
+    }, CURTAIN_OUT);
+  };
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
@@ -37,25 +56,31 @@ export function PageTransition() {
       e.preventDefault();
       if (busy.current) return;
       busy.current = true;
-      target.current = url.pathname + url.search + url.hash;
+      startedAt.current = performance.now();
       setLabel(nameFor(url.pathname));
       setPhase("in");
-      window.setTimeout(() => router.push(target.current as string), 520);
+      router.push(url.pathname + url.search + url.hash);
+      // never leave the curtain stuck if the route is slow
+      later(() => {
+        if (busy.current) finish();
+      }, 4000);
     };
     document.addEventListener("click", onClick);
     return () => document.removeEventListener("click", onClick);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
 
   useEffect(() => {
     if (!busy.current) return;
-    window.scrollTo(0, 0);
-    setPhase("out");
-    const t = window.setTimeout(() => {
-      setPhase("idle");
-      busy.current = false;
-    }, 700);
-    return () => window.clearTimeout(t);
+    const wait = Math.max(0, CURTAIN_IN - (performance.now() - startedAt.current));
+    later(finish, wait);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
+
+  useEffect(() => {
+    const list = timers.current;
+    return () => list.forEach((t) => window.clearTimeout(t));
+  }, []);
 
   return (
     <div className="pt" data-phase={phase} aria-hidden="true">

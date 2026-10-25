@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import { PartnerLogo } from "@/components/partner-logo";
+import { Scene3D } from "@/components/scene3d";
 import type { ArtifactKind } from "@/lib/site";
 
 const idx = (i: number) => ({ "--i": i }) as CSSProperties;
@@ -128,47 +129,34 @@ function Hotels() {
 }
 
 function Food() {
+  const rows = [
+    { n: "Domino's", id: "dominos", w: "brand cart, live", p: "₹412", top: true },
+    { n: "Swiggy", id: "swiggy", w: "fees + coupon", p: "₹448" },
+    { n: "Zomato", id: "zomato", w: "fees + coupon", p: "₹456" },
+  ];
   return (
     <Panel
-      title="One restaurant, two apps"
-      chip="Matched"
+      title="Searched: Domino's"
+      chip="Chain priced live"
       stats={[
-        { v: "2", l: "platforms" },
-        { v: "1", l: "identity" },
-        { v: "Fast", l: "first page" },
+        { v: "7", l: "apps" },
+        { v: "3", l: "chains live" },
+        { v: "0", l: "estimates" },
       ]}
     >
-      <div className="la-merge la-merge-food">
-        <ul className="la-records la-apps">
-          {[
-            { name: "Swiggy", id: "swiggy" },
-            { name: "Zomato", id: "zomato" },
-          ].map((app, i) => (
-            <li key={app.id} style={idx(i)}>
-              <span className="la-k la-with-logo">
-                <PartnerLogo id={app.id} size={22} />
-                {app.name}
-              </span>
-              <strong>Biryani House</strong>
-              <span className="la-lines">
-                <i />
-                <i />
-                <i />
-              </span>
-            </li>
-          ))}
-        </ul>
-        <span className="la-join" aria-hidden="true" />
-        <div className="la-canon la-canon-ink">
-          <span className="la-k">One restaurant</span>
-          <strong>Biryani House</strong>
-          <span className="la-k">matched across apps</span>
-          <p>
-            <b>1 restaurant</b>
-            <span>menus aligned</span>
-          </p>
-        </div>
-      </div>
+      <ul className="la-cands la-rides">
+        {rows.map((r, i) => (
+          <li key={r.n} className={r.top ? "is-top" : undefined} style={idx(i)}>
+            <span className="la-with-logo">
+              <PartnerLogo id={r.id} size={22} />
+              {r.n}
+            </span>
+            <span className="la-k">{r.w}</span>
+            <b>{r.p}</b>
+          </li>
+        ))}
+      </ul>
+      <p className="la-foot-note">Example. Ranked by the final amount to pay, never by an estimate.</p>
     </Panel>
   );
 }
@@ -263,8 +251,8 @@ function Cabs() {
       title="Same ride, smarter pickup"
       chip="Smart pickup"
       stats={[
-        { v: "3", l: "providers" },
-        { v: "₹1,000+", l: "saved / month" },
+        { v: "15", l: "ride apps" },
+        { v: "4", l: "book in-app" },
         { v: "120 m", l: "walk saves ₹71" },
       ]}
     >
@@ -280,7 +268,7 @@ function Cabs() {
           </li>
         ))}
       </ul>
-      <p className="la-foot-note">Price follows the pickup point. We find the cheapest corner.</p>
+      <p className="la-foot-note">Example. Price follows the pickup point; we search the corners around you.</p>
     </Panel>
   );
 }
@@ -365,30 +353,67 @@ function Llm() {
 
 function Pay() {
   const options = [
-    { n: "Card + coupon + voucher", v: "₹512 saved", top: true },
-    { n: "Bank card offer", v: "₹312 saved" },
-    { n: "UPI cashback", v: "₹150 later" },
+    { n: "Amazon Pay ICICI card", w: "5% cashback", v: "₹7,999.95", top: true },
+    { n: "Gift card", w: "included in results", v: "if it applies" },
+    { n: "No-cost EMI", w: "included in results", v: "if it applies" },
   ];
   return (
     <Panel
-      title="Best way to pay"
-      chip="Cart scanned"
+      title={
+        <>
+          You can save <em>₹7,999.95</em>
+        </>
+      }
+      chip="5% off on ₹1,59,999"
       stats={[
+        { v: "700K", l: "carts / day" },
+        { v: "68K", l: "users / day" },
         { v: "1,254", l: "tests" },
-        { v: "81", l: "files" },
-        { v: "0", l: "overstated" },
       ]}
     >
       <ul className="la-cands la-rides">
         {options.map((o, i) => (
           <li key={o.n} className={o.top ? "is-top" : undefined} style={idx(i)}>
             <span>{o.n}</span>
-            <span className="la-k">{o.top ? "best route" : ""}</span>
+            <span className="la-k">{o.top ? "biggest saving" : o.w}</span>
             <b>{o.v}</b>
           </li>
         ))}
       </ul>
-      <p className="la-foot-note">Real savings only: anything unprovable is dropped.</p>
+      <p className="la-foot-note">Estimated cost after cashback ₹1,51,999.05. Coupon, voucher and card offers, combined.</p>
+    </Panel>
+  );
+}
+
+function Grocery() {
+  const rows = [
+    { n: "Zepto", id: "zepto", w: "500 g", p: "₹279", top: true },
+    { n: "Instamart", id: "instamart", w: "500 g", p: "₹282" },
+    { n: "Blinkit", id: "blinkit", w: "2 × 250 g", p: "₹291" },
+  ];
+  return (
+    <Panel
+      title="Butter, 500 g"
+      chip="Matched by pack size"
+      stats={[
+        { v: "10", l: "parsers" },
+        { v: "40", l: "clusters cap" },
+        { v: "20%", l: "to re-cluster" },
+      ]}
+    >
+      <ul className="la-cands la-rides">
+        {rows.map((r, i) => (
+          <li key={r.n} className={r.top ? "is-top" : undefined} style={idx(i)}>
+            <span className="la-with-logo">
+              <PartnerLogo id={r.id} size={22} />
+              {r.n}
+            </span>
+            <span className="la-k">{r.w}</span>
+            <b>{r.p}</b>
+          </li>
+        ))}
+      </ul>
+      <p className="la-foot-note">Example. 2 × 250 g lands in the same group as 500 g.</p>
     </Panel>
   );
 }
@@ -426,25 +451,27 @@ function Bot() {
 export function SystemArtifact({ kind }: { kind: ArtifactKind }) {
   switch (kind) {
     case "flights":
-      return <Flights />;
+      return <Scene3D kind="flights" className="scene3d-card" label="Live 3D · BLR → GOI" fallback={<Flights />} />;
     case "hotels":
-      return <Hotels />;
+      return <Scene3D kind="hotels" className="scene3d-card" label="Live 3D · 7 records → 1 hotel" fallback={<Hotels />} />;
     case "food":
-      return <Food />;
+      return <Scene3D kind="food" className="scene3d-card scene3d-clear" fallback={<Food />} />;
     case "categorizer":
       return <Categorizer />;
     case "search":
       return <Search />;
     case "cabs":
-      return <Cabs />;
+      return <Scene3D kind="cabs" className="scene3d-card scene3d-clear" fallback={<Cabs />} />;
     case "observability":
       return <Observability />;
     case "llm":
       return <Llm />;
     case "pay":
-      return <Pay />;
+      return <Scene3D kind="pay" className="scene3d-card scene3d-clear" fallback={<Pay />} />;
     case "bot":
       return <Bot />;
+    case "grocery":
+      return <Scene3D kind="grocery" className="scene3d-card scene3d-clear" fallback={<Grocery />} />;
     default:
       return null;
   }

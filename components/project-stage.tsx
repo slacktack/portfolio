@@ -90,8 +90,8 @@ export function ProjectStage({ items }: { items: StageItem[] }) {
       const root = new THREE.Group();
       scene.add(root);
 
-      const W = 4.1;
-      const H = 2.56;
+      const W = 7.8;
+      const H = 4.875;
       const geometry = new THREE.PlaneGeometry(1, 1);
       const disposables: { dispose: () => void }[] = [geometry, mask, glow];
 
@@ -199,7 +199,7 @@ export function ProjectStage({ items }: { items: StageItem[] }) {
         if (drag) {
           const dx = event.clientX - drag.x;
           if (Math.abs(dx) > 6) drag.moved = true;
-          targetRef.current = drag.start - dx / (box.width / 4.2);
+          targetRef.current = drag.start - dx / (box.width / 3.4);
           return;
         }
         renderer.domElement.style.cursor = pick(event) >= 0 ? "pointer" : "grab";
@@ -252,7 +252,7 @@ export function ProjectStage({ items }: { items: StageItem[] }) {
         if (!width || !height) return;
         renderer.setSize(width, height, false);
         camera.aspect = width / height;
-        camera.position.z = width < 760 ? Math.max(7.6, 2.55 / (0.306 * (width / height))) : 11.5;
+        camera.position.z = width < 760 ? Math.max(7.6, 4.4 / (0.306 * (width / height))) : 11.5;
         camera.updateProjectionMatrix();
       };
       const resizeObserver = new ResizeObserver(resize);
@@ -296,9 +296,9 @@ export function ProjectStage({ items }: { items: StageItem[] }) {
           card.group.visible = ad < 3.2;
           if (!card.group.visible) return;
 
-          card.group.position.x = Math.sin(d * 0.58) * 5.6;
+          card.group.position.x = Math.sin(d * 0.58) * 9.2;
           card.group.position.y = Math.sin(t * 0.9 + i) * 0.04 * (1 - Math.min(ad, 1));
-          card.group.position.z = -ad * 1.5 + Math.cos(d * 0.4) * 0.4;
+          card.group.position.z = -ad * 2 + Math.cos(d * 0.4) * 0.4;
           card.group.rotation.y = -d * 0.46;
           const s = 1 - Math.min(ad, 3) * 0.07;
           card.group.scale.setScalar(s);

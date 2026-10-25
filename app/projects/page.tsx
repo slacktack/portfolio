@@ -101,7 +101,7 @@ export default function ProjectsPage() {
                   delay={index > 3 ? 60 : 0}
                 >
                   <article id={project.slug}>
-                    <LiveFrame url={project.live} poster={project.image} title={project.title} portrait={project.portrait} embed={project.embed !== false} />
+                    <LiveFrame url={project.live} poster={project.image} title={project.title} portrait={project.portrait} embed={project.embed !== false} tall={project.tall} />
 
                     <div className="project-info">
                       <div className="project-kicker">
