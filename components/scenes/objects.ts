@@ -7,11 +7,20 @@ export const slab = (w: number, h: number, d: number, r: number) => new RoundedB
 // a thin card with the same artwork on both faces
 export function card(ctx: Ctx, w: number, h: number, d: number, r: number, draw: (g: CanvasRenderingContext2D, cw: number, ch: number) => void, edge = 0xfffdf6) {
   const tex = ctx.track(canvasTexture(Math.round(w * 340), Math.round(h * 340), draw));
+  const redraw = () => {
+    const cv = tex.image as HTMLCanvasElement;
+    const g = cv.getContext("2d");
+    if (!g) return;
+    g.clearRect(0, 0, cv.width, cv.height);
+    draw(g, cv.width, cv.height);
+    tex.needsUpdate = true;
+  };
   const face = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.42, metalness: 0.05 });
   const rim = new THREE.MeshStandardMaterial({ color: edge, roughness: 0.5 });
   const m = new THREE.Mesh(slab(w, h, d, r), rim);
   const front = new THREE.Mesh(new THREE.PlaneGeometry(w - 0.12, h - 0.12), face);
   front.position.z = d / 2 + 0.002;
+  m.userData.redraw = redraw;
   const back = front.clone();
   back.rotation.y = Math.PI;
   back.position.z = -(d / 2 + 0.002);
@@ -148,13 +157,13 @@ export function makeBrowser(ctx: Ctx, imageUrl: string, host: string) {
   const bar = new THREE.Mesh(
     new THREE.PlaneGeometry(W - 0.2, 0.22),
     new THREE.MeshBasicMaterial({
-      map: ctx.track(canvasTexture(512, 32, (c, w, h) => {
+      map: ctx.track(canvasTexture(1536, 96, (c, w, h) => {
         c.fillStyle = "#fffdf6";
         c.fillRect(0, 0, w, h);
         ["#ff5f57", "#febc2e", "#28c840"].forEach((col, i) => {
           c.fillStyle = col;
           c.beginPath();
-          c.arc(18 + i * 22, h / 2, 6, 0, Math.PI * 2);
+          c.arc(54 + i * 66, h / 2, 18, 0, Math.PI * 2);
           c.fill();
         });
       })),
@@ -167,7 +176,7 @@ export function makeBrowser(ctx: Ctx, imageUrl: string, host: string) {
   screen.position.set(0, -0.14, 0.115);
   new THREE.TextureLoader().load(imageUrl, (t) => {
     t.colorSpace = THREE.SRGBColorSpace;
-    t.anisotropy = 4;
+    t.anisotropy = ctx.renderer.capabilities.getMaxAnisotropy();
     shot.map = t;
     shot.color.set(0xffffff);
     shot.needsUpdate = true;
@@ -175,12 +184,12 @@ export function makeBrowser(ctx: Ctx, imageUrl: string, host: string) {
   const tape = new THREE.Mesh(
     new THREE.PlaneGeometry(2.5, 0.36),
     new THREE.MeshBasicMaterial({
-      map: ctx.track(canvasTexture(512, 74, (c, w, h) => {
+      map: ctx.track(canvasTexture(1536, 222, (c, w, h) => {
         c.fillStyle = "#f6df8a";
         c.fillRect(0, 0, w, h);
         c.fillStyle = "#4a3b10";
-        c.font = "600 30px 'Courier New', monospace";
-        c.fillText(host, 18, 48);
+        c.font = "600 90px 'Courier New', monospace";
+        c.fillText(host, 54, 144);
       })),
       transparent: true,
     })
@@ -190,18 +199,18 @@ export function makeBrowser(ctx: Ctx, imageUrl: string, host: string) {
   const live = new THREE.Mesh(
     new THREE.PlaneGeometry(0.62, 0.22),
     new THREE.MeshBasicMaterial({
-      map: ctx.track(canvasTexture(124, 44, (c, w, h) => {
+      map: ctx.track(canvasTexture(372, 132, (c, w, h) => {
         c.fillStyle = "rgba(10,12,20,0.78)";
         c.beginPath();
         c.roundRect(0, 0, w, h, 22);
         c.fill();
         c.fillStyle = "#4ade80";
         c.beginPath();
-        c.arc(24, h / 2, 7, 0, Math.PI * 2);
+        c.arc(72, h / 2, 21, 0, Math.PI * 2);
         c.fill();
         c.fillStyle = "#fff";
-        c.font = "700 22px system-ui, sans-serif";
-        c.fillText("LIVE", 42, 30);
+        c.font = "700 66px system-ui, sans-serif";
+        c.fillText("LIVE", 126, 90);
       })),
       transparent: true,
     })

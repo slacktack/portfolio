@@ -60,8 +60,7 @@ export default function HomePage() {
         </h1>
 
         <p className="skyx-sub">
-          Comparison engines and low-latency pipelines at Buyhatke. Flights, hotels, food:
-          many sources in, one answer out.
+          Comparison engines and low-latency pipelines at Buyhatke.
         </p>
 
         <div className="skyx-actions">

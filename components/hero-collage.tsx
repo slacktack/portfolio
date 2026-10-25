@@ -17,12 +17,6 @@ export function HeroCollage({ children }: { children: ReactNode }) {
         </svg>
         <span>pick me up</span>
       </div>
-      <div className="skyx-note skyx-note-prod" aria-hidden="true">
-        <svg viewBox="0 0 90 60" fill="none">
-          <path d="M84 6C62 2 34 12 22 42M22 42l2-14m-2 14l13-5" />
-        </svg>
-        <span>real prod number. not a mockup.</span>
-      </div>
 
       <div className="skyx-copy">{children}</div>
     </section>

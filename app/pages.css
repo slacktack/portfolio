@@ -725,3 +725,42 @@
   background: transparent;
   overflow: visible;
 }
+
+/* hero + logo strip fill exactly one screen, so nothing of the next section peeks in */
+.skyx {
+  --strip: 64px;
+  min-height: calc(100vh - var(--strip));
+  min-height: calc(100svh - var(--strip));
+  padding-block: clamp(96px, 13vh, 150px) clamp(32px, 6vh, 70px);
+}
+
+.hero-logos {
+  height: var(--strip, 64px);
+  display: flex;
+  align-items: center;
+}
+
+.hero-logos .logo-wall {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+@media (max-width: 760px) {
+  .skyx {
+    min-height: calc(100svh - 64px);
+    padding-block: 230px 24px;
+  }
+}
+
+/* canvases must never sit in a rotated or scaled layer: that re-samples them and looks soft */
+.system-art:has(.scene3d),
+.system-card:nth-child(even) .system-art:has(.scene3d) {
+  rotate: 0deg;
+}
+
+.system-card {
+  will-change: auto;
+}

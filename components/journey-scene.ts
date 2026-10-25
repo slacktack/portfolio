@@ -84,14 +84,14 @@ const TRAIL_FRAG = `uniform float uHead; uniform vec3 uColor; uniform float uAlp
 export function createJourneyScene({ host, wrap, chapters, onChapter, onProgress }: Opts): JourneyHandle | null {
   let renderer: THREE.WebGLRenderer;
   try {
-    renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false, powerPreference: "high-performance" });
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
   } catch {
     return null;
   }
 
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const coarse = window.matchMedia("(pointer: coarse)").matches;
-  let dprCap = coarse ? 1.5 : 1.75;
+  let dprCap = 2;
   const dpr = () => Math.min(window.devicePixelRatio || 1, dprCap);
 
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -437,7 +437,7 @@ export function createJourneyScene({ host, wrap, chapters, onChapter, onProgress
   let bloom: UnrealBloomPass | null = null;
   let fxPass: ShaderPass | null = null;
   try {
-    composer = new EffectComposer(renderer);
+    composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(host.clientWidth || 2, host.clientHeight || 2, { type: THREE.HalfFloatType, samples: coarse ? 2 : 4 }));
     composer.addPass(new RenderPass(scene, camera));
     bloom = new UnrealBloomPass(new THREE.Vector2(host.clientWidth, host.clientHeight), 0.4, 0.55, 0.62);
     composer.addPass(bloom);

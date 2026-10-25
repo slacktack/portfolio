@@ -29,6 +29,7 @@ export type MountOpts = {
   mode: "card" | "scroll";
   wrap?: HTMLElement;
   loopSeconds?: number;
+  once?: boolean;
   fov?: number;
   exposure?: number;
   bloom?: { strength: number; radius: number; threshold: number };
@@ -48,14 +49,14 @@ export function mountScene(o: MountOpts): Handle | null {
   const { host, mode } = o;
   let renderer: THREE.WebGLRenderer;
   try {
-    renderer = new THREE.WebGLRenderer({ antialias: !!o.transparent, alpha: !!o.transparent, powerPreference: "high-performance" });
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: !!o.transparent, powerPreference: "high-performance" });
   } catch {
     return null;
   }
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const coarse = window.matchMedia("(pointer: coarse)").matches;
   const mobile = coarse || host.clientWidth < 700;
-  let dprCap = mode === "card" ? (mobile ? 1.5 : 2) : mobile ? 1.5 : 1.75;
+  let dprCap = mode === "card" ? 3 : 2;
   const dpr = () => Math.min(window.devicePixelRatio || 1, dprCap);
 
   if (o.transparent) renderer.setClearColor(0x000000, 0);
@@ -101,7 +102,8 @@ export function mountScene(o: MountOpts): Handle | null {
   let bloom: UnrealBloomPass | null = null;
   if (o.bloom && !o.transparent) {
     try {
-      composer = new EffectComposer(renderer);
+      const rt = new THREE.WebGLRenderTarget(host.clientWidth || 2, host.clientHeight || 2, { type: THREE.HalfFloatType, samples: mobile ? 2 : 4 });
+      composer = new EffectComposer(renderer, rt);
       composer.addPass(new RenderPass(scene, camera));
       bloom = new UnrealBloomPass(new THREE.Vector2(host.clientWidth, host.clientHeight), o.bloom.strength, o.bloom.radius, o.bloom.threshold);
       composer.addPass(bloom);
@@ -160,10 +162,17 @@ export function mountScene(o: MountOpts): Handle | null {
   ro.observe(host);
 
   let visible = true;
+  let playStart = performance.now();
   const io = new IntersectionObserver(([e]) => {
+    if (e.isIntersecting && !visible) playStart = performance.now();
     visible = e.isIntersecting;
   });
   io.observe(o.wrap ?? host);
+  // once-scenes replay when the pointer comes back after they have settled
+  const replay = () => {
+    if (o.once && performance.now() - playStart > (o.loopSeconds ?? 4) * 1000 + 400) playStart = performance.now();
+  };
+  if (mode === "card") host.addEventListener("pointerenter", replay);
 
   let progress = 0;
   let eased = 0;
@@ -211,7 +220,8 @@ export function mountScene(o: MountOpts): Handle | null {
       eased += (progress - eased) * (1 - Math.pow(0.0015, dt));
       p = eased;
     } else {
-      p = (t / (o.loopSeconds ?? 9)) % 1;
+      const el = (now - playStart) / 1000 / (o.loopSeconds ?? 9);
+      p = o.once ? Math.min(el, 1) : el % 1;
     }
     const pct = Math.round(p * 100);
     if (pct !== lastPct) {
@@ -254,6 +264,7 @@ export function mountScene(o: MountOpts): Handle | null {
       cancelAnimationFrame(raf);
       built.dispose?.();
       window.removeEventListener("pointermove", onMove);
+      host.removeEventListener("pointerenter", replay);
       window.removeEventListener("scroll", measure);
       window.removeEventListener("resize", measure);
       ro.disconnect();

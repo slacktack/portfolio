@@ -118,7 +118,6 @@ const wall = [
 export function LogoWall() {
   return (
     <div className="logo-wall" aria-label="Platforms I have integrated and compared">
-      <span className="logo-wall-label">Compared across</span>
       <div className="logo-wall-track" aria-hidden="true">
         <div className="logo-wall-roll">
         {[0, 1].map((copy) => (
