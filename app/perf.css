@@ -1,0 +1,99 @@
+/* paint and compositing diet: nothing here should force a full-screen re-blend per frame */
+
+/* film grain without a blend mode over animated canvases */
+.grain,
+[data-theme="night"] .grain {
+  mix-blend-mode: normal;
+  opacity: 0.028;
+}
+
+/* header glass: solid translucency instead of a live blur over the 3D canvases */
+.hdr-nav,
+.hdr-btn,
+.hdr-menu,
+.hdr.is-scrolled .hdr-brand {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: color-mix(in srgb, var(--paper) 90%, transparent);
+}
+
+.skyx-eyebrow {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.journey-m,
+.scene3d-label {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.journey-m {
+  background: rgba(244, 241, 234, 0.12);
+}
+
+.scene3d-label {
+  background: rgba(10, 12, 20, 0.7);
+}
+
+/* stacked cards: dim with an overlay (opacity only) rather than a filter */
+.system-card {
+  filter: none !important;
+}
+
+.system-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  border-radius: inherit;
+  background: #12110e;
+  opacity: calc(var(--p, 0) * 0.28);
+  pointer-events: none;
+}
+
+.scroll-progress {
+  width: 100% !important;
+  transform-origin: 0 50%;
+}
+
+/* only promote layers that actually animate */
+.reveal:not(.is-armed),
+.reveal.is-visible {
+  will-change: auto;
+}
+.scroll-progress { transform: scaleX(0); }
+
+/* hero byline: plain text between two hairlines, no container */
+.skyx-byline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 0 0 clamp(14px, 2.2vh, 24px);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: rgba(18, 17, 14, 0.82);
+}
+
+.skyx-byline::before,
+.skyx-byline::after {
+  content: "";
+  width: clamp(28px, 5vw, 64px);
+  height: 1px;
+  background: currentColor;
+  opacity: 0.4;
+}
+
+[data-theme="night"] .skyx-byline {
+  color: rgba(255, 247, 238, 0.86);
+}
+
+@media (max-width: 760px) {
+  .skyx-byline {
+    font-size: 0.88rem;
+    gap: 10px;
+  }
+}

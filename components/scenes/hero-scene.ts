@@ -155,5 +155,5 @@ function heroBuild(ctx: Ctx): Built {
 }
 
 export function mountHeroScene(opts: Pick<Parameters<typeof mountScene>[0], "host" | "mode" | "wrap" | "onProgress" | "loopSeconds">): Handle | null {
-  return mountScene({ ...opts, fov: 34, exposure: 1, transparent: true, build: heroBuild });
+  return mountScene({ ...opts, fov: 34, exposure: 1, transparent: true, maxDpr: 1.5, build: heroBuild });
 }

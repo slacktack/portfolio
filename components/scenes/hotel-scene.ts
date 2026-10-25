@@ -733,5 +733,5 @@ function hotelBuild(ctx: Ctx): Built {
 }
 
 export function mountHotelScene(opts: Pick<Parameters<typeof mountScene>[0], "host" | "mode" | "wrap" | "onProgress" | "loopSeconds">): Handle | null {
-  return mountScene({ ...opts, fov: 58, exposure: 0.82, environment: true, envIntensity: 0.16, bloom: { strength: 0.24, radius: 0.55, threshold: 0.96 }, build: hotelBuild });
+  return mountScene({ ...opts, fov: 58, exposure: 0.82, environment: opts.mode === "scroll", envIntensity: 0.16, bloom: { strength: 0.24, radius: 0.55, threshold: 0.96 }, build: hotelBuild });
 }

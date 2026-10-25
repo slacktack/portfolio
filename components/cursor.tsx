@@ -63,15 +63,20 @@ export function Cursor() {
     };
 
     const tick = () => {
-      raf = requestAnimationFrame(tick);
       rx += (x - rx) * 0.2;
       ry += (y - ry) * 0.2;
       if (dot.current) dot.current.style.transform = `translate3d(${x}px, ${y}px, 0)`;
       if (ring.current) ring.current.style.transform = `translate3d(${rx}px, ${ry}px, 0)`;
+      // sleep once the ring has caught up with the pointer
+      raf = Math.abs(x - rx) + Math.abs(y - ry) > 0.2 ? requestAnimationFrame(tick) : 0;
     };
-    tick();
+    const wake = () => {
+      if (!raf) raf = requestAnimationFrame(tick);
+    };
+    wake();
 
     window.addEventListener("pointermove", move, { passive: true });
+    window.addEventListener("pointermove", wake, { passive: true });
     window.addEventListener("pointerdown", down);
     window.addEventListener("pointerup", up);
     document.addEventListener("pointerleave", leave);
@@ -79,6 +84,7 @@ export function Cursor() {
       root.classList.remove("has-cursor");
       cancelAnimationFrame(raf);
       window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointermove", wake);
       window.removeEventListener("pointerdown", down);
       window.removeEventListener("pointerup", up);
       document.removeEventListener("pointerleave", leave);

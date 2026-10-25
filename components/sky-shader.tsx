@@ -21,7 +21,7 @@ float noise(vec2 p){
 }
 float fbm(vec2 p){
   float v = 0.0, a = 0.5;
-  for (int i = 0; i < 5; i++) { v += a * noise(p); p = p * 2.03 + vec2(7.1, 3.3); a *= 0.5; }
+  for (int i = 0; i < 4; i++) { v += a * noise(p); p = p * 2.03 + vec2(7.1, 3.3); a *= 0.5; }
   return v;
 }
 
@@ -83,7 +83,7 @@ export function SkyShader() {
         return;
       }
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
+      renderer.setPixelRatio(0.6);
       renderer.setSize(host.clientWidth, host.clientHeight, false);
       renderer.domElement.className = "skyx-canvas";
       host.appendChild(renderer.domElement);
@@ -134,9 +134,13 @@ export function SkyShader() {
       theme.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
       const start = performance.now();
+      let lastDraw = 0;
       const frame = () => {
         raf = requestAnimationFrame(frame);
         if (!visible || document.hidden) return;
+        const nowMs = performance.now();
+        if (nowMs - lastDraw < 32) return;
+        lastDraw = nowMs;
         material.uniforms.uTime.value = (performance.now() - start) / 1000 + 20;
         material.uniforms.uScroll.value += (scroll - material.uniforms.uScroll.value) * 0.08;
         renderer.render(scene, camera);

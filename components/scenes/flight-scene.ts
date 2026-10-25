@@ -300,5 +300,5 @@ function flightBuild(ctx: Ctx): Built {
 }
 
 export function mountFlightScene(opts: Pick<Parameters<typeof mountScene>[0], "host" | "mode" | "wrap" | "onProgress" | "loopSeconds">): Handle | null {
-  return mountScene({ ...opts, fov: 52, exposure: 1, environment: true, envIntensity: 0.7, bloom: { strength: 0.14, radius: 0.5, threshold: 0.9 }, build: flightBuild });
+  return mountScene({ ...opts, fov: 52, exposure: 1, environment: opts.mode === "scroll", envIntensity: 0.7, bloom: { strength: 0.14, radius: 0.5, threshold: 0.9 }, build: flightBuild });
 }

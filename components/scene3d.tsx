@@ -14,6 +14,20 @@ const load = async (kind: SceneKind) => {
 
 type Handle = { dispose: () => void };
 
+// Creating a WebGL context and compiling shaders blocks the main thread, so scenes start
+// one at a time with a short breather in between instead of all at once while scrolling.
+let mountChain: Promise<void> = Promise.resolve();
+const queueMount = (job: () => Promise<void>) => {
+  mountChain = mountChain.then(
+    () =>
+      new Promise<void>((resolve) => {
+        window.setTimeout(() => {
+          job().finally(resolve);
+        }, 160);
+      })
+  );
+};
+
 type Props = {
   kind: SceneKind;
   mode?: "card" | "scroll";
@@ -40,26 +54,29 @@ export function Scene3D({ kind, mode = "card", wrap, onProgress, fallback, class
     let busy = false;
     let near = false;
 
-    const mount = async () => {
+    const mount = () => {
       if (handle || busy) return;
       busy = true;
-      try {
-        const mountScene = await load(kind);
-        if (!near || !host.current) return;
-        const h = mountScene({
-          host: el,
-          mode,
-          wrap: wrap?.current ?? undefined,
-          loopSeconds: kind === "flights" ? 9 : kind === "hotels" ? 14 : 10,
-          onProgress: (p: number) => cb.current?.(p),
-        });
-        if (!h) setFailed(true);
-        else handle = h;
-      } catch {
-        setFailed(true);
-      } finally {
-        busy = false;
-      }
+      queueMount(async () => {
+        try {
+          if (!near || !host.current) return;
+          const mountScene = await load(kind);
+          if (!near || !host.current) return;
+          const h = mountScene({
+            host: el,
+            mode,
+            wrap: wrap?.current ?? undefined,
+            loopSeconds: kind === "flights" ? 9 : kind === "hotels" ? 14 : 10,
+            onProgress: (p: number) => cb.current?.(p),
+          });
+          if (!h) setFailed(true);
+          else handle = h;
+        } catch {
+          setFailed(true);
+        } finally {
+          busy = false;
+        }
+      });
     };
     const unmount = () => {
       handle?.dispose();

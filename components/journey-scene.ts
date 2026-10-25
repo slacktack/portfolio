@@ -91,7 +91,7 @@ export function createJourneyScene({ host, wrap, chapters, onChapter, onProgress
 
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const coarse = window.matchMedia("(pointer: coarse)").matches;
-  let dprCap = 2;
+  let dprCap = 1.5;
   const dpr = () => Math.min(window.devicePixelRatio || 1, dprCap);
 
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -437,7 +437,7 @@ export function createJourneyScene({ host, wrap, chapters, onChapter, onProgress
   let bloom: UnrealBloomPass | null = null;
   let fxPass: ShaderPass | null = null;
   try {
-    composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(host.clientWidth || 2, host.clientHeight || 2, { type: THREE.HalfFloatType, samples: coarse ? 2 : 4 }));
+    composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(host.clientWidth || 2, host.clientHeight || 2, { type: THREE.HalfFloatType, samples: 2 }));
     composer.addPass(new RenderPass(scene, camera));
     bloom = new UnrealBloomPass(new THREE.Vector2(host.clientWidth, host.clientHeight), 0.4, 0.55, 0.62);
     composer.addPass(bloom);

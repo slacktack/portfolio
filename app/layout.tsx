@@ -6,6 +6,7 @@ import "./journey.css";
 import "./mobile.css";
 import "./pages.css";
 import "./motion.css";
+import "./perf.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CommandPalette } from "@/components/command-palette";
@@ -120,6 +121,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
+        <script dangerouslySetInnerHTML={{ __html: `document.addEventListener("error",function(e){var t=e.target;if(t&&t.tagName==="IMG"){t.style.visibility="hidden"}},true);` }} />
         <div className="grain" aria-hidden="true" />
         <a className="skip-link" href="#main">
           Skip to content

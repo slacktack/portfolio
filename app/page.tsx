@@ -32,10 +32,9 @@ export default function HomePage() {
   return (
     <>
       <HeroCollage>
-        <span className="skyx-eyebrow">
-          <span className="dot" />
-          Tushar Gautam · Backend engineer · Bangalore
-        </span>
+        <p className="skyx-byline">
+          <span>Tushar Gautam, backend engineer in Bangalore</span>
+        </p>
 
         <h1 className="skyx-title" aria-label="The invisible layer. P99 or it didn't happen.">
           <span className="hl">

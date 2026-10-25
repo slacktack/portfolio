@@ -9,6 +9,7 @@ type Opts = Pick<Parameters<typeof mountScene>[0], "host" | "mode" | "wrap" | "o
 
 const mix = (a: number, b: number, k: number) => a + (b - a) * k;
 const clamp01 = (x: number) => Math.min(Math.max(x, 0), 1);
+const easeOut = (x: number) => 1 - Math.pow(1 - x, 3);
 const easeOutBack = (x: number) => 1 + 2.2 * Math.pow(x - 1, 3) + 1.2 * Math.pow(x - 1, 2);
 const seg = (p: number, a: number, b: number) => clamp01((p - a) / (b - a));
 
@@ -367,20 +368,43 @@ function groceryBuild(ctx: Ctx): Built {
   mkTag("Instamart", "instamart", "Apples · 1 kg", "₹192", -0.9);
   mkTag("Blinkit", "blinkit", "Apples · 2 × 500 g", "₹195", 3.9);
 
-  const pill = label(ctx, 8.6, 1.1, (g, w, h) => {
+  // a quiet "matched" badge: light, small, fades in after the match lines draw
+  const pill = label(ctx, 5.4, 0.62, (g, w, h) => {
     g.clearRect(0, 0, w, h);
-    g.fillStyle = "#12110e";
-    rrect(g, 0, 0, w, h, h / 2);
+    g.fillStyle = "#eaf6ee";
+    rrect(g, 3, 3, w - 6, h - 6, (h - 6) / 2);
     g.fill();
-    g.fillStyle = "#4ade80";
+    g.strokeStyle = "rgba(31,157,85,0.45)";
+    g.lineWidth = 3;
+    g.stroke();
+    g.fillStyle = "#1f9d55";
     g.beginPath();
-    g.arc(h * 0.5, h / 2, h * 0.14, 0, Math.PI * 2);
+    g.arc(h * 0.5, h / 2, h * 0.2, 0, Math.PI * 2);
     g.fill();
-    g.fillStyle = "#fff";
-    g.font = `800 ${Math.round(h * 0.4)}px system-ui, sans-serif`;
-    g.fillText("Same product: 1 kg = 2 × 500 g", h * 0.85, h * 0.64);
+    g.strokeStyle = "#fff";
+    g.lineWidth = h * 0.05;
+    g.lineCap = "round";
+    g.lineJoin = "round";
+    g.beginPath();
+    g.moveTo(h * 0.42, h * 0.51);
+    g.lineTo(h * 0.48, h * 0.57);
+    g.lineTo(h * 0.59, h * 0.44);
+    g.stroke();
+    g.fillStyle = "#12110e";
+    g.font = `700 ${Math.round(h * 0.4)}px system-ui, sans-serif`;
+    g.fillText("Same product: 1 kg = 2 × 500 g", h * 0.9, h * 0.63);
   }, 300);
+  (pill.m.material as THREE.MeshBasicMaterial).opacity = 0;
   scene.add(pill.m);
+  const matchLines = [
+    { x: -4.7, w: 3.1 },
+    { x: -1.25, w: 3.1 },
+    { x: 3.92, w: 4.2 },
+  ].map((l) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(l.w, 0.055), new THREE.MeshBasicMaterial({ color: 0x1f9d55, transparent: true, toneMapped: false }));
+    scene.add(m);
+    return { m, ...l };
+  });
   const shadow = blob(ctx, 15, 4.5);
   shadow.position.y = -0.02;
 
@@ -446,7 +470,8 @@ function groceryBuild(ctx: Ctx): Built {
       void p;
       if (ready < 0) {
         tagMeshes.forEach((tg) => tg.m.scale.setScalar(0.0001));
-        pill.m.scale.setScalar(0.0001);
+        (pill.m.material as THREE.MeshBasicMaterial).opacity = 0;
+        matchLines.forEach((l) => l.m.scale.set(0.0001, 1, 1));
         return;
       }
       if (tReady < 0) tReady = t;
@@ -476,8 +501,14 @@ function groceryBuild(ctx: Ctx): Built {
         tg.m.position.set(tg.x + px * 0.2, 3.1 + (1 - k) * 1.2 + Math.sin(t + i) * 0.05, 0.8);
         tg.m.scale.setScalar(Math.max(easeOutBack(k) * 0.88, 0.0001));
       });
-      pill.m.position.set(0.1, -2.2, 1.6);
-      pill.m.scale.setScalar(Math.max(easeOutBack(seg(lp, 0.78, 0.92)), 0.0001));
+      matchLines.forEach((l, i) => {
+        const k = easeOut(seg(lp, 0.66 + i * 0.05, 0.8 + i * 0.05));
+        l.m.position.set(l.x - (l.w * (1 - k)) / 2, -0.55, 1.9);
+        l.m.scale.set(Math.max(k, 0.0001), 1, 1);
+      });
+      const kp = seg(lp, 0.82, 0.95);
+      pill.m.position.set(0.3, -1.45 + easeOut(kp) * 0.14, 2.0);
+      (pill.m.material as THREE.MeshBasicMaterial).opacity = easeOut(kp);
       ctx.camera.position.y = 3.1 - py * 0.3;
       ctx.camera.lookAt(0, 0.35, 0);
       ctx.setFade(0);

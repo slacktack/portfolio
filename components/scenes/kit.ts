@@ -30,6 +30,7 @@ export type MountOpts = {
   wrap?: HTMLElement;
   loopSeconds?: number;
   once?: boolean;
+  maxDpr?: number;
   fov?: number;
   exposure?: number;
   bloom?: { strength: number; radius: number; threshold: number };
@@ -57,7 +58,7 @@ export function mountScene(o: MountOpts): Handle | null {
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const coarse = window.matchMedia("(pointer: coarse)").matches;
   const mobile = coarse || host.clientWidth < 700;
-  let dprCap = mode === "card" ? 3 : 2;
+  let dprCap = o.maxDpr ?? (mode === "card" ? 2 : 1.5);
   const dpr = () => Math.min(window.devicePixelRatio || 1, dprCap);
 
   if (o.transparent) renderer.setClearColor(0x000000, 0);
@@ -162,6 +163,8 @@ export function mountScene(o: MountOpts): Handle | null {
   const ro = new ResizeObserver(resize);
   ro.observe(host);
 
+  // stacked cards keep intersecting while pinned, so also sleep once another card covers this one
+  const stackCard = host.closest<HTMLElement>(".system-card");
   let visible = true;
   let playStart = performance.now();
   const io = new IntersectionObserver(([e]) => {
@@ -195,6 +198,7 @@ export function mountScene(o: MountOpts): Handle | null {
   };
 
   let raf = 0;
+  let stopped = false;
   let slow = 0;
   let frames = 0;
   let tier = 0;
@@ -204,7 +208,7 @@ export function mountScene(o: MountOpts): Handle | null {
 
   const frame = () => {
     raf = requestAnimationFrame(frame);
-    if (!visible || document.hidden) {
+    if (!visible || document.hidden || (stackCard && parseFloat(stackCard.style.getPropertyValue("--p") || "0") > 0.55)) {
       last = performance.now();
       return;
     }
@@ -233,14 +237,14 @@ export function mountScene(o: MountOpts): Handle | null {
 
     frames += 1;
     if (frames > 90 && tier < 1) {
-      slow = dt > 0.045 ? slow + 1 : Math.max(0, slow - 1);
-      if (slow > 90) {
+      slow = dt > 0.03 ? slow + 1 : Math.max(0, slow - 1);
+      if (slow > 70) {
         slow = 0;
         tier += 1;
         if (tier === 1) {
           // never fall back to a blurry 1x: shed the glow first, then settle on a sharp floor
           composer = null;
-          dprCap = Math.max(1.5, dprCap * 0.8);
+          dprCap = Math.max(1.35, dprCap * 0.85);
           resize();
         }
       }
@@ -257,11 +261,18 @@ export function mountScene(o: MountOpts): Handle | null {
     redraw();
     if (mode === "scroll") window.addEventListener("scroll", redraw, { passive: true });
   } else {
-    frame();
+    // compile shaders in parallel off the main thread, then start drawing
+    const start = () => {
+      if (!stopped) frame();
+    };
+    const compile = (renderer as unknown as { compileAsync?: (s: THREE.Object3D, c: THREE.Camera) => Promise<unknown> }).compileAsync;
+    if (compile) compile.call(renderer, scene, camera).then(start, start);
+    else start();
   }
 
   return {
     dispose: () => {
+      stopped = true;
       cancelAnimationFrame(raf);
       built.dispose?.();
       window.removeEventListener("pointermove", onMove);
