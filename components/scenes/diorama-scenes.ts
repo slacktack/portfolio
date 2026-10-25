@@ -1,5 +1,7 @@
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { FBXLoader } from "three/addons/loaders/FBXLoader.js";
 import { canvasTexture, mountScene, smooth, type Built, type Ctx, type Handle } from "./kit";
 import { card } from "./objects";
 
@@ -44,7 +46,7 @@ function blob(ctx: Ctx, w: number, d: number) {
 
 function label(ctx: Ctx, w: number, h: number, draw: (g: CanvasRenderingContext2D, cw: number, ch: number) => void, px = 300) {
   const tex = ctx.track(canvasTexture(Math.round(w * px), Math.round(h * px), draw));
-  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: tex, transparent: true }));
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: tex, transparent: true, toneMapped: false }));
   return { m, tex };
 }
 
@@ -239,89 +241,133 @@ function payBuild(ctx: Ctx): Built {
   };
 }
 
-// ---------- Grocery: pack sizes settle into one matched group ----------
+// ---------- Grocery: real produce, one product in two pack sizes ----------
+const gltf = new GLTFLoader();
+type Factory = () => THREE.Group;
+const modelCache = new Map<string, Promise<Factory>>();
+
+// load a model once, normalise its size and sit it on y = 0, then hand out clones
+function model(id: string, target: number, by: "width" | "max" = "max"): Promise<Factory> {
+  const key = `${id}:${target}:${by}`;
+  let p = modelCache.get(key);
+  if (!p) {
+    p = gltf.loadAsync(`/assets/models/${id}/${id}.gltf`).then((res) => {
+      const src = res.scene;
+      const box = new THREE.Box3().setFromObject(src);
+      const size = box.getSize(new THREE.Vector3());
+      const ref = by === "width" ? Math.max(size.x, size.z) : Math.max(size.x, size.y, size.z);
+      const k = target / ref;
+      const inner = new THREE.Group();
+      inner.add(src);
+      src.position.set(-(box.min.x + size.x / 2), -box.min.y, -(box.min.z + size.z / 2));
+      inner.scale.setScalar(k);
+      const holder = new THREE.Group();
+      holder.add(inner);
+      holder.userData.h = size.y * k;
+      return () => {
+        const c = holder.clone(true);
+        c.userData.h = holder.userData.h;
+        return c;
+      };
+    });
+    modelCache.set(key, p);
+  }
+  return p;
+}
+
+const fbx = new FBXLoader();
+const texLoader = new THREE.TextureLoader();
+const tex = (url: string, srgb = true) => {
+  const t = texLoader.load(url);
+  if (srgb) t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 8;
+  return t;
+};
+
+// load a photo-textured FBX, drop its own materials, sit it on y = 0 at a known size
+function fbxModel(url: string, material: (mesh: THREE.Mesh, index: number) => THREE.Material, target: number, flatten = false): Promise<Factory> {
+  return fbx.loadAsync(url).then((src) => {
+    let n = 0;
+    src.traverse((o) => {
+      const m = o as THREE.Mesh;
+      if (m.isMesh) {
+        m.material = material(m, n);
+        n += 1;
+      }
+    });
+    const holder = new THREE.Group();
+    const inner = new THREE.Group();
+    inner.add(src);
+    let box = new THREE.Box3().setFromObject(inner);
+    let size = box.getSize(new THREE.Vector3());
+    if (flatten) {
+      // lay the thinnest axis along Y so a plate-like model lies flat
+      if (size.z < size.y && size.z < size.x) inner.rotation.x = -Math.PI / 2;
+      else if (size.x < size.y && size.x < size.z) inner.rotation.z = Math.PI / 2;
+      inner.updateMatrixWorld(true);
+      box = new THREE.Box3().setFromObject(inner);
+      size = box.getSize(new THREE.Vector3());
+    }
+    const k = target / Math.max(size.x, size.z, flatten ? 0 : size.y);
+    const center = box.getCenter(new THREE.Vector3());
+    inner.position.set(-center.x * k, -box.min.y * k, -center.z * k);
+    inner.scale.setScalar(k);
+    holder.add(inner);
+    holder.userData.h = size.y * k;
+    holder.userData.meshes = n;
+    return () => {
+      const c = holder.clone(true);
+      c.userData.h = holder.userData.h;
+      return c;
+    };
+  });
+}
+
 function groceryBuild(ctx: Ctx): Built {
   const { scene } = ctx;
-  lights(ctx);
-  const colors: Record<string, string> = { Zepto: "#7b2ff7", Instamart: "#fc8019", Blinkit: "#f8cb46" };
-  const logoFor: Record<string, string> = { Zepto: "zepto", Instamart: "instamart", Blinkit: "blinkit" };
-  const box = (w: number, h: number, d: number, app: string, size: string, price: string) => {
-    const g = new THREE.Group();
-    const body = new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 4, 0.12), new THREE.MeshStandardMaterial({ color: colors[app], roughness: 0.5 }));
-    const face = labelLive(ctx, w - 0.16, h - 0.16, (c, cw, ch) => {
-      c.fillStyle = "#fffdf6";
-      c.fillRect(0, ch * 0.26, cw, ch * 0.74);
-      drawChip(c, logoImg(logoFor[app], () => face.redraw()), cw * 0.07, ch * 0.03, ch * 0.2, ch * 0.2, 0.1, 0.5);
-      c.fillStyle = "#fff";
-      c.font = `800 ${Math.round(cw * 0.14)}px system-ui, sans-serif`;
-      c.fillText(app, cw * 0.07 + ch * 0.24, ch * 0.18);
-      c.fillStyle = "#12110e";
-      c.font = `800 ${Math.round(cw * 0.17)}px system-ui, sans-serif`;
-      c.fillText("Butter", cw * 0.09, ch * 0.47);
-      c.fillStyle = "#d3281b";
-      c.font = `800 ${Math.round(cw * 0.23)}px system-ui, sans-serif`;
-      c.fillText(size, cw * 0.09, ch * 0.7);
-      c.fillStyle = "#12110e";
-      c.font = `700 ${Math.round(cw * 0.15)}px system-ui, sans-serif`;
-      c.fillText(price, cw * 0.09, ch * 0.9);
-    }, 420);
-    face.m.position.z = d / 2 + 0.006;
-    g.add(body, face.m);
-    return g;
-  };
-  const specs = [
-    { app: "Zepto", size: "500 g", price: "₹279", w: 2.3, h: 2.9, home: [-4.4, 0.35], from: [-4.4, 8] },
-    { app: "Instamart", size: "500 g", price: "₹282", w: 2.3, h: 2.9, home: [-1.2, 0.35], from: [-1.2, 8.5] },
-    { app: "Blinkit", size: "250 g", price: "₹145", w: 1.3, h: 2.1, home: [2.1, 0.0], from: [2.1, 9] },
-    { app: "Blinkit", size: "250 g", price: "₹146", w: 1.3, h: 2.1, home: [3.55, 0.0], from: [3.55, 9.5] },
-  ];
-  const boxes = specs.map((sp) => {
-    const g = box(sp.w, sp.h, 0.9, sp.app, sp.size, sp.price);
-    scene.add(g);
-    return { g, sp };
-  });
+  scene.add(new THREE.HemisphereLight(0xfff4e6, 0xc9b391, 0.9));
+  const key = new THREE.DirectionalLight(0xffffff, 2.6);
+  key.position.set(-5, 9, 7);
+  scene.add(key);
+  const fill = new THREE.DirectionalLight(0xffd9b0, 0.7);
+  fill.position.set(6, 2, 5);
+  scene.add(fill);
+  ctx.camera.position.set(0, 0.6, 14);
 
-  const outline = (w: number, h: number) => {
-    const m = new THREE.Mesh(
-      new THREE.ShapeGeometry(
-        (() => {
-          const sh = new THREE.Shape();
-          const r = 0.3;
-          sh.moveTo(-w / 2 + r, -h / 2);
-          sh.lineTo(w / 2 - r, -h / 2);
-          sh.quadraticCurveTo(w / 2, -h / 2, w / 2, -h / 2 + r);
-          sh.lineTo(w / 2, h / 2 - r);
-          sh.quadraticCurveTo(w / 2, h / 2, w / 2 - r, h / 2);
-          sh.lineTo(-w / 2 + r, h / 2);
-          sh.quadraticCurveTo(-w / 2, h / 2, -w / 2, h / 2 - r);
-          sh.lineTo(-w / 2, -h / 2 + r);
-          sh.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2);
-          const hole = new THREE.Path();
-          const iw = w - 0.12;
-          const ih = h - 0.12;
-          hole.moveTo(-iw / 2 + r, -ih / 2);
-          hole.lineTo(iw / 2 - r, -ih / 2);
-          hole.quadraticCurveTo(iw / 2, -ih / 2, iw / 2, -ih / 2 + r);
-          hole.lineTo(iw / 2, ih / 2 - r);
-          hole.quadraticCurveTo(iw / 2, ih / 2, iw / 2 - r, ih / 2);
-          hole.lineTo(-iw / 2 + r, ih / 2);
-          hole.quadraticCurveTo(-iw / 2, ih / 2, -iw / 2, ih / 2 - r);
-          hole.lineTo(-iw / 2, -ih / 2 + r);
-          hole.quadraticCurveTo(-iw / 2, -ih / 2, -iw / 2 + r, -ih / 2);
-          sh.holes.push(hole);
-          return sh;
-        })(),
-        8
-      ),
-      new THREE.MeshBasicMaterial({ color: 0x1f9d55, transparent: true })
-    );
-    scene.add(m);
-    return m;
-  };
-  const frames = [outline(3.0, 3.8), outline(3.0, 3.8), outline(3.3, 3.8)];
-  const framePos: [number, number][] = [[-4.4, 0.35], [-1.2, 0.35], [2.83, 0.2]];
+  type Part = { o: THREE.Object3D; delay: number; to: THREE.Vector3; rot: number };
+  const groups: { g: THREE.Group; x: number; parts: Part[] }[] = [];
+  const tagMeshes: { m: THREE.Mesh; x: number }[] = [];
+  const decor: Part[] = [];
+  let ready = -1;
 
-  const pill = label(ctx, 8.4, 1.1, (g, w, h) => {
+  const mkTag = (app: string, logoName: string, pack: string, price: string, x: number) => {
+    const t = labelLive(ctx, 3.9, 1.5, (g, w, h) => {
+      g.clearRect(0, 0, w, h);
+      g.fillStyle = "#fffdf6";
+      rrect(g, 5, 5, w - 10, h - 10, h * 0.3);
+      g.fill();
+      g.strokeStyle = "#12110e";
+      g.lineWidth = 6;
+      g.stroke();
+      drawChip(g, logoImg(logoName, () => t.redraw()), h * 0.14, h * 0.14, h * 0.72, h * 0.72, 0.1, 0.28);
+      g.fillStyle = "#12110e";
+      g.font = `800 ${Math.round(h * 0.24)}px system-ui, sans-serif`;
+      g.fillText(app, h * 1.0, h * 0.4);
+      g.fillStyle = "#6b6860";
+      g.font = `700 ${Math.round(h * 0.18)}px system-ui, sans-serif`;
+      g.fillText(pack, h * 1.0, h * 0.66);
+      g.fillStyle = "#d3281b";
+      g.font = `800 ${Math.round(h * 0.3)}px system-ui, sans-serif`;
+      g.fillText(price, h * 1.0, h * 0.92);
+    }, 300);
+    scene.add(t.m);
+    tagMeshes.push({ m: t.m, x });
+  };
+  mkTag("Zepto", "zepto", "Apples · 1 kg", "₹189", -4.6);
+  mkTag("Instamart", "instamart", "Apples · 1 kg", "₹192", -0.9);
+  mkTag("Blinkit", "blinkit", "Apples · 2 × 500 g", "₹195", 3.9);
+
+  const pill = label(ctx, 8.6, 1.1, (g, w, h) => {
     g.clearRect(0, 0, w, h);
     g.fillStyle = "#12110e";
     rrect(g, 0, 0, w, h, h / 2);
@@ -332,42 +378,114 @@ function groceryBuild(ctx: Ctx): Built {
     g.fill();
     g.fillStyle = "#fff";
     g.font = `800 ${Math.round(h * 0.4)}px system-ui, sans-serif`;
-    g.fillText("Same product: 500 g = 2 × 250 g", h * 0.85, h * 0.64);
+    g.fillText("Same product: 1 kg = 2 × 500 g", h * 0.85, h * 0.64);
   }, 300);
   scene.add(pill.m);
-  const shadow = blob(ctx, 13, 4);
-  shadow.position.y = -2.4;
+  const shadow = blob(ctx, 15, 4.5);
+  shadow.position.y = -0.02;
+
+  Promise.all([
+    model("wicker_basket_01", 3.1, "width"),
+    model("wicker_basket_01", 2.1, "width"),
+    model("food_apple_01", 0.86),
+    model("food_apple_01", 0.72),
+    model("food_avocado_01", 0.95),
+    model("lemon", 0.7),
+    model("bananas", 1.7),
+    fbxModel("/assets/models/milk/milk.fbx", () => new THREE.MeshStandardMaterial({ map: tex("/assets/models/milk/base.jpg"), roughness: 0.55 }), 2.2),
+    fbxModel("/assets/models/milk/milk.fbx", () => new THREE.MeshStandardMaterial({ map: tex("/assets/models/milk/base.jpg"), roughness: 0.55 }), 1.7),
+  ]).then(([bigBasket, smallBasket, apple, apple2, avocado, lemon, bananas, milk, milkSmall]) => {
+    const place = (x: number, basket: Factory, apples: Factory, n: number, ringR: number, baseY: number, groupIndex: number) => {
+      const g = new THREE.Group();
+      g.position.set(x, 0, 0);
+      const parts: Part[] = [];
+      const b = basket();
+      g.add(b);
+      parts.push({ o: b, delay: 0, to: new THREE.Vector3(0, 0, 0), rot: 0.3 });
+      const H = b.userData.h as number;
+      for (let i = 0; i < n; i += 1) {
+        const a = apples();
+        const top = i === n - 1;
+        const ang = (i / Math.max(n - 1, 1)) * Math.PI * 2 + groupIndex;
+        const r = top ? 0 : ringR;
+        a.rotation.set(Math.random() * 0.6, Math.random() * 6, Math.random() * 0.6);
+        const to = new THREE.Vector3(Math.cos(ang) * r, H * baseY + (top ? 0.52 : 0.08 * (i % 2)), Math.sin(ang) * r * 0.8);
+        g.add(a);
+        parts.push({ o: a, delay: 0.25 + i * 0.07, to, rot: 0 });
+      }
+      scene.add(g);
+      groups.push({ g, x, parts });
+    };
+    place(-4.6, bigBasket, apple, 7, 0.68, 0.62, 1);
+    place(-0.9, bigBasket, apple, 7, 0.68, 0.62, 2);
+    place(2.9, smallBasket, apple2, 4, 0.4, 0.62, 3);
+    place(4.95, smallBasket, apple2, 4, 0.4, 0.62, 4);
+    const add = (f: Factory, x: number, z: number, ry: number, delay: number) => {
+      const o = f();
+      o.position.set(x, 0, z);
+      o.rotation.y = ry;
+      scene.add(o);
+      decor.push({ o, delay, to: new THREE.Vector3(x, 0, z), rot: ry });
+    };
+    add(milk, -6.3, 1.1, 0.5, 0.5);
+    add(lemon, -2.75, 1.7, 0.4, 0.55);
+    add(avocado, -2.1, 1.85, 1.1, 0.6);
+    add(milkSmall, 0.7, 1.7, -0.4, 0.65);
+    add(bananas, 1.9, 2.0, 0.5, 0.7);
+    void apple;
+    ready = 0;
+  });
+
+  let tReady = -1;
 
   return {
     resize(aspect) {
-      fit(ctx, aspect, 6.6, 3.9);
+      fit(ctx, aspect, 7.4, 4.1);
     },
     update(p, t) {
+      void p;
+      if (ready < 0) {
+        tagMeshes.forEach((tg) => tg.m.scale.setScalar(0.0001));
+        pill.m.scale.setScalar(0.0001);
+        return;
+      }
+      if (tReady < 0) tReady = t;
+      const lp = clamp01((t - tReady) / 4.4);
       const px = ctx.pointer.x;
       const py = ctx.pointer.y;
-      boxes.forEach(({ g, sp }, i) => {
-        const k = seg(p, 0.02 + i * 0.07, 0.3 + i * 0.07);
-        const e = easeOutBack(k);
-        g.position.set(sp.home[0] + px * 0.2, mix(sp.from[1], sp.home[1], e) + Math.sin(t * 0.9 + i) * 0.06 * k, 0.2);
-        g.rotation.set(-py * 0.08 + (1 - k) * 0.8, -0.28 + px * 0.18 + (1 - k) * 1.2, (1 - k) * 0.5);
-        g.scale.setScalar(0.7 + 0.3 * k);
+      groups.forEach(({ g, x, parts }, gi) => {
+        g.position.x = x + px * 0.15;
+        g.rotation.y = px * 0.12;
+        parts.forEach((pt, i) => {
+          const k = seg(lp, 0.02 + gi * 0.06 + pt.delay * 0.35, 0.3 + gi * 0.06 + pt.delay * 0.35);
+          const e = easeOutBack(k);
+          const drop = (1 - k) * 4;
+          pt.o.position.set(pt.to.x, pt.to.y + drop, pt.to.z);
+          pt.o.scale.setScalar(Math.max(e, 0.0001));
+          if (i === 0) pt.o.rotation.y = pt.rot * (1 - k) + Math.sin(t * 0.5 + gi) * 0.03;
+        });
       });
-      frames.forEach((f, i) => {
-        const k = seg(p, 0.5 + i * 0.07, 0.62 + i * 0.07);
-        f.position.set(framePos[i][0] + px * 0.2, framePos[i][1], -0.2);
-        f.rotation.y = -0.1;
-        f.scale.setScalar(Math.max(k, 0.0001));
-        (f.material as THREE.MeshBasicMaterial).opacity = k;
+      decor.forEach((d, i) => {
+        const k = seg(lp, 0.25 + d.delay * 0.4, 0.5 + d.delay * 0.4);
+        d.o.position.set(d.to.x, d.to.y + (1 - k) * 3, d.to.z);
+        d.o.scale.setScalar(Math.max(easeOutBack(k), 0.0001));
+        d.o.rotation.y = d.rot + (1 - k) * 2 + Math.sin(t * 0.4 + i) * 0.02;
       });
-      const kp = seg(p, 0.66, 0.8);
-      pill.m.position.set(-0.4, -2.75, 1);
-      pill.m.scale.setScalar(Math.max(easeOutBack(kp), 0.0001));
+      tagMeshes.forEach((tg, i) => {
+        const k = seg(lp, 0.5 + i * 0.07, 0.65 + i * 0.07);
+        tg.m.position.set(tg.x + px * 0.2, 3.1 + (1 - k) * 1.2 + Math.sin(t + i) * 0.05, 0.8);
+        tg.m.scale.setScalar(Math.max(easeOutBack(k) * 0.88, 0.0001));
+      });
+      pill.m.position.set(0.1, -2.2, 1.6);
+      pill.m.scale.setScalar(Math.max(easeOutBack(seg(lp, 0.78, 0.92)), 0.0001));
+      ctx.camera.position.y = 3.1 - py * 0.3;
+      ctx.camera.lookAt(0, 0.35, 0);
       ctx.setFade(0);
     },
   };
 }
 
-// ---------- Rides: rings of pickup points, three cars, one cheap corner ----------
+// ---------- Rides: a live map with pickup points and three cars on the way ----------
 function cabsBuild(ctx: Ctx): Built {
   const { scene } = ctx;
   lights(ctx);
@@ -375,71 +493,102 @@ function cabsBuild(ctx: Ctx): Built {
   disc.rotation.x = -0.95;
   scene.add(disc);
 
-  const mapTex = ctx.track(canvasTexture(512, 512, (g, w, h) => {
-    g.fillStyle = "#f3eee0";
+  const R = 4.8;
+  const mapTex = ctx.track(canvasTexture(1024, 1024, (g, w, h) => {
+    g.fillStyle = "#11141b";
     g.fillRect(0, 0, w, h);
-    g.strokeStyle = "#ddd5c0";
-    g.lineWidth = 22;
-    for (let i = -2; i <= 2; i += 1) {
+    // blocks
+    for (let i = 0; i < 70; i += 1) {
+      const x = ((i * 137) % 997) / 997 * w;
+      const y = ((i * 251) % 991) / 991 * h;
+      g.fillStyle = `rgba(28,34,46,${0.5 + ((i * 7) % 5) / 10})`;
+      g.fillRect(x, y, 40 + ((i * 53) % 90), 30 + ((i * 31) % 80));
+    }
+    // park and water
+    g.fillStyle = "#12251c";
+    g.beginPath();
+    g.ellipse(700, 280, 130, 90, 0.4, 0, Math.PI * 2);
+    g.fill();
+    g.fillStyle = "#0f2133";
+    g.beginPath();
+    g.ellipse(250, 760, 170, 70, -0.3, 0, Math.PI * 2);
+    g.fill();
+    // streets
+    g.lineCap = "round";
+    for (let i = -4; i <= 4; i += 1) {
+      g.strokeStyle = i % 2 ? "#1f2531" : "#2b3342";
+      g.lineWidth = i % 2 ? 14 : 26;
       g.beginPath();
-      g.moveTo(w / 2 + i * 96, 0);
-      g.lineTo(w / 2 + i * 96, h);
-      g.moveTo(0, h / 2 + i * 96);
-      g.lineTo(w, h / 2 + i * 96);
+      g.moveTo(w / 2 + i * 118, 0);
+      g.lineTo(w / 2 + i * 118 + 40, h);
+      g.moveTo(0, h / 2 + i * 118);
+      g.lineTo(w, h / 2 + i * 118 - 30);
       g.stroke();
     }
-    g.fillStyle = "#cfe3bd";
+    g.strokeStyle = "#3b4558";
+    g.lineWidth = 6;
     g.beginPath();
-    g.arc(390, 140, 70, 0, Math.PI * 2);
-    g.fill();
+    g.moveTo(0, 90);
+    g.bezierCurveTo(300, 380, 640, 600, w, 930);
+    g.stroke();
   }));
-  const base = new THREE.Mesh(new THREE.CircleGeometry(4.6, 64), new THREE.MeshBasicMaterial({ map: mapTex }));
+  const base = new THREE.Mesh(new THREE.CircleGeometry(R, 96), new THREE.MeshBasicMaterial({ map: mapTex, toneMapped: false }));
   disc.add(base);
-  const rim = new THREE.Mesh(new THREE.RingGeometry(4.6, 4.75, 64), new THREE.MeshBasicMaterial({ color: 0x12110e }));
+  const rim = new THREE.Mesh(new THREE.RingGeometry(R, R + 0.07, 96), new THREE.MeshBasicMaterial({ color: 0x8f98e8 }));
   disc.add(rim);
 
-  const pts: { x: number; y: number; r: number }[] = [];
+  const pts: { x: number; y: number }[] = [];
   [[1.3, 10], [2.4, 18], [3.5, 26]].forEach(([r, n]) => {
     for (let i = 0; i < n; i += 1) {
       const a = (i / n) * Math.PI * 2 + r;
-      pts.push({ x: Math.cos(a) * r, y: Math.sin(a) * r, r });
+      pts.push({ x: Math.cos(a) * r, y: Math.sin(a) * r });
     }
   });
   const target = pts.length;
-  pts.push({ x: 2.3, y: 1.4, r: 2.7 });
-  const dots = new THREE.InstancedMesh(new THREE.SphereGeometry(0.16, 12, 10), new THREE.MeshBasicMaterial({ color: 0xffffff }), pts.length);
+  pts.push({ x: 2.3, y: 1.4 });
+  const dots = new THREE.InstancedMesh(new THREE.CircleGeometry(0.12, 20), new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false }), pts.length);
   dots.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(pts.length * 3), 3);
   disc.add(dots);
 
-  const pin = new THREE.Group();
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.42, 20, 14), new THREE.MeshStandardMaterial({ color: 0xd3281b, roughness: 0.4 }));
-  head.position.z = 1.1;
-  const stem = new THREE.Mesh(new THREE.ConeGeometry(0.34, 0.9, 20), new THREE.MeshStandardMaterial({ color: 0xd3281b, roughness: 0.4 }));
-  stem.rotation.x = Math.PI / 2;
-  stem.position.z = 0.45;
-  pin.add(head, stem);
-  disc.add(pin);
+  // rider: a steady dot with a pulsing ring
+  const dot = new THREE.Mesh(new THREE.CircleGeometry(0.2, 32), new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false }));
+  dot.position.z = 0.15;
+  const halo = new THREE.Mesh(new THREE.CircleGeometry(0.34, 32), new THREE.MeshBasicMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.55, toneMapped: false }));
+  halo.position.z = 0.12;
+  const pulse = new THREE.Mesh(new THREE.RingGeometry(0.95, 1, 64), new THREE.MeshBasicMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.5, toneMapped: false }));
+  pulse.position.z = 0.1;
+  disc.add(dot, halo, pulse);
 
   const walk = new THREE.Line(
-    new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0.06), new THREE.Vector3(2.3, 1.4, 0.06)]),
-    new THREE.LineDashedMaterial({ color: 0xd3281b, dashSize: 0.16, gapSize: 0.12 })
+    new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0.1), new THREE.Vector3(2.3, 1.4, 0.1)]),
+    new THREE.LineDashedMaterial({ color: 0xf0b27a, dashSize: 0.14, gapSize: 0.1 })
   );
   walk.computeLineDistances();
   disc.add(walk);
 
   const carDefs = [
-    { c: 0x12110e, name: "Uber", logo: "uber", price: "₹312", sub: "here", home: [-2.9, 2.2], from: [-6.5, 4.5], hot: false },
-    { c: 0xf6c445, name: "Ola", logo: "ola", price: "₹298", sub: "here", home: [-2.7, -2.3], from: [-6.5, -4.5], hot: false },
-    { c: 0x23c47e, name: "Rapido", logo: "rapido", price: "₹241", sub: "120 m walk", home: [2.9, -1.6], from: [6.5, -4.5], hot: true },
+    { name: "Uber", logo: "uber", price: "₹312", sub: "here", ring: 0xffffff, home: [-2.9, 2.2], from: [-4.1, 2.6], bend: 1.0, hot: false },
+    { name: "Ola", logo: "ola", price: "₹298", sub: "here", ring: 0xf6c445, home: [-2.7, -2.3], from: [-4.2, -2.5], bend: -1.0, hot: false },
+    { name: "Rapido", logo: "rapido", price: "₹241", sub: "120 m walk", ring: 0xf6c445, home: [2.9, -1.6], from: [4.2, -2.4], bend: 0.9, hot: true },
   ];
   const cars = carDefs.map((d) => {
     const g = new THREE.Group();
-    const body = new THREE.Mesh(new RoundedBoxGeometry(1.1, 0.6, 0.36, 3, 0.1), new THREE.MeshStandardMaterial({ color: d.c, roughness: 0.4 }));
-    body.position.z = 0.28;
-    const cab = new THREE.Mesh(new RoundedBoxGeometry(0.55, 0.46, 0.3, 3, 0.08), new THREE.MeshStandardMaterial({ color: 0xf4f0e6, roughness: 0.3 }));
-    cab.position.set(-0.08, 0, 0.56);
-    g.add(body, cab);
+    const arrow = new THREE.Shape();
+    arrow.moveTo(0.34, 0);
+    arrow.lineTo(-0.24, 0.22);
+    arrow.lineTo(-0.1, 0);
+    arrow.lineTo(-0.24, -0.22);
+    arrow.closePath();
+    const mark = new THREE.Mesh(new THREE.ShapeGeometry(arrow), new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false }));
+    mark.position.z = 0.2;
+    const ringMesh = new THREE.Mesh(new THREE.RingGeometry(0.34, 0.4, 40), new THREE.MeshBasicMaterial({ color: d.ring, toneMapped: false }));
+    ringMesh.position.z = 0.18;
+    const disk = new THREE.Mesh(new THREE.CircleGeometry(0.34, 40), new THREE.MeshBasicMaterial({ color: 0x0b0d12, toneMapped: false }));
+    disk.position.z = 0.17;
+    g.add(disk, ringMesh, mark);
     disc.add(g);
+    const trail = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: 0x8f98e8, transparent: true, opacity: 0.7 }));
+    disc.add(trail);
     const paintTag = (c: CanvasRenderingContext2D, w: number, h: number) => {
       c.clearRect(0, 0, w, h);
       c.fillStyle = d.hot ? "#12110e" : "#fffdf6";
@@ -457,19 +606,18 @@ function cabsBuild(ctx: Ctx): Built {
       c.font = "600 44px system-ui, sans-serif";
       c.fillText(d.sub, h - 2, 168);
     };
-    const tex = ctx.track(canvasTexture(840, 230, paintTag));
+    const tx = ctx.track(canvasTexture(840, 230, paintTag));
     const repaint = () => {
-      const cv = tex.image as HTMLCanvasElement;
-      const g = cv.getContext("2d");
-      if (!g) return;
-      paintTag(g, cv.width, cv.height);
-      tex.needsUpdate = true;
+      const cv = tx.image as HTMLCanvasElement;
+      const g2 = cv.getContext("2d");
+      if (!g2) return;
+      paintTag(g2, cv.width, cv.height);
+      tx.needsUpdate = true;
     };
-    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false }));
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tx, transparent: true, depthTest: false, toneMapped: false }));
     sp.renderOrder = 10;
-    sp.scale.set(3.3, 0.9, 1);
     scene.add(sp);
-    return { g, sp, d };
+    return { g, sp, trail, d };
   });
 
   const c = new THREE.Color();
@@ -478,7 +626,7 @@ function cabsBuild(ctx: Ctx): Built {
 
   return {
     resize(aspect) {
-      fit(ctx, aspect, 6.2, 4.4);
+      fit(ctx, aspect, 6.4, 4.3);
     },
     update(p, t) {
       const sweep = smooth(0.08, 0.5, p) * 1.25;
@@ -486,33 +634,46 @@ function cabsBuild(ctx: Ctx): Built {
         const d = Math.hypot(q.x, q.y) / 4.2;
         const lit = d < sweep;
         const hot = i === target ? smooth(0.5, 0.62, p) : 0;
-        if (hot > 0.02) c.set(0xd3281b);
-        else c.set(lit ? 0x6f7be0 : 0xc4bda8);
+        if (hot > 0.02) c.set(0xf0b27a);
+        else c.set(lit ? 0x8f98e8 : 0x3a4152);
         dots.setColorAt(i, c);
-        dm.position.set(q.x, q.y, 0.12);
-        dm.scale.setScalar(i === target ? 0.9 + hot * 1.3 : 0.9 + (lit ? 0.18 * Math.sin(t * 3 + i) : 0));
+        dm.position.set(q.x, q.y, 0.08);
+        dm.scale.setScalar(i === target ? 1 + hot * 1.2 : 1 + (lit ? 0.25 * Math.sin(t * 3 + i) : 0));
         dm.updateMatrix();
         dots.setMatrixAt(i, dm.matrix);
       });
       dots.instanceMatrix.needsUpdate = true;
       if (dots.instanceColor) dots.instanceColor.needsUpdate = true;
 
-      const arrive = smooth(0.18, 0.55, p);
-      disc.rotation.z = Math.sin(t * 0.35) * 0.1 + ctx.pointer.x * 0.2;
+      const k = (t * 0.7) % 1;
+      pulse.scale.setScalar(0.5 + k * 2.4);
+      (pulse.material as THREE.MeshBasicMaterial).opacity = 0.5 * (1 - k);
+
+      const arrive = easeOutBack(seg(p, 0.18, 0.55));
+      disc.rotation.z = Math.sin(t * 0.3) * 0.08 + ctx.pointer.x * 0.15;
       disc.updateMatrixWorld();
-      cars.forEach(({ g, sp, d }) => {
-        const x = mix(d.from[0], d.home[0], arrive);
-        const y = mix(d.from[1], d.home[1], arrive);
-        g.position.set(x, y, 0);
-        g.rotation.z = Math.atan2(d.home[1] - y, d.home[0] - x) + Math.PI;
-        v.set(x, y, 0.6);
+      cars.forEach(({ g, sp, trail, d }) => {
+        const e = Math.min(arrive, 1);
+        const mx = (d.from[0] + d.home[0]) / 2 + d.bend;
+        const my = (d.from[1] + d.home[1]) / 2 - d.bend * 0.6;
+        const bx = (1 - e) * (1 - e) * d.from[0] + 2 * (1 - e) * e * mx + e * e * d.home[0];
+        const by = (1 - e) * (1 - e) * d.from[1] + 2 * (1 - e) * e * my + e * e * d.home[1];
+        g.position.set(bx, by, 0);
+        const tx2 = 2 * (1 - e) * (mx - d.from[0]) + 2 * e * (d.home[0] - mx);
+        const ty2 = 2 * (1 - e) * (my - d.from[1]) + 2 * e * (d.home[1] - my);
+        g.rotation.z = Math.atan2(ty2, tx2);
+        const pathPts: THREE.Vector3[] = [];
+        for (let i = 0; i <= 24; i += 1) {
+          const u = (i / 24) * e;
+          pathPts.push(new THREE.Vector3((1 - u) * (1 - u) * d.from[0] + 2 * (1 - u) * u * mx + u * u * d.home[0], (1 - u) * (1 - u) * d.from[1] + 2 * (1 - u) * u * my + u * u * d.home[1], 0.06));
+        }
+        trail.geometry.setFromPoints(pathPts);
+        v.set(bx, by, 0.6);
         disc.localToWorld(v);
         sp.position.set(v.x, v.y + 1.05, v.z);
-        sp.scale.setScalar(1);
-        const k = smooth(0.5, 0.64, p);
-        sp.scale.set(3.3 * k * (d.hot ? 1.1 : 1), 0.9 * k * (d.hot ? 1.1 : 1), 1);
+        const kk = easeOutBack(seg(p, 0.5, 0.64));
+        sp.scale.set(3.3 * Math.max(kk, 0.0001) * (d.hot ? 1.1 : 1), 0.9 * Math.max(kk, 0.0001) * (d.hot ? 1.1 : 1), 1);
       });
-      pin.rotation.z = t * 0.6;
       walk.visible = p > 0.5;
       ctx.setFade(0);
     },
@@ -548,11 +709,13 @@ function buildPizza(ctx: Ctx) {
   };
 
   // wooden board with a handle
-  const wood = ctx.track(new THREE.MeshStandardMaterial({ color: 0x7a5230, roughness: 0.7 }));
+  const wood = ctx.track(new THREE.MeshStandardMaterial({ color: 0x4a2e1b, roughness: 0.55 }));
   const board = new THREE.Mesh(new THREE.CylinderGeometry(3.05, 3.05, 0.16, 64), wood);
   board.position.y = -0.18;
   const handle = new THREE.Mesh(new RoundedBoxGeometry(1.1, 0.16, 2.4, 3, 0.06), wood);
   handle.position.set(0, -0.18, 3.8);
+  board.userData.keep = true;
+  handle.userData.keep = true;
   g.add(board, handle);
 
   // base, puffy bubbled crust, sauce
@@ -633,6 +796,30 @@ function foodBuild(ctx: Ctx): Built {
   const holder = new THREE.Group();
   holder.add(pizza);
   scene.add(holder);
+  pizza.visible = false;
+  let photo: THREE.Group | null = null;
+  let tReady = -1;
+  let settled = false;
+  fbxModel(
+    "/assets/models/pizza/pizza.fbx",
+    () => new THREE.MeshStandardMaterial({ map: tex("/assets/models/pizza/base.jpg"), normalMap: tex("/assets/models/pizza/normal.jpg", false), roughness: 0.78, normalScale: new THREE.Vector2(1.2, 1.2) }),
+    5.1,
+    true
+  )
+    .then((make) => {
+      photo = make();
+      photo.position.y = 0.0;
+      pizza.children.forEach((c) => {
+        if (!c.userData.keep) c.visible = false;
+      });
+      pizza.add(photo);
+      pizza.visible = true;
+      settled = true;
+    })
+    .catch(() => {
+      pizza.visible = true;
+      settled = true;
+    });
 
   const rows = [
     { n: "Domino's", sub: "app cart, live", price: "₹412", hot: true, logo: "dominos" },
@@ -681,13 +868,22 @@ function foodBuild(ctx: Ctx): Built {
     resize(aspect) {
       fit(ctx, aspect);
     },
-    update(p, t) {
+    update(pIn, t) {
+      let p = pIn;
       const px = ctx.pointer.x;
       const py = ctx.pointer.y;
+      if (!settled) {
+        tags.forEach((m) => m.scale.setScalar(0.0001));
+        badge.m.scale.setScalar(0.0001);
+        return;
+      }
+      if (tReady < 0) tReady = t;
+      p = clamp01((t - tReady) / 4);
       const kz = seg(p, 0.02, 0.3);
       holder.position.set(-3.5 + px * 0.2, mix(-7, -0.2, easeOutBack(kz)) + Math.sin(t * 0.8) * 0.06, 0);
       holder.rotation.set(0.82 + py * 0.08, 0, 0);
       pizza.rotation.y = -0.5 + Math.sin(t * 0.35) * 0.35 + (1 - kz) * 3.2;
+      void photo;
       holder.scale.setScalar(0.62 + 0.38 * kz);
       tags.forEach((m, i) => {
         const k = seg(p, 0.3 + i * 0.1, 0.46 + i * 0.1);
@@ -720,6 +916,9 @@ export function mountDiorama(kind: string): (opts: Opts) => Handle | null {
       fov: 32,
       transparent: true,
       once: opts.mode === "card",
+      environment: kind === "grocery" || kind === "food",
+      envIntensity: 0.55,
+      tone: kind === "grocery" || kind === "food",
       loopSeconds: durations[kind] ?? 4.4,
       build: (ctx) => (builders[kind] ?? payBuild)(ctx),
     });

@@ -34,6 +34,7 @@ export type MountOpts = {
   exposure?: number;
   bloom?: { strength: number; radius: number; threshold: number };
   transparent?: boolean;
+  tone?: boolean;
   shadows?: boolean;
   environment?: boolean;
   envIntensity?: number;
@@ -64,7 +65,7 @@ export function mountScene(o: MountOpts): Handle | null {
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   }
-  renderer.toneMapping = o.transparent ? THREE.NoToneMapping : THREE.ACESFilmicToneMapping;
+  renderer.toneMapping = o.transparent && !o.tone ? THREE.NoToneMapping : THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = o.exposure ?? 1;
   renderer.setPixelRatio(dpr());
   renderer.setSize(host.clientWidth, host.clientHeight, false);
