@@ -84,7 +84,7 @@ export function LiveFrame({ url, poster, title, portrait, embed = true }: Props)
           />
         ) : null}
         {!embed ? (
-          <a className="lf-cover" data-cursor="Open" href={url} target="_blank" rel="noreferrer" aria-label={`Open ${title} live`}>
+          <a className="lf-link" data-cursor="Open" href={url} target="_blank" rel="noreferrer" aria-label={`Open ${title} live`}>
             <span>Open the live app</span>
           </a>
         ) : !active ? (
