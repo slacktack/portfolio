@@ -17,7 +17,7 @@ export function Hint({ text }: { text: string }) {
         <path id="cr-hint-c" d="M100 100 m-74 0 a74 74 0 1 1 148 0 a74 74 0 1 1 -148 0" />
       </defs>
       <text>
-        <textPath href="#cr-hint-c">{text}</textPath>
+        <textPath href="#cr-hint-c" textLength="462" lengthAdjust="spacing">{text}</textPath>
       </text>
       <path d="M100 78 v44 M78 100 h44" />
     </svg>
@@ -46,7 +46,7 @@ export function Home() {
         <h1 id="cr-hero-h" className="cr-sr">
           {profile.name}, {profile.role} in {profile.location}
         </h1>
-        <Toy rows={["TUSHAR", "GAUTAM"]} items={items} auto={3} controls keys label="Physics wordmark. Grab, drag and throw the letters." className="cr-hero-toy" onPeek={setPeek}>
+        <Toy rows={["TUSHAR", "GAUTAM"]} items={items} auto={3} fill={0.52} controls keys label="Physics wordmark. Grab, drag and throw the letters." className="cr-hero-toy" onPeek={setPeek}>
           <div className="cr-hero-top" aria-hidden="true">
             <p className="cr-hero-role">
               {profile.role}
@@ -55,7 +55,7 @@ export function Home() {
             </p>
             <p className="cr-hero-tag">{profile.tagline}</p>
           </div>
-          <Hint text="GRAB · DRAG · THROW · STACK · GRAB · DRAG · THROW · STACK · " />
+          <Hint text="GRAB · DRAG · THROW · STACK · " />
         </Toy>
         <div className="cr-peek" aria-live="polite">
           {from ? (

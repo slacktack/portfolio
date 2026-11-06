@@ -16,7 +16,7 @@ export type ToyItem = {
 };
 
 type Inst = { key: string; item: ToyItem };
-type Glyph = { ch: string; w: number; h: number; ox: number; oy: number; x: number; y: number; f: number };
+type Glyph = { ch: string; w: number; h: number; ox: number; oy: number; x: number; y: number; f: number; r: number };
 
 type Props = {
   rows: string[];
@@ -48,6 +48,7 @@ export function Toy({ rows, items, auto = 0, controls, keys, label, className, f
   const drag = useRef<{ id: string; pid: number; sx: number; sy: number; moved: number } | null>(null);
   const dragged = useRef(new Set<string>());
   const next = useRef(0);
+  const actions = useRef(new Map<string, () => void>());
   const [motion, setMotion] = useState<boolean | null>(null);
   const [glyphs, setGlyphs] = useState<Glyph[]>([]);
   const [live, setLive] = useState<Inst[]>([]);
@@ -109,7 +110,7 @@ export function Toy({ rows, items, auto = 0, controls, keys, label, className, f
     const widest = Math.max(1, ...meas.map((r) => r.reduce((s, g) => s + g.w, 0)));
     const most = Math.max(1, ...meas.map((r) => r.length));
     const padX = Math.max(16, W * 0.035);
-    const byW = ((W - padX * 2 - gap * (most - 1)) / widest) * 100;
+    const byW = ((W * (W > 760 ? 0.9 : 1) - padX * 2 - gap * (most - 1)) / widest) * 100;
     const byH = ((H * fill) / (rows.length * capH * 1.04)) * 100;
     const F = Math.min(byW, byH);
     const k = F / 100;
@@ -121,7 +122,7 @@ export function Toy({ rows, items, auto = 0, controls, keys, label, className, f
       const y = H - (rows.length - ri) * (h + gap * 2) + h / 2;
       for (const g of r) {
         const w = g.w * k;
-        out.push({ ch: g.ch, w, h, ox: g.l * k, oy: h - lineTop, x: x + w / 2, y, f: F });
+        out.push({ ch: g.ch, w, h, ox: g.l * k, oy: h - lineTop, x: x + w / 2, y, f: F, r: ri });
         x += w + gap;
       }
     });
@@ -133,7 +134,7 @@ export function Toy({ rows, items, auto = 0, controls, keys, label, className, f
       const w = world.current;
       w.bodies = w.bodies.filter((b) => !b.id.startsWith("l"));
       gs.forEach((g, i) => {
-        const lift = dropIn ? w.H * 0.9 + i * 26 + (i % 3) * 14 : 0;
+        const lift = dropIn ? w.H * 0.9 + (gs.length ? (gs[gs.length - 1].r - g.r) * w.H * 0.45 : 0) + i * 22 + (i % 3) * 14 : 0;
         w.add(`l${i}`, g.x, g.y - lift, g.w, g.h, 0, 0, 0, 0.6);
       });
       w.quiet = 0;
@@ -154,6 +155,14 @@ export function Toy({ rows, items, auto = 0, controls, keys, label, className, f
         await document.fonts.ready;
       } catch {
         // fonts api blocked
+      }
+      const pr = probe.current;
+      if (pr) {
+        try {
+          await document.fonts.load(`400 100px ${getComputedStyle(pr).fontFamily}`, "TUSHARGM");
+        } catch {
+          // font api blocked
+        }
       }
       if (!alive) return;
       const w = world.current;
@@ -233,7 +242,9 @@ export function Toy({ rows, items, auto = 0, controls, keys, label, className, f
     if (!items.length) return;
     const item = items[next.current % items.length];
     next.current += 1;
-    setLive((l) => [...l, { key: `d${next.current}-${item.id}`, item }].slice(-MAX));
+    const key = `d${next.current}-${item.id}`;
+    if (item.action) actions.current.set(key, item.action);
+    setLive((l) => [...l, { key, item }].slice(-MAX));
     setSaid(`Dropped ${item.value}${item.label ? ` ${item.label}` : ""}`);
   }, [items]);
 
@@ -276,7 +287,9 @@ export function Toy({ rows, items, auto = 0, controls, keys, label, className, f
     return { x: e.clientX - r.left, y: e.clientY - r.top };
   };
 
-  const down = (id: string) => (e: PointerEvent<HTMLElement>) => {
+  const bid = (e: { currentTarget: HTMLElement }) => e.currentTarget.dataset.bid ?? "";
+  const down = (e: PointerEvent<HTMLElement>) => {
+    const id = bid(e);
     if (e.button !== 0 || !motion) return;
     const b = world.current.get(id);
     if (!b) return;
@@ -285,7 +298,7 @@ export function Toy({ rows, items, auto = 0, controls, keys, label, className, f
     world.current.startGrab(b, p.x, p.y);
     drag.current = { id, pid: e.pointerId, sx: e.clientX, sy: e.clientY, moved: 0 };
     e.currentTarget.dataset.grab = "";
-    document.documentElement.dataset.crGrab = "";
+    document.documentElement.setAttribute("data-cr-grab", "");
     setGrabbing(true);
     wake();
   };
@@ -307,10 +320,12 @@ export function Toy({ rows, items, auto = 0, controls, keys, label, className, f
     drag.current = null;
     world.current.grab = null;
     delete e.currentTarget.dataset.grab;
-    delete document.documentElement.dataset.crGrab;
+    document.documentElement.removeAttribute("data-cr-grab");
     wake();
   };
-  const click = (id: string, fn?: () => void) => (e: React.MouseEvent) => {
+  const click = (e: React.MouseEvent<HTMLElement>) => {
+    const id = bid(e);
+    const fn = id.startsWith("l") ? () => hop(id) : actions.current.get(id);
     if (dragged.current.has(id)) {
       dragged.current.delete(id);
       e.preventDefault();
@@ -321,7 +336,8 @@ export function Toy({ rows, items, auto = 0, controls, keys, label, className, f
       fn();
     }
   };
-  const nudge = (id: string) => (e: KeyboardEvent) => {
+  const nudge = (e: KeyboardEvent<HTMLElement>) => {
+    const id = bid(e);
     const b = world.current.get(id);
     if (!b) return;
     const m: Record<string, [number, number, number]> = {
@@ -336,16 +352,20 @@ export function Toy({ rows, items, auto = 0, controls, keys, label, className, f
     world.current.push(b, v[0], v[1], v[2]);
     wake();
   };
-  const hop = (id: string) => () => {
+  const hop = (id: string) => {
     const b = world.current.get(id);
     if (b) {
       world.current.push(b, 0, -12, 0.02);
       wake();
     }
   };
-  const reg = (id: string) => (el: HTMLElement | null) => {
-    if (el) els.current.set(id, el);
-    else els.current.delete(id);
+  const reg = (el: HTMLElement | null) => {
+    if (!el) return;
+    const id = el.dataset.bid ?? "";
+    els.current.set(id, el);
+    return () => {
+      els.current.delete(id);
+    };
   };
 
   const itemEl = (inst: Inst, phys: boolean) => {
@@ -359,18 +379,19 @@ export function Toy({ rows, items, auto = 0, controls, keys, label, className, f
     );
     const common = {
       className: cls,
-      ref: reg(inst.key),
+      ref: reg,
+      "data-bid": inst.key,
       "aria-label": item.aria,
       "data-body": phys ? "" : undefined,
       draggable: false,
-      onPointerDown: phys ? down(inst.key) : undefined,
+      onPointerDown: phys ? down : undefined,
       onPointerMove: phys ? move : undefined,
       onPointerUp: phys ? up : undefined,
       onPointerCancel: phys ? up : undefined,
-      onKeyDown: phys ? nudge(inst.key) : undefined,
+      onKeyDown: phys ? nudge : undefined,
       onFocus: () => onPeek?.(item),
       onMouseEnter: () => onPeek?.(item),
-      onClick: click(inst.key, item.action),
+      onClick: click,
     };
     if (item.action) return <button key={inst.key} type="button" {...common}>{inner}</button>;
     if (item.external || !item.href) return <a key={inst.key} href={item.href} {...common}>{inner}</a>;
@@ -392,19 +413,22 @@ export function Toy({ rows, items, auto = 0, controls, keys, label, className, f
                 type="button"
                 className="cr-l"
                 data-body=""
-                ref={reg(`l${i}`)}
+                ref={reg}
+                data-bid={`l${i}`}
                 aria-label={`Letter ${g.ch}, ${i + 1} of ${n}. Arrow keys nudge it, Space tosses it.`}
                 style={{ width: g.w, height: g.h, fontSize: g.f } as CSSProperties}
-                onPointerDown={down(`l${i}`)}
+                onPointerDown={down}
                 onPointerMove={move}
                 onPointerUp={up}
                 onPointerCancel={up}
-                onKeyDown={nudge(`l${i}`)}
-                onClick={click(`l${i}`, hop(`l${i}`))}
+                onKeyDown={nudge}
+                onClick={click}
               >
-                <span style={{ left: g.ox, top: g.oy }} aria-hidden="true">
-                  {g.ch}
-                </span>
+                <svg width={g.w} height={g.h} aria-hidden="true">
+                  <text x={g.ox} y={g.h} fontSize={g.f}>
+                    {g.ch}
+                  </text>
+                </svg>
               </button>
             ))}
             {live.map((inst) => itemEl(inst, true))}

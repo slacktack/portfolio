@@ -516,10 +516,16 @@ html[data-skin="crimson"] .cur-ring {
   transition: color 0.2s;
 }
 
-.t-crimson .cr-l span {
+.t-crimson .cr-l svg {
   position: absolute;
-  white-space: pre;
+  inset: 0;
+  overflow: visible;
   pointer-events: none;
+}
+
+.t-crimson .cr-l text {
+  fill: currentColor;
+  font-family: var(--cr-black);
 }
 
 .t-crimson .cr-l:hover {
@@ -752,7 +758,7 @@ html[data-skin="crimson"] .cur-ring {
 .t-crimson .cr-hint {
   position: absolute;
   right: calc(var(--cr-gut) + 10px);
-  top: 180px;
+  top: 250px;
   width: clamp(120px, 11vw, 170px);
   fill: none;
   pointer-events: none;
@@ -782,10 +788,10 @@ html[data-skin="crimson"] .cur-ring {
 
 .t-crimson .cr-peek {
   position: absolute;
-  left: var(--cr-gut);
-  top: 46%;
+  right: var(--cr-gut);
+  top: 170px;
   z-index: 2;
-  max-width: min(520px, 60vw);
+  max-width: min(460px, 40vw);
   pointer-events: none;
 }
 
@@ -1037,6 +1043,7 @@ html[data-skin="crimson"] .cur-ring {
 /* ---------- shared type ---------- */
 
 .t-crimson .cr-main {
+  padding-top: 0;
   position: relative;
   z-index: 1;
   background: var(--cr-bone);
@@ -3023,6 +3030,12 @@ html[data-skin="crimson"] .cur-ring {
     bottom: auto;
     top: 270px;
   }
+  .t-crimson .cr-chip b {
+    font-size: 20px;
+  }
+  .t-crimson .cr-chip small {
+    font-size: 9px;
+  }
   .t-crimson .cr-ctl {
     height: 44px;
     padding: 0 16px;
@@ -3030,6 +3043,8 @@ html[data-skin="crimson"] .cur-ring {
   }
   .t-crimson .cr-peek {
     top: 330px;
+    left: var(--cr-gut);
+    right: auto;
     max-width: calc(100% - 2 * var(--cr-gut));
   }
   .t-crimson .cr-peek > * {
