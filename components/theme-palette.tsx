@@ -386,7 +386,7 @@ export function ThemeTeaser({ className }: { className?: string }) {
             Same work. <em>{skins.length} completely different websites.</em>
           </b>
           <span className="tteaser-sub">
-            A dashboard, a game, a phone app, a film, a journal and more. Pick
+            A dashboard, a planet game, a design board, a film, a greenhouse. Pick
             one.
           </span>
         </div>

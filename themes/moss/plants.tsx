@@ -132,7 +132,7 @@ function Fanout({ s, big }: P) {
       <div className="mo-fan" key={run} data-run={run ? "" : undefined} data-done={done ? "" : undefined}>
         <span className="mo-fan-hub" />
         {fanBars.map((b, i) => (
-          <span key={i} className="mo-fan-arm" data-best={i === best ? "" : undefined} style={v({ "--a": (i - 3) * 17, "--d": i, "--b": b })}>
+          <span key={i} className="mo-fan-arm" data-best={i === best ? "" : undefined} style={v({ "--a": (i - 3) * 8, "--d": i, "--b": b })}>
             <i />
             <b />
           </span>
@@ -169,7 +169,7 @@ function Cluster({ s, big }: P) {
         {packs.map(([l, g], i) => {
           const row = col[g]++;
           return (
-            <span key={i} className="mo-clu-it" data-g={g} style={v({ "--i": i, "--g": g, "--r": row })}>
+            <span key={i} className="mo-clu-it" data-g={g} style={v({ "--c": i % 3, "--ro": Math.floor(i / 3), "--g": g, "--r": row })}>
               <b>Toned milk</b>
               <i>{l}</i>
             </span>
