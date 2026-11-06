@@ -272,7 +272,7 @@ html.themes-open body {
 .themes-modal {
   position: fixed;
   inset: 0;
-  z-index: 2147483050;
+  z-index: 2147482800;
   display: grid;
   place-items: center;
   padding: clamp(12px, 3vw, 40px);

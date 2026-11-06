@@ -49,7 +49,7 @@ export const skins: Skin[] = [
     line: "A museum machine after hours. Pick a work, the display obeys.",
     mode: "night",
     threeD: false,
-    type: "Bricolage · Instrument",
+    type: "Cormorant · Plex Mono",
     swatches: [
       { name: "Carbon", hex: "#0E0E0C" },
       { name: "Flare", hex: "#FF5A2B" },

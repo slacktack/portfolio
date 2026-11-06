@@ -569,3 +569,67 @@
   cursor: pointer;
   white-space: nowrap;
 }
+
+/* ---- chips as mini posters, each in its own theme's voice ---- */
+.themes-head h2 {
+  font-family: var(--f-syne), sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.045em;
+}
+
+.pchip-art .lmap {
+  inset: auto 10px 10px auto;
+  width: 34%;
+  opacity: 0.85;
+}
+
+.pchip-glyph {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 10px;
+  color: #fff;
+  font-size: clamp(34px, 3.6vw, 52px);
+  line-height: 1;
+  text-align: center;
+  text-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+}
+
+[data-chip="paper"] .pchip-glyph { font: 800 64px/1 var(--f-inter, sans-serif); font-family: var(--font-display), sans-serif; color: #12110e; letter-spacing: -0.06em; }
+[data-chip="night"] .pchip-glyph { font: italic 500 46px/1 var(--f-cormorant), serif; color: #ffb48f; }
+[data-chip="summit"] .pchip-glyph { font: 800 54px/1 var(--f-manrope), sans-serif; color: #fff; }
+[data-chip="aurora"] .pchip-glyph { font: 300 72px/1 var(--f-roboto-serif), serif; color: #fff; letter-spacing: -0.04em; }
+[data-chip="ember"] .pchip-glyph { font: 400 64px/1 var(--f-dm-serif), serif; color: #fff; background: radial-gradient(closest-side, rgba(255, 255, 255, 0.28), transparent); }
+[data-chip="signal"] .pchip-glyph { font: 800 40px/1 var(--f-doto), monospace; color: #2bd94a; }
+[data-chip="moss"] .pchip-glyph { font: italic 400 64px/1 var(--f-fraunces), serif; color: #ddf7a8; }
+[data-chip="forge"] .pchip-glyph { font: 600 58px/1 var(--f-teko), sans-serif; color: #f2a53a; letter-spacing: 0.04em; }
+[data-chip="abyss"] .pchip-glyph { font: 300 20px/1 var(--f-montserrat), sans-serif; letter-spacing: 0.6em; color: #6fe3e9; padding-left: 0.6em; }
+[data-chip="grid"] .pchip-glyph { font: 700 92px/1 var(--f-hanken), sans-serif; color: #fff; letter-spacing: -0.06em; place-items: end start; padding: 14px; }
+[data-chip="crimson"] .pchip-glyph { font: 400 78px/0.9 var(--f-archivo-black), sans-serif; color: #f4efe8; transform: rotate(-8deg); }
+[data-chip="graphite"] .pchip-glyph { font: 400 64px/1 var(--f-space-mono), monospace; color: #e8ff3a; image-rendering: pixelated; }
+[data-chip="onyx"] .pchip-glyph { font: 700 58px/1 var(--f-syne), sans-serif; color: #d9b26a; }
+[data-chip="solar"] .pchip-glyph { font: 800 70px/1 var(--f-unbounded), sans-serif; color: #141210; }
+[data-chip="nebula"] .pchip-glyph { font: 300 64px/1 var(--f-sora), sans-serif; color: #fff; text-shadow: 0 0 24px #f472b6, 0 0 48px #8b5cf6; }
+[data-chip="orbit"] .pchip-glyph { font: 400 68px/1 var(--f-chakra), sans-serif; color: #fff; text-shadow: 0 8px 0 #fb923c; }
+
+.pchip-foot b {
+  font-family: var(--f-syne), sans-serif;
+  font-weight: 700;
+}
+
+[data-chip="night"] .pchip-foot b { font-family: var(--f-cormorant), serif; font-size: 18px; }
+[data-chip="summit"] .pchip-foot b { font-family: var(--f-manrope), sans-serif; }
+[data-chip="aurora"] .pchip-foot b { font-family: var(--f-roboto-serif), serif; font-weight: 400; }
+[data-chip="ember"] .pchip-foot b { font-family: var(--f-dm-serif), serif; font-weight: 400; }
+[data-chip="signal"] .pchip-foot b { font-family: var(--f-geist-mono), monospace; text-transform: uppercase; font-size: 13px; }
+[data-chip="moss"] .pchip-foot b { font-family: var(--f-fraunces), serif; font-style: italic; font-weight: 500; }
+[data-chip="forge"] .pchip-foot b { font-family: var(--f-teko), sans-serif; font-size: 20px; text-transform: uppercase; letter-spacing: 0.04em; }
+[data-chip="abyss"] .pchip-foot b { font-family: var(--f-montserrat), sans-serif; font-weight: 400; letter-spacing: 0.3em; text-transform: uppercase; font-size: 12px; }
+[data-chip="grid"] .pchip-foot b { font-family: var(--f-hanken), sans-serif; font-weight: 500; }
+[data-chip="crimson"] .pchip-foot b { font-family: var(--f-archivo-black), sans-serif; font-weight: 400; color: #e10600; text-transform: uppercase; }
+[data-chip="graphite"] .pchip-foot b { font-family: var(--f-space-grotesk), sans-serif; }
+[data-chip="onyx"] .pchip-foot b { font-family: var(--f-syne), sans-serif; text-transform: uppercase; letter-spacing: 0.08em; font-size: 13px; }
+[data-chip="solar"] .pchip-foot b { font-family: var(--f-unbounded), sans-serif; font-size: 14px; }
+[data-chip="nebula"] .pchip-foot b { font-family: var(--f-sora), sans-serif; font-weight: 300; }
+[data-chip="orbit"] .pchip-foot b { font-family: var(--f-chakra), sans-serif; text-transform: uppercase; }

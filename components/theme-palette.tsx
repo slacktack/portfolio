@@ -37,6 +37,25 @@ export function LayoutMap({ layout }: { layout: Skin["layout"] }) {
   );
 }
 
+const glyphs: Record<string, string> = {
+  paper: "Aa",
+  night: "Fig.",
+  summit: "▲",
+  aurora: "Ag",
+  ember: "Aa",
+  signal: "478K",
+  moss: "❦",
+  forge: "LVL",
+  abyss: "PLAY",
+  grid: "01",
+  crimson: "TG",
+  graphite: "▦",
+  onyx: "Nº",
+  solar: "12",
+  nebula: "✦",
+  orbit: "◉",
+};
+
 // The roulette: chips ride a ring; wheel, drag or arrow keys spin it, the top chip is picked.
 export function PaletteFan({ onPick, first = false }: { onPick?: () => void; first?: boolean }) {
   const current = useSkinId();
@@ -134,6 +153,8 @@ export function PaletteFan({ onPick, first = false }: { onPick?: () => void; fir
     };
   }, [n, step]);
 
+  const spinRef = useRef<(i: number) => void>(() => {});
+  const enterRef = useRef<(i: number) => void>(() => {});
   const spinTo = (i: number) => {
     const s = st.current;
     // shortest way round the loop to chip i
@@ -143,22 +164,35 @@ export function PaletteFan({ onPick, first = false }: { onPick?: () => void; fir
     if (diff < -n / 2) diff += n;
     s.t += diff;
     kickRef.current();
-    requestAnimationFrame(() => chips.current[i]?.focus({ preventScroll: true }));
+    
   };
 
-  const onKey = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-      e.preventDefault();
-      spinTo((sel + 1) % n);
-    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-      e.preventDefault();
-      spinTo((sel - 1 + n) % n);
-    }
-  };
+  const selRef = useRef(sel);
+  useEffect(() => {
+    spinRef.current = spinTo;
+    enterRef.current = enter;
+    selRef.current = sel;
+  });
+  useEffect(() => {
+    const onWinKey = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement | null)?.closest?.("input, textarea")) return;
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        spinRef.current((((Math.round(-st.current.t) + 1) % n) + n) % n);
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        spinRef.current((((Math.round(-st.current.t) - 1) % n) + n) % n);
+      } else if (e.key === "Enter" && !(e.target as HTMLElement | null)?.closest?.("button")) {
+        enterRef.current(selRef.current);
+      }
+    };
+    window.addEventListener("keydown", onWinKey);
+    return () => window.removeEventListener("keydown", onWinKey);
+  }, [n]);
 
   return (
     <div className="pfan-wrap">
-      <div className="roul" ref={ring} data-lenis-prevent onKeyDown={onKey} role="listbox" aria-label="Themes. Use arrow keys, scroll or drag to spin.">
+      <div className="roul" ref={ring} data-lenis-prevent role="listbox" aria-label="Themes. Use arrow keys, scroll or drag to spin.">
         <div className="roul-pin" aria-hidden="true" />
         {skins.map((s, i) => (
           <button
@@ -168,6 +202,7 @@ export function PaletteFan({ onPick, first = false }: { onPick?: () => void; fir
               chips.current[i] = el;
             }}
             className="pchip"
+            data-chip={s.id}
             role="option"
             aria-selected={i === sel}
             data-current={s.id === current || undefined}
@@ -179,6 +214,9 @@ export function PaletteFan({ onPick, first = false }: { onPick?: () => void; fir
             }}
           >
             <span className="pchip-art" style={{ background: s.curtain }}>
+              <span className="pchip-glyph" aria-hidden="true">
+                {glyphs[s.id]}
+              </span>
               <LayoutMap layout={s.layout} />
               {s.threeD ? <span className="pchip-tag">3D</span> : null}
             </span>
