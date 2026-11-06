@@ -191,7 +191,8 @@ export function PaletteFan({ onPick, first = false }: { onPick?: () => void; fir
   }, [n]);
 
   return (
-    <div className="pfan-wrap">
+    <div className="pfan-wrap" data-sel={shown.id} style={{ "--sel-bg": shown.curtain, "--sel-a": shown.swatches[1]?.hex ?? "#fff" } as CSSProperties}>
+      <div className="pfan-aura" aria-hidden="true" key={`a-${shown.id}`} />
       <div className="roul" ref={ring} data-lenis-prevent role="listbox" aria-label="Themes. Use arrow keys, scroll or drag to spin.">
         <div className="roul-pin" aria-hidden="true" />
         {skins.map((s, i) => (
