@@ -13,6 +13,7 @@ import { PlanetMap } from "./map";
 import { AboutView, LabView, MissingView, NoteView, NotesView, PortalView, ProjectsView } from "./pages";
 import { SystemView, SystemsView } from "./systems";
 import { Arrow, Glyph, Kbd, tint } from "./ui";
+import { Celebration, FlightSchool, Scanner, Toast, Tracker } from "./quest";
 import { createWorld, hasWebGL, type Mode, type World } from "./world";
 
 const FLY = new Set(["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "ShiftLeft", "ShiftRight"]);
@@ -39,6 +40,27 @@ export default function App({ route }: ThemeAppProps) {
   const [portal, setPortal] = useState(false);
   const [brief, setBrief] = useState(true);
   const [mode, setMode] = useState<Mode>("overview");
+  const read = (k: string) => {
+    try {
+      return localStorage.getItem(k);
+    } catch {
+      return null;
+    }
+  };
+  const save = (k: string, v: string) => {
+    try {
+      localStorage.setItem(k, v);
+    } catch {
+      // storage blocked
+    }
+  };
+  const [collected, setCollected] = useState<string[]>(() => (read("ob-cores") ?? "").split(",").filter((k) => flyMarks.some((m) => m.key === k)));
+  const [school, setSchool] = useState(() => read("ob-school") !== "1");
+  const [win, setWin] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+  const [powered, setPowered] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const got = useRef(new Set(collected));
 
   const world = useRef<World | null>(null);
   const host = useRef<HTMLDivElement>(null);
@@ -89,7 +111,34 @@ export default function App({ route }: ThemeAppProps) {
         minimap: () => mini.current,
         label: (id) => labels.current.get(id) ?? null,
         onNearby: setNearby,
-        onArrive: (id) => setArrived(id),
+        onArrive: (id) => {
+          setArrived(id);
+          const k = id.startsWith("b:") ? "tower" : id;
+          if (!flyMarks.some((m) => m.key === k) || got.current.has(k)) return;
+          got.current.add(k);
+          const list = [...got.current];
+          setCollected(list);
+          save("ob-cores", list.join(","));
+          world.current?.collect(k, true);
+          setToast(k);
+          window.setTimeout(() => setToast((t) => (t === k ? null : t)), 2600);
+          if (list.length === flyMarks.length && read("ob-done") !== "1") {
+            save("ob-done", "1");
+            window.setTimeout(() => setWin(true), 900);
+          }
+        },
+        onPower: (c, burst) => {
+          const r = rootRef.current;
+          if (!r) return;
+          r.style.setProperty("--ob-pow", c.toFixed(3));
+          if (burst) {
+            setPowered(true);
+            r.removeAttribute("data-burst");
+            void r.offsetWidth;
+            r.setAttribute("data-burst", "");
+          }
+        },
+        collected: [...got.current],
         onPick: land,
         onGround: () => {
           setPortal(false);
@@ -150,6 +199,7 @@ export default function App({ route }: ThemeAppProps) {
       return !!el?.closest?.("input, textarea, select, [contenteditable], [aria-modal='true'], .themes-sheet, .roul");
     };
     const down = (e: KeyboardEvent) => {
+      if (document.querySelector(".ob-school, .ob-win")) return;
       if (e.metaKey || e.ctrlKey || e.altKey || typing(e.target)) return;
       const s = live.current;
       const inPanel = !!(e.target as HTMLElement | null)?.closest?.(".ob-panel");
@@ -205,7 +255,16 @@ export default function App({ route }: ThemeAppProps) {
   };
 
   const activeSection = portal && view === "home" ? "portal" : tid.startsWith("b:") ? "tower" : tid;
-  const near = nearby ? targetName(nearby) : null;
+  const nextCore = flyMarks.find((m) => !collected.includes(m.key));
+  const hint = nearby
+    ? `Press E to land at the ${targetName(nearby).name}`
+    : mode === "overview"
+      ? "Press W or tap the planet to take off"
+      : mode === "chase" && !powered
+        ? "Hold Shift to power up"
+        : nextCore
+          ? `Next core: ${nextCore.name}, press ${nextCore.hotkey} for autopilot`
+          : "Every core collected. Try the theme portal.";
   const here = arrived ? targetName(arrived) : null;
 
   let page: React.ReactNode = null;
@@ -225,9 +284,12 @@ export default function App({ route }: ThemeAppProps) {
   const head = pm ? { name: pm.name, section: pm.section, color: pm.color, key: pm.key } : { name: pc?.name ?? "", section: "System", color: pc?.color ?? "#0ea5e9", key: "tower" as MarkKey };
 
   return (
-    <div className="t-orbit" data-view={view} data-night={night ? "" : undefined} data-open={open ? "" : undefined} data-mode={use3d ? mode : "map"} data-brief={brief ? "" : undefined}>
+    <div className="t-orbit" ref={rootRef} data-view={view} data-night={night ? "" : undefined} data-open={open ? "" : undefined} data-mode={use3d ? mode : "map"} data-brief={brief ? "" : undefined}>
       <div className="ob-sky" aria-hidden="true">
         <i className="ob-sun" />
+        <i className="ob-cl ob-cl1" />
+        <i className="ob-cl ob-cl2" />
+        <i className="ob-cl ob-cl3" />
       </div>
 
       {use3d ? (
@@ -388,15 +450,27 @@ export default function App({ route }: ThemeAppProps) {
         )
       ) : null}
 
-      {use3d && near && !open ? (
-        <button type="button" className="ob-prompt" style={tint(near.color)} onClick={() => land(nearby!)}>
-          <small>{near.section}</small>
-          <b>{near.name}</b>
-          <span>
-            <Kbd>E</Kbd> Land
-          </span>
-        </button>
+      {use3d ? (
+        <div className="ob-fx" aria-hidden="true">
+          <i className="ob-speed" />
+          <i className="ob-flash" />
+        </div>
       ) : null}
+
+      {use3d && nearby && !open ? <Scanner key={nearby} id={nearby} onLand={() => land(nearby)} /> : null}
+
+      {use3d && !open ? <Tracker collected={collected} hint={hint} /> : null}
+      {toast ? <Toast key={toast} id={toast} count={collected.length} /> : null}
+      {use3d && school ? (
+        <FlightSchool
+          onClose={() => {
+            setSchool(false);
+            save("ob-school", "1");
+            host.current?.focus();
+          }}
+        />
+      ) : null}
+      {win ? <Celebration onClose={() => setWin(false)} /> : null}
 
       <nav className="ob-flybar" aria-label="Fly to a landmark">
         {flyMarks.map((m) => {

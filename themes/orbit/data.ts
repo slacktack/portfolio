@@ -1,4 +1,5 @@
-import { systems } from "@/lib/site";
+import { labItems, systems } from "@/lib/site";
+import { skins } from "@/lib/skins";
 import type { Route } from "../types";
 
 export type MarkKey = "tower" | "hangar" | "dome" | "library" | "cottage" | "portal" | "void";
@@ -72,4 +73,28 @@ export function targetName(id: string): { name: string; section: string; color: 
   }
   const m = marks.find((x) => x.key === id);
   return { name: m?.name ?? "", section: m?.section ?? "", color: m?.color ?? "#fb923c" };
+}
+
+// Real numbers only, read for the power-level scanner.
+export function powerOf(id: string): { value: string; label: string } {
+  if (id.startsWith("b:")) {
+    const m = systems.find((s) => s.slug === id.slice(2))?.metrics[0];
+    return m ? { value: m.value, label: m.label } : { value: "0", label: "" };
+  }
+  switch (id) {
+    case "tower":
+      return { value: systems[0].metrics[0].value, label: `${systems[0].metrics[0].label} · Flights` };
+    case "hangar":
+      return { value: "2,346", label: "Trains live · Train Tracker" };
+    case "dome":
+      return { value: String(labItems.length), label: "Interactive experiments" };
+    case "library":
+      return { value: "232ms", label: "Cold start, written up" };
+    case "cottage":
+      return { value: "20ms", label: "p99 · Rust hot path" };
+    case "portal":
+      return { value: String(skins.length), label: "Versions of this site" };
+    default:
+      return { value: "0", label: "Nothing here" };
+  }
 }
