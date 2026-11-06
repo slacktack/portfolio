@@ -68,9 +68,9 @@ export function Systems() {
                 <Link href={sp.href} className="mo-entry" data-hue={sp.hue} onMouseEnter={() => setActive(i)} onFocus={() => setActive(i)}>
                   <span className="mo-entry-no">{c.index}</span>
                   <span className="mo-entry-main">
-                    <span className="mo-k">Family · {c.category}</span>
+                    <span className="mo-k">System {c.index}</span>
                     <em className="mo-entry-latin">{sp.latin}</em>
-                    <b className="mo-entry-common">{c.title}</b>
+                    <b className="mo-entry-common">{c.category}</b>
                     <span className="mo-entry-promise">{c.promise}</span>
                     <span className="mo-entry-ms">
                       {c.metrics.slice(0, 2).map((m) => (
@@ -122,7 +122,7 @@ export function System({ slug }: { slug: string }) {
         <div>
           <Unfurl>
             <span className="mo-k mo-k-pill">
-              Plate {c.index} · Family {c.category}
+              Plate {c.index}
             </span>
           </Unfurl>
           <Unfurl delay={80}>
@@ -132,7 +132,7 @@ export function System({ slug }: { slug: string }) {
           </Unfurl>
           <Unfurl delay={140}>
             <p className="mo-plate-common">
-              {c.title} <span>— {c.promise}</span>
+              {c.category} <span>— {c.promise}</span>
             </p>
           </Unfurl>
           <Unfurl delay={200}>

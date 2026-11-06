@@ -96,7 +96,7 @@ function SpecimenSheet({ s }: { s: Specimen }) {
     <div className="mo-sheet">
       <header className="mo-sheet-head">
         <span className="mo-k">
-          Plate {c.index} · Family {c.category}
+          Plate {c.index}
         </span>
         <h2>
           <em>{s.latin}</em>

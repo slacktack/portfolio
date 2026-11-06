@@ -32,7 +32,6 @@ export type Specimen = {
 
 export type Hue = "lime" | "sage" | "chart" | "coral" | "lilac" | "glass" | "mint";
 
-// Latin labels are decorative botany, not claims.
 const sysMeta: Record<string, { latin: string; plant: PlantKind; hue: Hue; variant?: string; metric?: number }> = {
   flights: { latin: "Cachea refinata", plant: "cache", hue: "lime" },
   hotels: { latin: "Hospitium unicum", plant: "merge", hue: "lilac", metric: 1 },
@@ -62,8 +61,8 @@ export const systemSpecimens: Specimen[] = systems.map((s) => {
   const metric = s.metrics[m.metric ?? 0] ?? s.metrics[0];
   return {
     id: s.slug,
-    latin: m.latin,
-    common: s.title,
+    latin: s.title,
+    common: s.category,
     kind: "system",
     plant: m.plant,
     metric: { value: metric.value, label: metric.label },
@@ -80,8 +79,8 @@ export const labSpecimens: Specimen[] = labItems.map((l) => {
   const m = labMeta[l.slug] ?? { latin: "Experimentum", plant: "pipeline" as PlantKind, hue: "sage" as Hue };
   return {
     id: l.slug,
-    latin: m.latin,
-    common: l.title,
+    latin: l.title,
+    common: l.detail,
     kind: "lab",
     plant: m.plant,
     metric: { value: l.year, label: l.detail },
@@ -107,6 +106,6 @@ export const wall: Specimen[] = (() => {
   return out;
 })();
 
-export const latinFor = (slug: string) => sysMeta[slug]?.latin ?? "Systema";
+export const latinFor = (slug: string) => systems.find((x) => x.slug === slug)?.title ?? slug;
 export const specimenFor = (slug: string) => systemSpecimens.find((s) => s.id === slug);
 export const labSpecimen = (slug: string) => labSpecimens.find((s) => s.id === slug);
