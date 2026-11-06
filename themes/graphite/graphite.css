@@ -1836,3 +1836,12 @@ html[data-skin="graphite"] body {
     display: none;
   }
 }
+
+/* real word gaps; flex layouts drop the space text nodes */
+.t-graphite .tact-w {
+  margin-right: 0.08em;
+}
+
+.t-graphite .tact-w:last-child {
+  margin-right: 0;
+}
