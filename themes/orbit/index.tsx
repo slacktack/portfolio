@@ -393,7 +393,7 @@ export default function App({ route }: ThemeAppProps) {
         </div>
       </header>
 
-      {view === "home" && !portal ? (
+      {view === "home" && !portal && !(use3d && school) ? (
         brief ? (
           <section className="ob-brief" aria-label="Mission briefing" data-lenis-prevent>
             <div className="ob-brief-top">
