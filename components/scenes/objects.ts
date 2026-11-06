@@ -229,6 +229,9 @@ export function makeBrowser(ctx: Ctx, imageUrl: string, host: string) {
   new THREE.TextureLoader().load(imageUrl, (t) => {
     t.colorSpace = THREE.SRGBColorSpace;
     t.anisotropy = ctx.renderer.capabilities.getMaxAnisotropy();
+    // shown near 1:1, so skip mipmaps: they pick a blurrier level at an angle
+    t.generateMipmaps = false;
+    t.minFilter = THREE.LinearFilter;
     // cover-fit, anchored to the top like a real page
     const img = t.image as { width: number; height: number };
     const a = img.width / img.height;

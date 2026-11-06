@@ -97,3 +97,20 @@
     gap: 10px;
   }
 }
+
+/* phones: drop the full-screen grain layer entirely */
+@media (pointer: coarse) {
+  .grain {
+    display: none;
+  }
+}
+
+/* phones: live backdrop blur re-composites every scroll frame; trade it for solid-ish glass */
+@media (pointer: coarse) {
+  *,
+  *::before,
+  *::after {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}

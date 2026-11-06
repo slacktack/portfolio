@@ -59,7 +59,7 @@ export function mountScene(o: MountOpts): Handle | null {
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const coarse = window.matchMedia("(pointer: coarse)").matches;
   const mobile = coarse || host.clientWidth < 700;
-  let dprCap = o.maxDpr ?? (mode === "card" ? 2 : 1.75);
+  let dprCap = Math.min(o.maxDpr ?? (mode === "card" ? 2 : 1.75), mobile ? 1.5 : 3);
   const dpr = () => Math.min(window.devicePixelRatio || 1, dprCap);
 
   if (o.transparent) renderer.setClearColor(0x000000, 0);
@@ -245,7 +245,7 @@ export function mountScene(o: MountOpts): Handle | null {
         if (tier === 1) {
           // never fall back to a blurry 1x: shed the glow first, then settle on a sharp floor
           composer = null;
-          dprCap = Math.max(o.minDpr ?? 1.5, dprCap * 0.85);
+          dprCap = Math.max(Math.min(o.minDpr ?? 1.5, mobile ? 1.25 : 3), dprCap * 0.85);
           resize();
         }
       }
