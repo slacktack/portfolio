@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowUpRight } from "@/components/icons";
+import { ChapterHero, Handoff } from "@/components/story";
 import { notes } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -12,36 +13,28 @@ export const metadata: Metadata = {
 export default function NotesPage() {
   return (
     <>
-      <section className="page-hero">
-        <div className="wrap page-hero-grid">
-          <div className="page-hero-copy">
-            <span className="eyebrow">
-              <span className="dot" />
-              Field notes · {notes.length} entries
-            </span>
-            <h1 className="display-1">
-              Notes from the <span className="serif">lower layers.</span>
-            </h1>
-            <p className="lede">
-              Longer thoughts on latency, quotas, calibration, and the parts of backend
-              work that do not fit in a bullet point.
-            </p>
-          </div>
-
-          <div className="page-hero-aside">
-            <p>
-              <b>Written from the work.</b> Each note starts with a production constraint
-              and ends with what I would do differently.
-            </p>
-          </div>
-        </div>
-      </section>
+      <ChapterHero
+        id="notes"
+        title={
+          <>
+            Notes from the <span className="serif">lower layers.</span>
+          </>
+        }
+        lede="Longer thoughts on latency, quotas, calibration, and the parts of backend work that do not fit in a bullet point."
+        aside={
+          <p>
+            <b>Written from the work.</b> Each note starts with a production constraint from chapter 01 and ends with
+            what I would do differently. {notes.length} entries so far.
+          </p>
+        }
+      />
 
       <section className="section">
         <div className="wrap">
           <div className="notes-grid">
-            {notes.map((note) => (
+            {notes.map((note, i) => (
               <Link className="note-card" href={`/notes/${note.slug}`} key={note.slug}>
+                <span className="note-n">04.{i + 1}</span>
                 <div className="note-meta">
                   <span>{note.category}</span>
                   <span>
@@ -59,6 +52,8 @@ export default function NotesPage() {
           </div>
         </div>
       </section>
+
+      <Handoff from="notes" lead="Enough about the systems. Here is the person who builds them." />
     </>
   );
 }

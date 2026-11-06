@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useThreeD } from "@/components/skin";
 
 export type SceneKind = "flights" | "hotels" | "finale" | "hero" | "pay" | "grocery" | "cabs" | "food";
 
@@ -39,7 +40,13 @@ type Props = {
 };
 
 // Mounts a three.js scene only while it is near the viewport, so a page of them stays light.
-export function Scene3D({ kind, mode = "card", wrap, onProgress, fallback, className, label }: Props) {
+export function Scene3D(props: Props) {
+  const threeD = useThreeD();
+  if (!threeD) return props.fallback ? <>{props.fallback}</> : null;
+  return <Scene3DLive {...props} />;
+}
+
+function Scene3DLive({ kind, mode = "card", wrap, onProgress, fallback, className, label }: Props) {
   const host = useRef<HTMLDivElement>(null);
   const [failed, setFailed] = useState(false);
   const cb = useRef(onProgress);
@@ -110,7 +117,13 @@ export function Scene3D({ kind, mode = "card", wrap, onProgress, fallback, class
 
 type Chapter = { k: string; t: string; d: string };
 
-export function ImmersiveHero({ kind, chapters }: { kind: SceneKind; chapters: Chapter[] }) {
+export function ImmersiveHero({ kind, chapters, fallback }: { kind: SceneKind; chapters: Chapter[]; fallback?: ReactNode }) {
+  const threeD = useThreeD();
+  if (!threeD) return <>{fallback}</>;
+  return <ImmersiveLive kind={kind} chapters={chapters} />;
+}
+
+function ImmersiveLive({ kind, chapters }: { kind: SceneKind; chapters: Chapter[] }) {
   const wrap = useRef<HTMLElement>(null);
   const [p, setP] = useState(0);
   const active = Math.min(chapters.length - 1, Math.floor(p * chapters.length * 0.999));

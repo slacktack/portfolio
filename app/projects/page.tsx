@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, SparkIcon } from "@/components/icons";
+import { ArrowUpRight, SparkIcon } from "@/components/icons";
 import { StackTag } from "@/components/brand";
 import { InternalTools } from "@/components/internal-tools";
 import { Ledger } from "@/components/ledger";
@@ -8,6 +8,7 @@ import { LiveFrame } from "@/components/live-frame";
 import { ProjectStage } from "@/components/project-stage";
 import { Reveal } from "@/components/reveal";
 import { SectionHeading } from "@/components/section-heading";
+import { ChapterHero, Handoff } from "@/components/story";
 import { projects, stage } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -37,39 +38,41 @@ const rules = [
 export default function ProjectsPage() {
   return (
     <>
-      <section className="page-hero garage-hero">
-        <div className="wrap page-hero-grid">
-          <div className="page-hero-copy">
-            <span className="eyebrow">
-              <span className="dot" />
-              The garage · Live URLs and the workshop
-            </span>
-            <h1 className="display-1 garage-title">
-              I reverse-engineer APIs <span className="serif">for sport.</span>
-            </h1>
-            <p className="lede">
-              When the documentation runs out, I open the network tab, take the
-              contract apart, and ship the product on top. These are the side quests:
-              built after hours, deployed in public, and still running.
-            </p>
-          </div>
-
-          <div className="page-hero-aside">
+      <ChapterHero
+        id="garage"
+        title={
+          <>
+            I reverse-engineer APIs <span className="serif">for sport.</span>
+          </>
+        }
+        lede="When the documentation runs out, I open the network tab, take the contract apart, and ship the product on top. Built after hours, deployed in public, and still running."
+        aside={
+          <>
             <p>
-              <b>{projects.length} live projects. Zero mockups.</b> Real maps, real
-              models, real browser APIs. If it looks impossible from the outside, that
-              is usually where I start.
+              <b>{projects.length} live projects. Zero mockups.</b> Real maps, real models, real browser APIs.
             </p>
             <p>
-              Production work lives in <Link href="/systems">systems</Link>. This is
-              where the weird ideas go to become real.
+              The production work is in <Link href="/systems">chapter 01</Link>. This is where the weird ideas go to
+              become real.
             </p>
-          </div>
-        </div>
-      </section>
+          </>
+        }
+      />
 
       <section className="section-tight">
         <div className="wrap">
+          <Reveal>
+            <SectionHeading
+              className="head-compact"
+              number="03.1"
+              label="On stage"
+              title={
+                <>
+                  Recorded live. <span className="serif">Nothing mocked up.</span>
+                </>
+              }
+            />
+          </Reveal>
           <Reveal>
             <ProjectStage items={stage} />
           </Reveal>
@@ -90,8 +93,21 @@ export default function ProjectsPage() {
         </div>
       </section>
 
-      <section className="section-tight garage-section">
+      <section className="section-tight garage-section" id="live">
         <div className="wrap">
+          <Reveal>
+            <SectionHeading
+              className="head-compact"
+              number="03.2"
+              label="The live URLs"
+              title={
+                <>
+                  Open it. <span className="serif">Break it.</span>
+                </>
+              }
+              note="Every project here has a URL you can judge for yourself."
+            />
+          </Reveal>
           <div className="projects-grid">
             {projects.map((project, index) => {
               return (
@@ -151,7 +167,7 @@ export default function ProjectsPage() {
         <div className="wrap">
           <Reveal>
             <SectionHeading
-              number="02"
+              number="03.3"
               label="Dashboards, design system and bots"
               title={<>The tools behind the product.</>}
               note="One design system, and every internal tool runs on it."
@@ -165,7 +181,7 @@ export default function ProjectsPage() {
         <div className="wrap">
           <Reveal>
             <SectionHeading
-              number="03"
+              number="03.4"
               label="The workshop"
               title={
                 <>
@@ -192,24 +208,22 @@ export default function ProjectsPage() {
           </div>
           <div className="garage-receipt-copy">
             <p>
-              Cabs, flights, food, quick commerce, grocery prices, coupon feeds, and a
-              few APIs that would rather I didn&apos;t. I have taken apart undocumented
-              interfaces, reconstructed their contracts, and kept the products they
-              power alive when the upstream changed shape overnight.
+              Cabs, flights, food, quick commerce, grocery prices, coupon feeds, and a few APIs that would rather I
+              didn&apos;t. I have taken apart undocumented interfaces, reconstructed their contracts, and kept the
+              products they power alive when the upstream changed shape overnight.
             </p>
             <p>
-              The skill is not breaking things. It is building something that survives
-              the next time the other side changes the locks.
+              The skill is not breaking things. It is building something that survives the next time the other side
+              changes the locks.
             </p>
-            <div className="garage-receipt-actions">
-              <Link className="btn btn-primary" href="/systems">
-                See the production work
-                <ArrowRight width={14} height={14} />
-              </Link>
-            </div>
           </div>
         </div>
       </section>
+
+      <Handoff
+        from="garage"
+        lead="Building leaves notes behind. The longer ones are the next chapter."
+      />
     </>
   );
 }

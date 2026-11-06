@@ -3,9 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { StackTag } from "@/components/brand";
 import { SystemArtifact } from "@/components/artifacts";
-import { ArrowRight, ArrowUpRight } from "@/components/icons";
+import { ArrowRight } from "@/components/icons";
 import { Reveal } from "@/components/reveal";
 import { ImmersiveHero } from "@/components/scene3d";
+import { ChapterHero, Handoff } from "@/components/story";
 import { getNextSystem, getSystem, systems } from "@/lib/site";
 
 type PageProps = {
@@ -43,6 +44,12 @@ const immersive: Record<string, { k: string; t: string; d: string }[]> = {
   ],
 };
 
+const benchFor: Record<string, { id: string; lead: string }> = {
+  flights: { id: "cache-key", lead: "The cache key behind those requests is on the bench. Change one thing and watch it decide." },
+  hotels: { id: "deadlines", lead: "The straggler and the impostor hotel are both on the bench. Drag the deadline, move the gates." },
+  observability: { id: "logs", lead: "Silence is a signal. The alerting logic is on the bench: kill a service and time how long it takes to notice." },
+};
+
 const toc = [
   { id: "problem", label: "Problem" },
   { id: "constraints", label: "Constraints" },
@@ -61,54 +68,55 @@ export default async function SystemCasePage({ params }: PageProps) {
   if (!system) notFound();
 
   const next = getNextSystem(slug);
+  const bench = benchFor[system.slug];
 
   return (
     <>
-      <section className="case-hero" data-system={system.slug}>
-        <div className="wrap">
-          <div className="breadcrumb">
-            <Link href="/">Home</Link>
-            <span>/</span>
-            <Link href="/systems">Systems</Link>
-            <span>/</span>
-            <span>{system.shortTitle}</span>
-          </div>
-
-          <div className="case-hero-top">
-            <span className="eyebrow">
-              <span className="dot" />
-              Case {system.index} · {system.category}
-            </span>
-            <span className="tag">{system.year}</span>
-          </div>
-
-          <h1 className="display-1 case-title">{system.title}</h1>
-          <p className="case-promise">{system.promise}</p>
-
-          <div className="case-meta">
-            <span>
-              Role
-              <b>{system.role}</b>
-            </span>
-            <span>
-              Scope
-              <b>
-                {system.artifact === "cabs"
-                  ? "0 → 1 system"
-                  : system.artifact === "observability"
-                    ? "Company-wide log platform"
-                    : "Production pipeline"}
-              </b>
-            </span>
-            <span>
-              Stack
-              <b>{system.stack.slice(0, 3).join(" · ")}</b>
-            </span>
-          </div>
+      <ChapterHero
+        id="systems"
+        className="case-opener"
+        crumbs={[{ href: "/", label: "Home" }, { href: "/systems", label: "01 · Systems" }, { label: system.shortTitle }]}
+        kicker={`Case ${system.index} of ${String(systems.length).padStart(2, "0")} · ${system.category}`}
+        title={system.title}
+        lede={system.promise}
+      >
+        <div className="ch-facts">
+          <span>
+            Role
+            <b>{system.role}</b>
+          </span>
+          <span>
+            Scope
+            <b>
+              {system.artifact === "cabs"
+                ? "0 → 1 system"
+                : system.artifact === "observability"
+                  ? "Company-wide log platform"
+                  : "Production pipeline"}
+            </b>
+          </span>
+          <span>
+            Stack
+            <b>{system.stack.slice(0, 3).join(" · ")}</b>
+          </span>
+          <span>
+            Year
+            <b>{system.year}</b>
+          </span>
         </div>
-      </section>
+      </ChapterHero>
 
-      {immersive[system.slug] ? <ImmersiveHero kind={system.slug as "flights" | "hotels"} chapters={immersive[system.slug]} /> : null}
+      {immersive[system.slug] ? <ImmersiveHero
+          kind={system.slug as "flights" | "hotels"}
+          chapters={immersive[system.slug]}
+          fallback={
+            <div className="wrap">
+              <div className="case-artifact">
+                <SystemArtifact kind={system.artifact} />
+              </div>
+            </div>
+          }
+        /> : null}
 
       <div className="wrap">
         {immersive[system.slug] ? null : (
@@ -343,14 +351,14 @@ export default async function SystemCasePage({ params }: PageProps) {
           </div>
         </div>
 
-        <Link className="next-case" href={`/systems/${next.slug}`}>
-          <div>
-            <span>Next case · {next.index}</span>
-            <strong>{next.title}</strong>
-          </div>
-          <ArrowUpRight width={18} height={18} />
-        </Link>
       </div>
+
+      <Handoff
+        from="systems"
+        lead={bench?.lead ?? "That is one system. The mechanisms underneath all of them are on the bench, built to be broken."}
+        nextHref={bench ? `/lab#${bench.id}` : undefined}
+        side={{ href: `/systems/${next.slug}`, label: `Or the next case · ${next.index}`, title: next.title }}
+      />
     </>
   );
 }

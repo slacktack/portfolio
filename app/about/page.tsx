@@ -4,6 +4,7 @@ import { HireCard } from "@/components/hire-card";
 import { OperatorCard } from "@/components/operator-card";
 import { Reveal } from "@/components/reveal";
 import { SectionHeading, SectionLabel } from "@/components/section-heading";
+import { ChapterHero, Handoff } from "@/components/story";
 import { currently, principles, profile, timeline } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -15,43 +16,35 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <>
-      <section className="section-tight" style={{ paddingBottom: 0 }}>
-        <div className="wrap hire-wrap">
-          <span className="eyebrow" style={{ marginBottom: 18 }}>
-            <span className="dot" />
-            About · operator manual
-          </span>
-          <HireCard />
-        </div>
-      </section>
-
-      <section className="page-hero">
-        <div className="wrap page-hero-grid">
-          <div className="page-hero-copy">
-            <h1 className="display-1">
-              Backend by choice. <span className="serif">Curious by default.</span>
-            </h1>
-            <p className="lede">
-              I like the layer underneath the product: the queue, the quota, the
-              pipeline that has to stay correct when half its inputs are late. This is
-              the longer version of why.
-            </p>
-          </div>
-
-          <div className="page-hero-aside">
+      <ChapterHero
+        id="person"
+        title={
+          <>
+            Backend by choice. <span className="serif">Curious by default.</span>
+          </>
+        }
+        lede="I like the layer underneath the product: the queue, the quota, the pipeline that has to stay correct when half its inputs are late. This is the longer version of why."
+        aside={
+          <>
             <p>
-              <b>Bangalore, India.</b> Currently an SDE-1 backend engineer at Buyhatke,
-              working on comparison systems for flights, hotels, and food.
+              <b>Bangalore, India.</b> Currently an SDE-1 backend engineer at Buyhatke, working on comparison systems
+              for flights, hotels, and food.
             </p>
             <p>{profile.availabilityDetail}</p>
-          </div>
+          </>
+        }
+      />
+
+      <section className="section-tight about-hire">
+        <div className="wrap hire-wrap">
+          <HireCard />
         </div>
       </section>
 
       <section className="section">
         <div className="wrap about-split">
           <Reveal className="about-copy">
-            <SectionLabel number="01">The short version</SectionLabel>
+            <SectionLabel number="05.1">The short version</SectionLabel>
             <h2 className="display-2">
               I found the interesting part <span className="serif">underneath.</span>
             </h2>
@@ -95,7 +88,7 @@ export default function AboutPage() {
         <div className="wrap">
           <Reveal>
             <SectionHeading
-              number="02"
+              number="05.2"
               label="Trace"
               title={
                 <>
@@ -142,7 +135,7 @@ export default function AboutPage() {
         <div className="wrap">
           <Reveal>
             <SectionHeading
-              number="03"
+              number="05.3"
               label="Operating principles"
               title={
                 <>
@@ -167,6 +160,11 @@ export default function AboutPage() {
         </div>
       </section>
 
+      <Handoff
+        from="person"
+        lead="That is the story so far. The next chapter is the one you write."
+        nextHref="#hello"
+      />
     </>
   );
 }

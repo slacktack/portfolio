@@ -45,7 +45,7 @@ export function ProjectStage({ items }: { items: StageItem[] }) {
 
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const count = items.length;
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setPixelRatio(Math.max(1.5, Math.min(window.devicePixelRatio || 1, 2)));
       renderer.setSize(host.clientWidth, host.clientHeight, false);
       renderer.domElement.className = "stage-canvas";
       host.appendChild(renderer.domElement);
@@ -57,23 +57,24 @@ export function ProjectStage({ items }: { items: StageItem[] }) {
       const styles = getComputedStyle(host);
       const css = (name: string, fallbackValue: string) =>
         new THREE.Color(styles.getPropertyValue(name).trim() || fallbackValue);
-      const sticker = css("--sticker", "#fffdf6");
-      const accent = css("--accent", "#e8491d");
+      const bezel = new THREE.Color("#1c1b18");
+      const edge = new THREE.Color("#4a4740");
       const ink = css("--ink", "#12110e");
 
       const maskCanvas = document.createElement("canvas");
-      maskCanvas.width = 512;
-      maskCanvas.height = 320;
+      maskCanvas.width = 2048;
+      maskCanvas.height = 1280;
       const mctx = maskCanvas.getContext("2d");
       if (mctx) {
         mctx.fillStyle = "#000";
-        mctx.fillRect(0, 0, 512, 320);
+        mctx.fillRect(0, 0, 2048, 1280);
         mctx.fillStyle = "#fff";
         mctx.beginPath();
-        mctx.roundRect(0, 0, 512, 320, 30);
+        mctx.roundRect(0, 0, 2048, 1280, 34);
         mctx.fill();
       }
       const mask = new THREE.CanvasTexture(maskCanvas);
+      mask.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
       const glowCanvas = document.createElement("canvas");
       glowCanvas.width = glowCanvas.height = 64;
@@ -129,17 +130,17 @@ export function ProjectStage({ items }: { items: StageItem[] }) {
             toneMapped: false,
           });
 
-        const ringMat = make(accent, null);
-        const stickerMat = make(sticker, null);
+        const ringMat = make(edge, null);
+        const stickerMat = make(bezel, null);
         const screenMat = make(null, texture);
         disposables.push(ringMat, stickerMat, screenMat);
 
         const group = new THREE.Group();
         const ring = new THREE.Mesh(geometry, ringMat);
-        ring.scale.set(W + 0.3, H + 0.3, 1);
+        ring.scale.set(W + 0.14, H + 0.14, 1);
         ring.position.z = -0.02;
         const back = new THREE.Mesh(geometry, stickerMat);
-        back.scale.set(W + 0.2, H + 0.2, 1);
+        back.scale.set(W + 0.12, H + 0.12, 1);
         back.position.z = -0.01;
         const screen = new THREE.Mesh(geometry, screenMat);
         screen.scale.set(W, H, 1);

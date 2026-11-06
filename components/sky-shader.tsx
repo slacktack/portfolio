@@ -83,7 +83,7 @@ export function SkyShader() {
         return;
       }
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      renderer.setPixelRatio(0.6);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1));
       renderer.setSize(host.clientWidth, host.clientHeight, false);
       renderer.domElement.className = "skyx-canvas";
       host.appendChild(renderer.domElement);

@@ -63,10 +63,18 @@ export function Cursor() {
     };
 
     const tick = () => {
-      rx += (x - rx) * 0.2;
-      ry += (y - ry) * 0.2;
+      const dx = (x - rx) * 0.2;
+      const dy = (y - ry) * 0.2;
+      rx += dx;
+      ry += dy;
       if (dot.current) dot.current.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-      if (ring.current) ring.current.style.transform = `translate3d(${rx}px, ${ry}px, 0)`;
+      if (ring.current) {
+        const r = ring.current.style;
+        r.transform = `translate3d(${rx}px, ${ry}px, 0)`;
+        // speed and heading, for skins that stretch or spin the ring
+        r.setProperty("--cv", Math.min(1, Math.hypot(dx, dy) / 40).toFixed(3));
+        if (Math.abs(dx) + Math.abs(dy) > 0.5) r.setProperty("--ca", `${Math.atan2(dy, dx)}rad`);
+      }
       // sleep once the ring has caught up with the pointer
       raf = Math.abs(x - rx) + Math.abs(y - ry) > 0.2 ? requestAnimationFrame(tick) : 0;
     };
@@ -94,6 +102,8 @@ export function Cursor() {
   return (
     <>
       <div className="cur-ring" ref={ring} aria-hidden="true">
+        <i className="cur-a" />
+        <i className="cur-b" />
         <span ref={label} />
       </div>
       <div className="cur-dot" ref={dot} aria-hidden="true" />

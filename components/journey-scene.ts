@@ -4,6 +4,7 @@ import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+import { font } from "@/components/scenes/kit";
 
 export type JourneyHandle = { dispose: () => void };
 
@@ -15,10 +16,11 @@ type Opts = {
   onProgress: (pct: number) => void;
 };
 
-const TINTS = ["#f2cf9e", "#3b5cff", "#8f98e8", "#f0a58a", "#e0392b"].map((c) => new THREE.Color(c));
-const LOGOS = [
-  "makemytrip", "booking", "agoda", "goibibo", "cleartrip", "expedia", "kayak", "skyscanner", "ixigo",
-  "easemytrip", "tripcom", "klook", "swiggy", "zomato", "uber", "ola", "rapido",
+const TINTS = ["#f2cf9e", "#3b5cff", "#8f98e8", "#d9937a", "#c2412a"].map((c) => new THREE.Color(c));
+// seventeen anonymous sources, by kind only: no partner marks on the home page
+const SOURCES = [
+  "flights", "hotels", "flights", "hotels", "flights", "hotels", "flights", "hotels", "flights",
+  "hotels", "flights", "hotels", "food", "food", "rides", "rides", "rides",
 ];
 
 const rand = (n: number) => {
@@ -60,7 +62,7 @@ const FX_SHADER = {
     uniform sampler2D tDiffuse; uniform float uAmt; uniform float uTime; varying vec2 vUv;
     void main(){
       vec2 c = vUv - 0.5; float d = dot(c, c);
-      vec2 o = c * (0.0015 + d * uAmt * 0.018);
+      vec2 o = c * (0.0004 + d * uAmt * 0.01);
       float r = texture2D(tDiffuse, vUv + o).r;
       float g = texture2D(tDiffuse, vUv).g;
       float b = texture2D(tDiffuse, vUv - o).b;
@@ -91,7 +93,7 @@ export function createJourneyScene({ host, wrap, chapters, onChapter, onProgress
 
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const coarse = window.matchMedia("(pointer: coarse)").matches;
-  let dprCap = 1.5;
+  let dprCap = 1.75;
   const dpr = () => Math.min(window.devicePixelRatio || 1, dprCap);
 
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -232,63 +234,77 @@ export function createJourneyScene({ host, wrap, chapters, onChapter, onProgress
   });
   const startLabel = (() => {
     const cv = document.createElement("canvas");
-    cv.width = 640;
-    cv.height = 96;
+    cv.width = 1280;
+    cv.height = 192;
     const c2 = cv.getContext("2d");
-    if (c2) {
-      c2.font = "600 46px system-ui, -apple-system, Helvetica, Arial, sans-serif";
-      c2.fillStyle = "rgba(255,247,238,0.95)";
+    const lt = track(new THREE.CanvasTexture(cv));
+    lt.colorSpace = THREE.SRGBColorSpace;
+    const paint = () => {
+      if (!c2) return;
+      c2.clearRect(0, 0, 1280, 192);
+      c2.font = `500 60px ${font.mono}`;
+      c2.fillStyle = "rgba(255,247,238,0.92)";
       c2.textAlign = "center";
       c2.textBaseline = "middle";
-      c2.fillText("BLR → GOI · search", 320, 48);
-    }
-    const s = new THREE.Sprite(fade(track(new THREE.SpriteMaterial({ map: track(new THREE.CanvasTexture(cv)), transparent: true, depthWrite: false, opacity: 1 })), 0, 1));
+      c2.fillText("GET /search  BLR → GOI", 640, 96);
+      lt.needsUpdate = true;
+    };
+    paint();
+    document.fonts?.ready.then(paint);
+    const s = new THREE.Sprite(fade(track(new THREE.SpriteMaterial({ map: lt, transparent: true, depthWrite: false, opacity: 1, toneMapped: false })), 0, 1));
     s.scale.set(6, 0.9, 1);
     s.position.set(0, -1.7, A[0]);
     scene.add(s);
     return s;
   })();
 
-  // 02 fan-out: logo chips streaming into one hub
+  // 02 fan-out: anonymous source tiles streaming into one hub
   const hubPos = new THREE.Vector3(0, 0, A[2]);
   const fan = new THREE.Group();
   scene.add(fan);
   type Fan = { mat: THREE.ShaderMaterial; chip: THREE.Sprite; pts: THREE.Vector3[]; phase: number };
   let fanItems: Fan[] = [];
   let fanNarrow: boolean | null = null;
-  const chipTextures = LOGOS.map((name) => {
+  // one frosted glass tile per kind, hairline edge, mono label
+  const KINDS = ["flights", "hotels", "food", "rides"];
+  const kindTex = KINDS.map((kind, k) => {
     const cv = document.createElement("canvas");
-    cv.width = cv.height = 256;
+    cv.width = 512;
+    cv.height = 320;
     const c2 = cv.getContext("2d");
-    const draw = (img?: HTMLImageElement) => {
-      if (!c2) return;
-      c2.clearRect(0, 0, 256, 256);
-      c2.shadowColor = "rgba(0,0,0,0.45)";
-      c2.shadowBlur = 24;
-      c2.shadowOffsetY = 8;
-      c2.fillStyle = "#fffdf6";
-      c2.beginPath();
-      c2.roundRect(24, 20, 208, 208, 52);
-      c2.fill();
-      c2.shadowColor = "transparent";
-      if (img && img.naturalWidth) {
-        const s = Math.min(150 / img.naturalWidth, 150 / img.naturalHeight);
-        const w = img.naturalWidth * s;
-        const h = img.naturalHeight * s;
-        c2.drawImage(img, 128 - w / 2, 124 - h / 2, w, h);
-      }
-    };
-    draw();
     const tx = track(new THREE.CanvasTexture(cv));
     tx.colorSpace = THREE.SRGBColorSpace;
-    const img = new Image();
-    img.onload = () => {
-      draw(img);
+    tx.anisotropy = 8;
+    const draw = () => {
+      if (!c2) return;
+      c2.clearRect(0, 0, 512, 320);
+      const g = c2.createLinearGradient(0, 0, 512, 320);
+      g.addColorStop(0, "rgba(255,255,255,0.16)");
+      g.addColorStop(1, "rgba(255,255,255,0.04)");
+      c2.fillStyle = g;
+      c2.beginPath();
+      c2.roundRect(8, 8, 496, 304, 44);
+      c2.fill();
+      c2.strokeStyle = "rgba(255,247,238,0.55)";
+      c2.lineWidth = 3;
+      c2.stroke();
+      c2.fillStyle = k === 0 ? "#e8491d" : "rgba(255,247,238,0.9)";
+      c2.beginPath();
+      c2.arc(70, 92, 13, 0, Math.PI * 2);
+      c2.fill();
+      c2.fillStyle = "rgba(255,247,238,0.6)";
+      c2.font = `500 34px ${font.mono}`;
+      c2.fillText("SOURCE", 100, 104);
+      c2.fillStyle = "#fff7ee";
+      c2.font = `600 76px ${font.display}`;
+      c2.fillText(kind, 54, 236);
       tx.needsUpdate = true;
     };
-    img.src = `/assets/logos/${name}.png`;
+    draw();
+    document.fonts?.ready.then(draw);
     return tx;
   });
+  const chipTextures = SOURCES.map((kind) => kindTex[KINDS.indexOf(kind)]);
 
   const buildFan = (narrow: boolean) => {
     fan.traverse((o) => {
@@ -300,8 +316,8 @@ export function createJourneyScene({ host, wrap, chapters, onChapter, onProgress
     fanItems = [];
     const rx = narrow ? 4.4 : 8.4;
     const ry = narrow ? 5 : 4.6;
-    LOGOS.forEach((_, i) => {
-      const a = (i / LOGOS.length) * Math.PI * 2 + 0.35;
+    SOURCES.forEach((_, i) => {
+      const a = (i / SOURCES.length) * Math.PI * 2 + 0.35;
       const ring = i % 2 === 0 ? 1 : 0.7;
       const start = new THREE.Vector3(Math.cos(a) * rx * ring, Math.sin(a) * ry * ring, A[1] - 4 - rand(i + 4) * 9);
       const mid = new THREE.Vector3(Math.cos(a + 0.9) * rx * 0.45, Math.sin(a + 0.9) * ry * 0.4, (start.z + hubPos.z) / 2);
@@ -320,9 +336,9 @@ export function createJourneyScene({ host, wrap, chapters, onChapter, onProgress
       const line = new THREE.Line(g, mat);
       line.frustumCulled = false;
       fan.add(line);
-      const chip = new THREE.Sprite(new THREE.SpriteMaterial({ map: chipTextures[i], color: new THREE.Color(0.6, 0.6, 0.6), transparent: true, depthWrite: false, opacity: 0 }));
-      const s = narrow ? 1.7 : 1.9;
-      chip.scale.set(s, s, 1);
+      const chip = new THREE.Sprite(new THREE.SpriteMaterial({ map: chipTextures[i], transparent: true, depthWrite: false, opacity: 0, toneMapped: false }));
+      const s = narrow ? 1.3 : 1.45;
+      chip.scale.set(s, s * 0.625, 1);
       chip.position.copy(start);
       fan.add(chip);
       fanItems.push({ mat, chip, pts, phase: rand(i * 5) });
@@ -331,7 +347,7 @@ export function createJourneyScene({ host, wrap, chapters, onChapter, onProgress
 
   // packets travelling along the fan-out curves
   const pkPer = 3;
-  const pkN = LOGOS.length * pkPer;
+  const pkN = SOURCES.length * pkPer;
   const pkPos = new Float32Array(pkN * 3);
   const pkGeo = track(new THREE.BufferGeometry());
   pkGeo.setAttribute("position", new THREE.BufferAttribute(pkPos, 3));
@@ -388,35 +404,42 @@ export function createJourneyScene({ host, wrap, chapters, onChapter, onProgress
 
   // 05 answer: the price card
   const card = document.createElement("canvas");
-  card.width = 1024;
-  card.height = 512;
+  card.width = 2048;
+  card.height = 1024;
   const cctx = card.getContext("2d");
-  if (cctx) {
-    cctx.fillStyle = "rgba(12,13,22,0.9)";
-    cctx.strokeStyle = "rgba(255,247,238,0.3)";
-    cctx.lineWidth = 2;
+  const paintCard = () => {
+    if (!cctx) return;
+    cctx.clearRect(0, 0, 2048, 1024);
+    cctx.fillStyle = "rgba(14,14,20,0.86)";
+    cctx.strokeStyle = "rgba(255,247,238,0.28)";
+    cctx.lineWidth = 3;
     cctx.beginPath();
-    cctx.roundRect(4, 4, 1016, 504, 30);
+    cctx.roundRect(6, 6, 2036, 1012, 48);
     cctx.fill();
     cctx.stroke();
-    cctx.fillStyle = "rgba(255,247,238,0.62)";
-    cctx.font = "500 30px system-ui, -apple-system, Helvetica, Arial, sans-serif";
-    cctx.fillText("BEST FARE · BLR → GOI · 1 ADULT", 56, 92);
+    cctx.fillStyle = "rgba(255,247,238,0.6)";
+    cctx.font = `500 52px ${font.mono}`;
+    cctx.fillText("BEST FARE · BLR → GOI · 1 ADULT", 112, 176);
     cctx.fillStyle = "#fff7ee";
-    cctx.font = "800 200px 'Helvetica Neue', Arial, sans-serif";
-    cctx.fillText("₹4,740", 50, 300);
-    cctx.fillStyle = "#f0b27a";
-    cctx.fillRect(56, 358, 140, 5);
-    cctx.fillStyle = "rgba(255,247,238,0.55)";
-    cctx.font = "500 28px system-ui, -apple-system, Helvetica, Arial, sans-serif";
-    cctx.fillText("simulated example", 56, 430);
-  }
-  const cardTex = track(new THREE.CanvasTexture(card));
+    cctx.font = `700 380px ${font.display}`;
+    cctx.fillText("₹4,740", 96, 590);
+    cctx.fillStyle = "#e8491d";
+    cctx.fillRect(112, 700, 220, 6);
+    cctx.fillStyle = "rgba(255,247,238,0.5)";
+    cctx.font = `400 50px ${font.sans}`;
+    cctx.fillText("simulated example", 112, 850);
+    if (cardTex) cardTex.needsUpdate = true;
+  };
+  let cardTex: THREE.CanvasTexture | null = null;
+  paintCard();
+  cardTex = track(new THREE.CanvasTexture(card));
   cardTex.colorSpace = THREE.SRGBColorSpace;
+  cardTex.anisotropy = 8;
+  document.fonts?.ready.then(paintCard);
   const cardGroup = new THREE.Group();
   cardGroup.position.set(0, 0, A[4]);
   scene.add(cardGroup);
-  const cardMesh = new THREE.Mesh(track(new THREE.PlaneGeometry(7, 3.5)), fade(track(new THREE.MeshBasicMaterial({ map: cardTex, color: new THREE.Color(0.8, 0.8, 0.8), transparent: true })), 4, 1));
+  const cardMesh = new THREE.Mesh(track(new THREE.PlaneGeometry(7, 3.5)), fade(track(new THREE.MeshBasicMaterial({ map: cardTex, transparent: true, toneMapped: false })), 4, 1));
   const cardGlow = new THREE.Sprite(fade(track(new THREE.SpriteMaterial({ map: glow, color: 0xf0a58a, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.28 })), 4, 0.28));
   cardGlow.scale.set(15, 9, 1);
   cardGlow.position.z = -0.4;
@@ -439,7 +462,7 @@ export function createJourneyScene({ host, wrap, chapters, onChapter, onProgress
   try {
     composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(host.clientWidth || 2, host.clientHeight || 2, { type: THREE.HalfFloatType, samples: 2 }));
     composer.addPass(new RenderPass(scene, camera));
-    bloom = new UnrealBloomPass(new THREE.Vector2(host.clientWidth, host.clientHeight), 0.4, 0.55, 0.62);
+    bloom = new UnrealBloomPass(new THREE.Vector2(host.clientWidth, host.clientHeight), 0.4, 0.55, 0.92);
     composer.addPass(bloom);
     fxPass = new ShaderPass(FX_SHADER);
     composer.addPass(fxPass);
@@ -602,7 +625,8 @@ export function createJourneyScene({ host, wrap, chapters, onChapter, onProgress
       fi.mat.uniforms.uAlpha.value = show;
       const m = fi.chip.material as THREE.SpriteMaterial;
       m.opacity = show * (1 - smooth(0.55, 1, gather) * 0.9);
-      fi.chip.scale.setScalar((wide ? 1.9 : 1.7) * (1 + Math.sin(t * 2 + i) * 0.04));
+      const cs = (wide ? 1.45 : 1.3) * (1 + Math.sin(t * 2 + i) * 0.02);
+      fi.chip.scale.set(cs, cs * 0.625, 1);
     });
     pkMat.opacity = show * 0.95;
     pkMat.color.copy(tint).lerp(new THREE.Color("#ffffff"), 0.4);
@@ -715,7 +739,7 @@ export function createJourneyScene({ host, wrap, chapters, onChapter, onProgress
         slowFrames = 0;
         tier += 1;
         // shed the glow, keep a sharp floor instead of dropping to a blurry 1x
-        dprCap = Math.max(1.4, dprCap * 0.85);
+        dprCap = Math.max(1.5, dprCap * 0.85);
         resize();
       }
     }
@@ -751,7 +775,6 @@ export function createJourneyScene({ host, wrap, chapters, onChapter, onProgress
         ro.disconnect();
         io.disconnect();
         disposables.forEach((d) => d.dispose());
-        chipTextures.forEach((c) => c.dispose());
         fan.traverse((o) => {
           const m = o as THREE.Mesh;
           m.geometry?.dispose?.();

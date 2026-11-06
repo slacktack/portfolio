@@ -4,16 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type CSSProperties } from "react";
 import { profile } from "@/lib/site";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { SkinPicker, openThemes } from "@/components/skin";
 import { ArrowUpRight, CloseIcon, SearchIcon } from "@/components/icons";
+import { navChapters } from "@/components/chapters";
 
-const links = [
-  { href: "/systems", label: "Systems" },
-  { href: "/projects", label: "Projects" },
-  { href: "/lab", label: "Lab" },
-  { href: "/notes", label: "Notes" },
-  { href: "/about", label: "About" },
-];
+const links = navChapters.map((c) => ({ href: c.href, label: c.nav, n: c.n, name: c.name }));
 
 function Wordmark({ onClick }: { onClick?: () => void }) {
   return (
@@ -83,7 +78,9 @@ export function SiteHeader() {
               href={link.href}
               className={isActive(link.href) ? "is-active" : undefined}
               aria-current={isActive(link.href) ? "page" : undefined}
+              title={`Chapter ${link.n} · ${link.name}`}
             >
+              <sup>{link.n}</sup>
               {link.label}
             </Link>
           ))}
@@ -94,7 +91,12 @@ export function SiteHeader() {
             <SearchIcon width={15} height={15} />
             <kbd>⌘K</kbd>
           </button>
-          <ThemeToggle className="hdr-btn" />
+          <div className="hdr-themes">
+            <button type="button" className="hdr-themes-label" onClick={openThemes} tabIndex={-1} aria-hidden="true">
+              Themes
+            </button>
+            <SkinPicker />
+          </div>
           <a className="hdr-cta no-print" href={`mailto:${profile.email}`}>
             Email me
             <ArrowUpRight width={13} height={13} />
@@ -129,13 +131,20 @@ export function SiteHeader() {
                 onClick={() => setOpen(false)}
                 style={{ "--i": i } as CSSProperties}
               >
-                <sup>{String(i + 1).padStart(2, "0")}</sup>
+                <sup>{link.n}</sup>
                 {link.label}
+                <small>{link.name}</small>
               </Link>
             ))}
           </nav>
 
           <div className="menu-foot">
+            <div className="menu-themes">
+              <SkinPicker />
+              <button type="button" onClick={() => { setOpen(false); openThemes(); }}>
+                Change theme
+              </button>
+            </div>
             <a className="menu-mail" href={`mailto:${profile.email}`}>
               {profile.email}
             </a>

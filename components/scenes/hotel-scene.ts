@@ -1,9 +1,10 @@
 import * as THREE from "three";
-import { canvasTexture, mountScene, rand, skyDome, smooth, type Built, type Ctx, type Handle } from "./kit";
+import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+import { canvasTexture, font, mountScene, rand, skyDome, smooth, type Built, type Ctx, type Handle } from "./kit";
 
 const TERRA = 0x8f3b28;
 const MAROON = 0x6e1f1a;
-const GOLD = 0xd8a948;
+const GOLD = 0xbfa36a;
 
 const archPath = (w: number, h: number, Ctor: typeof THREE.Path | typeof THREE.Shape = THREE.Path) => {
   const r = w / 2;
@@ -96,7 +97,40 @@ function hotelBuild(ctx: Ctx): Built {
   key.position.set(10, 30, 40);
   scene.add(key);
 
+  // plaster with panel grooves, and a fine stripe for the room, so walls are not flat fills
+  const plaster = ctx.track(canvasTexture(1024, 1024, (g, w, h) => {
+    g.fillStyle = "#b8a784";
+    g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 3000; i += 1) {
+      g.fillStyle = `rgba(${rand(i) > 0.5 ? "255,250,235" : "60,40,20"},${0.02 + rand(i + 1) * 0.03})`;
+      g.fillRect(rand(i + 2) * w, rand(i + 3) * h, 3, 3);
+    }
+    g.strokeStyle = "rgba(60,40,20,0.28)";
+    g.lineWidth = 3;
+    g.strokeRect(80, 120, w - 160, h - 300);
+    g.strokeStyle = "rgba(255,250,235,0.18)";
+    g.lineWidth = 2;
+    g.strokeRect(84, 124, w - 168, h - 308);
+    g.fillStyle = "rgba(60,40,20,0.22)";
+    g.fillRect(0, h - 120, w, 3);
+  }));
+  plaster.wrapS = plaster.wrapT = THREE.RepeatWrapping;
+  plaster.repeat.set(1 / 7, 1 / 9);
+  const stripe = ctx.track(canvasTexture(512, 512, (g, w, h) => {
+    g.fillStyle = "#4a1830";
+    g.fillRect(0, 0, w, h);
+    for (let x = 0; x < w; x += 32) {
+      g.fillStyle = "rgba(255,210,190,0.05)";
+      g.fillRect(x, 0, 12, h);
+      g.fillStyle = "rgba(0,0,0,0.12)";
+      g.fillRect(x + 12, 0, 1.5, h);
+    }
+  }));
+  stripe.wrapS = stripe.wrapT = THREE.RepeatWrapping;
+  stripe.repeat.set(4, 1);
   const mat = {
+    wall: ctx.track(new THREE.MeshStandardMaterial({ map: plaster, roughness: 0.85 })),
+    paper: ctx.track(new THREE.MeshStandardMaterial({ map: stripe, roughness: 0.9 })),
     terra: ctx.track(new THREE.MeshStandardMaterial({ color: TERRA, roughness: 0.88 })),
     cream: ctx.track(new THREE.MeshStandardMaterial({ color: 0xb8a784, roughness: 0.8 })),
     dome: ctx.track(new THREE.MeshStandardMaterial({ color: 0x7a2c1f, roughness: 0.4, metalness: 0.35 })),
@@ -146,12 +180,12 @@ function hotelBuild(ctx: Ctx): Built {
   glowShape.lineTo(-43, 26);
   glowShape.lineTo(-43, 0);
   glowShape.holes.push(new THREE.Path(archPath(11, 14.5).getPoints(14).map((v) => new THREE.Vector2(v.x, v.y))));
-  const roomsTex = ctx.track(canvasTexture(512, 128, (g, w, h) => {
+  const roomsTex = ctx.track(canvasTexture(1024, 256, (g, w, h) => {
     g.fillStyle = "#ffc27a";
     g.fillRect(0, 0, w, h);
     for (let i = 0; i < 90; i += 1) {
       g.fillStyle = `rgba(80,20,10,${0.1 + rand(i) * 0.45})`;
-      g.fillRect(rand(i + 1) * w, rand(i + 2) * h, 18 + rand(i + 3) * 30, 14 + rand(i + 4) * 40);
+      g.fillRect(rand(i + 1) * w, rand(i + 2) * h, 36 + rand(i + 3) * 60, 28 + rand(i + 4) * 80);
     }
   }));
   const gg = new THREE.ShapeGeometry(glowShape);
@@ -218,23 +252,19 @@ function hotelBuild(ctx: Ctx): Built {
   ground.position.set(0, -0.02, 0);
   scene.add(ground);
 
-  const carpetTex = ctx.track(canvasTexture(128, 512, (g, w, h) => {
-    g.fillStyle = "#7a1a16";
+  const carpetTex = ctx.track(canvasTexture(512, 2048, (g, w, h) => {
+    g.fillStyle = "#4e1216";
     g.fillRect(0, 0, w, h);
-    g.strokeStyle = "#d8a948";
-    g.lineWidth = 6;
-    g.strokeRect(8, 0, w - 16, h);
-    g.lineWidth = 2;
-    g.strokeRect(20, 0, w - 40, h);
-    g.fillStyle = "rgba(216,169,72,0.5)";
-    for (let y = 20; y < h; y += 48) {
-      g.beginPath();
-      g.moveTo(w / 2, y);
-      g.lineTo(w / 2 + 14, y + 14);
-      g.lineTo(w / 2, y + 28);
-      g.lineTo(w / 2 - 14, y + 14);
-      g.fill();
+    for (let i = 0; i < 2400; i += 1) {
+      g.fillStyle = `rgba(${rand(i) > 0.5 ? "255,220,200" : "0,0,0"},${0.025 + rand(i + 1) * 0.03})`;
+      g.fillRect(rand(i + 2) * w, rand(i + 3) * h, 2, 6);
     }
+    g.fillStyle = "rgba(191,163,106,0.75)";
+    g.fillRect(26, 0, 3, h);
+    g.fillRect(w - 29, 0, 3, h);
+    g.fillStyle = "rgba(191,163,106,0.35)";
+    g.fillRect(44, 0, 1.5, h);
+    g.fillRect(w - 45.5, 0, 1.5, h);
   }));
   carpetTex.wrapT = THREE.RepeatWrapping;
   carpetTex.repeat.set(1, 3);
@@ -258,10 +288,10 @@ function hotelBuild(ctx: Ctx): Built {
       const z = 28 - i * 8;
       const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.18, 5.5, 8), mat.dark);
       pole.position.set(s * 8, 2.75, z);
-      const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.55, 14, 10), mat.warm);
-      bulb.position.set(s * 8, 5.9, z);
+      const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.3, 24, 16), mat.warmSoft);
+      bulb.position.set(s * 8, 5.75, z);
       scene.add(pole, bulb);
-      glow(s * 8, 5.9, z, 4, 0.5);
+      glow(s * 8, 5.75, z, 2.6, 0.32);
     });
   }
 
@@ -272,17 +302,30 @@ function hotelBuild(ctx: Ctx): Built {
   const LH = 16;
   const midZ = (LZ0 + LZ1) / 2;
 
-  const marbleTex = ctx.track(canvasTexture(512, 512, (g, w, h) => {
-    const n = 8;
+  const marbleTex = ctx.track(canvasTexture(1024, 1024, (g, w, h) => {
+    const n = 4;
     for (let y = 0; y < n; y += 1) {
       for (let x = 0; x < n; x += 1) {
-        g.fillStyle = (x + y) % 2 ? "#6e1f1a" : "#eadfc6";
+        g.fillStyle = (x + y) % 2 ? "#d8cfbc" : "#e2dac8";
         g.fillRect((x * w) / n, (y * h) / n, w / n, h / n);
-        g.fillStyle = "rgba(255,255,255,0.12)";
-        g.fillRect((x * w) / n, (y * h) / n, w / n, 2);
       }
     }
-    g.strokeStyle = "rgba(216,169,72,0.7)";
+    g.lineCap = "round";
+    for (let i = 0; i < 26; i += 1) {
+      g.strokeStyle = `rgba(110,95,75,${0.06 + rand(i) * 0.1})`;
+      g.lineWidth = 0.8 + rand(i + 1) * 1.6;
+      g.beginPath();
+      let x = rand(i + 2) * w;
+      let y = rand(i + 3) * h;
+      g.moveTo(x, y);
+      for (let k = 0; k < 6; k += 1) {
+        x += (rand(i * 7 + k) - 0.3) * 120;
+        y += (rand(i * 11 + k) - 0.5) * 120;
+        g.lineTo(x, y);
+      }
+      g.stroke();
+    }
+    g.strokeStyle = "rgba(60,45,30,0.35)";
     g.lineWidth = 2;
     for (let i = 0; i <= n; i += 1) {
       g.beginPath();
@@ -295,7 +338,7 @@ function hotelBuild(ctx: Ctx): Built {
   }));
   marbleTex.wrapS = marbleTex.wrapT = THREE.RepeatWrapping;
   marbleTex.repeat.set(LW / 8, (LZ0 - LZ1) / 8);
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(LW, LZ0 - LZ1), new THREE.MeshStandardMaterial({ map: marbleTex, roughness: 0.16, metalness: 0.05 }));
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(LW, LZ0 - LZ1), new THREE.MeshStandardMaterial({ map: marbleTex, color: 0x8a8070, roughness: 0.22, metalness: 0.05 }));
   floor.rotation.x = -Math.PI / 2;
   floor.position.set(0, 0.01, midZ);
   scene.add(floor);
@@ -306,14 +349,14 @@ function hotelBuild(ctx: Ctx): Built {
   scene.add(lobbyCarpet);
 
   // ceiling with coffers
-  const cofferTex = ctx.track(canvasTexture(256, 256, (g, w, h) => {
-    g.fillStyle = "#2a1410";
+  const cofferTex = ctx.track(canvasTexture(512, 512, (g, w, h) => {
+    g.fillStyle = "#24120e";
     g.fillRect(0, 0, w, h);
-    g.strokeStyle = "rgba(216,169,72,0.85)";
-    g.lineWidth = 6;
-    g.strokeRect(14, 14, w - 28, h - 28);
-    g.lineWidth = 2;
-    g.strokeRect(34, 34, w - 68, h - 68);
+    g.strokeStyle = "rgba(191,163,106,0.7)";
+    g.lineWidth = 4;
+    g.strokeRect(28, 28, w - 56, h - 56);
+    g.lineWidth = 1.5;
+    g.strokeRect(64, 64, w - 128, h - 128);
   }));
   cofferTex.wrapS = cofferTex.wrapT = THREE.RepeatWrapping;
   cofferTex.repeat.set(LW / 6, (LZ0 - LZ1) / 6);
@@ -327,7 +370,7 @@ function hotelBuild(ctx: Ctx): Built {
   const nz = 6;
   for (let i = 0; i < nz; i += 1) sideHoles.push({ x: -((LZ0 - LZ1) / 2) + 9 + i * 10.4, y: 0, w: 5, h: 9.5 });
   [-1, 1].forEach((s) => {
-    const w = wall(LZ0 - LZ1, LH, sideHoles, 1.2, mat.cream);
+    const w = wall(LZ0 - LZ1, LH, sideHoles, 1.2, mat.wall);
     w.rotation.y = s * Math.PI / 2;
     w.position.set(s * (LW / 2), 0, midZ);
     scene.add(w);
@@ -425,7 +468,7 @@ function hotelBuild(ctx: Ctx): Built {
   glow(9, 2.7, -84, 3, 0.8);
 
   // end wall and corridor mouth
-  const endWall = wall(LW, LH, [{ x: 0, y: 0, w: 7.5, h: 9 }], 1.2, mat.cream);
+  const endWall = wall(LW, LH, [{ x: 0, y: 0, w: 7.5, h: 9 }], 1.2, mat.wall);
   endWall.position.set(0, 0, LZ1);
   scene.add(endWall);
   const endFrame = frame(7.5, 9, 0.7, 1.6, mat.gold);
@@ -483,10 +526,14 @@ function hotelBuild(ctx: Ctx): Built {
   const RH = 9.5;
   const rmid = (RZ0 + RZ1) / 2;
   const rLen = RZ0 - RZ1;
-  const plankTex = ctx.track(canvasTexture(256, 256, (g, w, h) => {
+  const plankTex = ctx.track(canvasTexture(1024, 1024, (g, w, h) => {
     for (let i = 0; i < 8; i += 1) {
-      g.fillStyle = `hsl(24, ${40 + rand(i) * 12}%, ${22 + rand(i + 2) * 8}%)`;
-      g.fillRect(0, (i * h) / 8, w, h / 8 - 2);
+      g.fillStyle = `hsl(24, ${30 + rand(i) * 10}%, ${18 + rand(i + 2) * 6}%)`;
+      g.fillRect(0, (i * h) / 8, w, h / 8 - 3);
+      for (let k = 0; k < 40; k += 1) {
+        g.fillStyle = `rgba(0,0,0,${0.04 + rand(i * 40 + k) * 0.06})`;
+        g.fillRect(0, (i * h) / 8 + rand(i * 40 + k + 1) * (h / 8 - 3), w, 1);
+      }
     }
   }));
   plankTex.wrapS = plankTex.wrapT = THREE.RepeatWrapping;
@@ -500,12 +547,12 @@ function hotelBuild(ctx: Ctx): Built {
   rCeil.position.set(0, RH, rmid);
   scene.add(rCeil);
   [-1, 1].forEach((s) => {
-    const w = new THREE.Mesh(new THREE.PlaneGeometry(rLen, RH), mat.plum);
+    const w = new THREE.Mesh(new THREE.PlaneGeometry(rLen, RH), mat.paper);
     w.rotation.y = -s * Math.PI / 2;
     w.position.set(s * (RW / 2), RH / 2, rmid);
     scene.add(w);
   });
-  const rBack = new THREE.Mesh(new THREE.PlaneGeometry(RW, RH), mat.plum);
+  const rBack = new THREE.Mesh(new THREE.PlaneGeometry(RW, RH), mat.paper);
   rBack.position.set(0, RH / 2, RZ1);
   scene.add(rBack);
   // corridor-side wall of the room with the door opening
@@ -528,7 +575,10 @@ function hotelBuild(ctx: Ctx): Built {
   });
 
   // window and skyline
-  const skyTex = ctx.track(canvasTexture(512, 256, (g, w, h) => {
+  const skyTex = ctx.track(canvasTexture(1536, 768, (g, w, h) => {
+    g.scale(3, 3);
+    w /= 3;
+    h /= 3;
     const grad = g.createLinearGradient(0, 0, 0, h);
     grad.addColorStop(0, "#0e0830");
     grad.addColorStop(0.6, "#6a1a3a");
@@ -563,23 +613,24 @@ function hotelBuild(ctx: Ctx): Built {
   // bed
   const bed = new THREE.Group();
   bed.position.set(-5, 0, -172);
-  const baseBox = new THREE.Mesh(new THREE.BoxGeometry(9.5, 1.1, 6.8), mat.wood);
-  baseBox.position.y = 0.55;
-  const mattress = new THREE.Mesh(new THREE.BoxGeometry(9.2, 0.8, 6.5), mat.cream);
-  mattress.position.y = 1.5;
-  const runner = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.84, 6.6), new THREE.MeshStandardMaterial({ color: MAROON, roughness: 0.9 }));
-  runner.position.set(2.2, 1.52, 0);
-  const head = new THREE.Mesh(new THREE.BoxGeometry(0.6, 4.2, 7.2), mat.wood);
-  head.position.set(-5, 2.1, 0);
+  const rb = (w: number, h: number, d: number, r: number) => new RoundedBoxGeometry(w, h, d, 4, r);
+  const baseBox = new THREE.Mesh(rb(9.5, 0.7, 6.8, 0.08), mat.wood);
+  baseBox.position.y = 0.45;
+  const mattress = new THREE.Mesh(rb(9.2, 0.8, 6.5, 0.3), new THREE.MeshStandardMaterial({ color: 0xe9e2d2, roughness: 0.95 }));
+  mattress.position.y = 1.2;
+  const runner = new THREE.Mesh(rb(3.2, 0.84, 6.62, 0.3), new THREE.MeshStandardMaterial({ color: MAROON, roughness: 0.95 }));
+  runner.position.set(2.2, 1.22, 0);
+  const head = new THREE.Mesh(rb(0.4, 4, 7.2, 0.12), mat.wood);
+  head.position.set(-4.9, 2, 0);
   [-1.6, 1.6].forEach((z) => {
-    const pil = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.5, 2.4), new THREE.MeshStandardMaterial({ color: 0xfff5e0, roughness: 0.95 }));
-    pil.position.set(-3.7, 2.1, z);
+    const pil = new THREE.Mesh(rb(1.4, 0.55, 2.4, 0.26), new THREE.MeshStandardMaterial({ color: 0xf6f1e6, roughness: 0.95 }));
+    pil.position.set(-3.9, 1.85, z);
     bed.add(pil);
   });
   bed.add(baseBox, mattress, runner, head);
   scene.add(bed);
   [-1, 1].forEach((s) => {
-    const nt = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.8, 1.6), mat.wood);
+    const nt = new THREE.Mesh(rb(1.6, 1.8, 1.6, 0.06), mat.wood);
     nt.position.set(-9.8, 0.9, -172 + s * 4.6);
     const shade = new THREE.Mesh(new THREE.ConeGeometry(0.7, 0.9, 16, 1, true), mat.warm);
     shade.position.set(-9.8, 2.5, -172 + s * 4.6);
@@ -597,50 +648,63 @@ function hotelBuild(ctx: Ctx): Built {
   // 7 records converge on one hotel
   const logos = ["makemytrip", "booking", "agoda", "goibibo", "cleartrip", "ixigo", "easemytrip"];
   const chips = logos.map((name, i) => {
-    const tex = ctx.track(canvasTexture(256, 256, (g) => {
-      g.fillStyle = "#fffdf6";
+    const tex = ctx.track(canvasTexture(512, 512, (g) => {
+      g.fillStyle = "rgba(251,249,243,0.94)";
       g.beginPath();
-      g.roundRect(24, 24, 208, 208, 52);
+      g.roundRect(40, 40, 432, 432, 96);
       g.fill();
+      g.strokeStyle = "rgba(191,163,106,0.6)";
+      g.lineWidth = 4;
+      g.stroke();
     }));
     const img = new Image();
     img.onload = () => {
       const g = (tex.image as HTMLCanvasElement).getContext("2d");
       if (!g) return;
-      const sc = Math.min(150 / img.naturalWidth, 150 / img.naturalHeight);
-      g.drawImage(img, 128 - (img.naturalWidth * sc) / 2, 128 - (img.naturalHeight * sc) / 2, img.naturalWidth * sc, img.naturalHeight * sc);
+      const sc = Math.min(260 / img.naturalWidth, 260 / img.naturalHeight);
+      g.drawImage(img, 256 - (img.naturalWidth * sc) / 2, 256 - (img.naturalHeight * sc) / 2, img.naturalWidth * sc, img.naturalHeight * sc);
       tex.needsUpdate = true;
     };
     img.src = `/assets/logos/${name}.png`;
-    const sp2 = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, opacity: 0 }));
-    sp2.scale.set(2, 2, 1);
+    const sp2 = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, opacity: 0, color: new THREE.Color(0.85, 0.8, 0.74) }));
+    sp2.scale.set(1.2, 1.2, 1);
     scene.add(sp2);
     return { sp: sp2, a: (i / logos.length) * Math.PI * 2 };
   });
-  const cardTex = ctx.track(canvasTexture(768, 384, (g, w, h) => {
-    g.fillStyle = "#1a1311";
+  const paintCard = (g: CanvasRenderingContext2D, w: number, h: number) => {
+    const u = h / 100;
+    g.clearRect(0, 0, w, h);
+    g.fillStyle = "rgba(20,16,15,0.92)";
     g.beginPath();
-    g.roundRect(6, 6, w - 12, h - 12, 36);
+    g.roundRect(u, u, w - u * 2, h - u * 2, u * 7);
     g.fill();
-    g.strokeStyle = "#d8a948";
-    g.lineWidth = 4;
+    g.strokeStyle = "rgba(191,163,106,0.55)";
+    g.lineWidth = u * 0.4;
     g.stroke();
-    g.fillStyle = "#d8a948";
-    g.font = "600 30px system-ui, Helvetica, Arial, sans-serif";
-    g.fillText("ONE HOTEL · 7 RECORDS MERGED", 44, 72);
-    g.fillStyle = "#fff6e6";
-    g.font = "800 92px 'Helvetica Neue', Arial, sans-serif";
-    g.fillText("The Park", 44, 190);
-    g.fillStyle = "rgba(255,246,230,0.7)";
-    g.font = "500 30px system-ui, Helvetica, Arial, sans-serif";
-    g.fillText("Bangalore · 5★ · 12 room types", 44, 244);
-    g.fillStyle = "#f0b27a";
-    g.font = "800 64px 'Helvetica Neue', Arial, sans-serif";
-    g.fillText("₹4,760", 44, 330);
-    g.fillStyle = "rgba(255,246,230,0.55)";
-    g.font = "500 26px system-ui, Helvetica, Arial, sans-serif";
-    g.fillText("best rate · simulated example", 250, 326);
-  }));
+    g.fillStyle = "rgba(191,163,106,0.95)";
+    g.font = `500 ${u * 6.4}px ${font.mono}`;
+    g.fillText("ONE HOTEL · 7 RECORDS MERGED", u * 11, u * 19);
+    g.fillStyle = "#f2efe6";
+    g.font = `600 ${u * 23}px ${font.display}`;
+    g.fillText("The Park", u * 10, u * 48);
+    g.fillStyle = "rgba(242,239,230,0.65)";
+    g.font = `400 ${u * 7}px ${font.sans}`;
+    g.fillText("Bangalore · 5★ · 12 room types", u * 11, u * 62);
+    g.fillStyle = "#f2efe6";
+    g.font = `600 ${u * 15}px ${font.display}`;
+    g.fillText("₹4,760", u * 10, u * 86);
+    g.fillStyle = "rgba(242,239,230,0.5)";
+    g.font = `400 ${u * 6}px ${font.sans}`;
+    g.fillText("best rate · simulated example", u * 70, u * 85);
+  };
+  const cardTex = ctx.track(canvasTexture(2048, 1024, paintCard));
+  document.fonts?.ready.then(() => {
+    const cv = cardTex.image as HTMLCanvasElement;
+    const g = cv.getContext("2d");
+    if (!g) return;
+    paintCard(g, cv.width, cv.height);
+    cardTex.needsUpdate = true;
+  });
   const card = new THREE.Mesh(new THREE.PlaneGeometry(5.6, 2.8), new THREE.MeshBasicMaterial({ map: cardTex, transparent: true, opacity: 0, toneMapped: false }));
   card.position.set(12, 4.6, -84);
   scene.add(card);
@@ -716,12 +780,12 @@ function hotelBuild(ctx: Ctx): Built {
         const pz = chand.position.z + oz;
         sp.position.set(px * (1 - merge) + chipTarget.x * merge, py * (1 - merge) + chipTarget.y * merge, pz * (1 - merge) + chipTarget.z * merge);
         (sp.material as THREE.SpriteMaterial).opacity = orbit * (1 - smooth(0.58, 0.64, p));
-        sp.scale.setScalar(2 * (1 - 0.4 * merge));
+        sp.scale.setScalar(1.2 * (1 - 0.4 * merge));
       });
       (card.material as THREE.MeshBasicMaterial).opacity = smooth(0.58, 0.66, p) * (1 - smooth(0.7, 0.76, p));
       card.rotation.y = -0.35 + Math.sin(t * 0.8) * 0.03;
       (priceCard.material as THREE.MeshBasicMaterial).opacity = smooth(0.9, 0.98, p);
-      ctx.setBloom(0.15 * Math.sin(t * 2) + 0.2 * smooth(0.28, 0.34, p));
+      ctx.setBloom(0.06 * Math.sin(t * 2) + 0.1 * smooth(0.28, 0.34, p));
 
       // fades: open from black, close to black (card mode loops)
       const end = ctx.mode === "scroll" ? 0 : smooth(0.95, 1, p);
@@ -733,5 +797,5 @@ function hotelBuild(ctx: Ctx): Built {
 }
 
 export function mountHotelScene(opts: Pick<Parameters<typeof mountScene>[0], "host" | "mode" | "wrap" | "onProgress" | "loopSeconds">): Handle | null {
-  return mountScene({ ...opts, fov: 58, exposure: 0.82, environment: opts.mode === "scroll", envIntensity: 0.16, bloom: { strength: 0.24, radius: 0.55, threshold: 0.96 }, build: hotelBuild });
+  return mountScene({ ...opts, fov: 58, exposure: 0.82, environment: opts.mode === "scroll", envIntensity: 0.16, bloom: { strength: 0.14, radius: 0.5, threshold: 0.97 }, build: hotelBuild });
 }

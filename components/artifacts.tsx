@@ -93,7 +93,7 @@ function Hotels() {
       title="7 records → 1 hotel"
       chip="Resolving"
       stats={[
-        { v: "16K+", l: "compares / day" },
+        { v: "28K+", l: "compares / day" },
         { v: "1.2K", l: "hourly peak" },
         { v: "7+", l: "providers" },
       ]}

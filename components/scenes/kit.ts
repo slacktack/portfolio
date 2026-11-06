@@ -31,6 +31,7 @@ export type MountOpts = {
   loopSeconds?: number;
   once?: boolean;
   maxDpr?: number;
+  minDpr?: number;
   fov?: number;
   exposure?: number;
   bloom?: { strength: number; radius: number; threshold: number };
@@ -58,7 +59,7 @@ export function mountScene(o: MountOpts): Handle | null {
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const coarse = window.matchMedia("(pointer: coarse)").matches;
   const mobile = coarse || host.clientWidth < 700;
-  let dprCap = o.maxDpr ?? (mode === "card" ? 2 : 1.5);
+  let dprCap = o.maxDpr ?? (mode === "card" ? 2 : 1.75);
   const dpr = () => Math.min(window.devicePixelRatio || 1, dprCap);
 
   if (o.transparent) renderer.setClearColor(0x000000, 0);
@@ -244,7 +245,7 @@ export function mountScene(o: MountOpts): Handle | null {
         if (tier === 1) {
           // never fall back to a blurry 1x: shed the glow first, then settle on a sharp floor
           composer = null;
-          dprCap = Math.max(1.35, dprCap * 0.85);
+          dprCap = Math.max(o.minDpr ?? 1.5, dprCap * 0.85);
           resize();
         }
       }
@@ -316,9 +317,33 @@ export function canvasTexture(w: number, h: number, draw: (c: CanvasRenderingCon
   if (c) draw(c, w, h);
   const tx = new THREE.CanvasTexture(cv);
   if (srgb) tx.colorSpace = THREE.SRGBColorSpace;
-  tx.anisotropy = 8;
+  tx.anisotropy = 16;
   return tx;
 }
+
+// the site's own type, so canvas labels match the page instead of system-ui
+const fam = (v: string, fb: string) => {
+  if (typeof window === "undefined") return fb;
+  const f = getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  return f ? `${f}, ${fb}` : fb;
+};
+export const font = {
+  get display() {
+    return fam("--font-display", "system-ui, sans-serif");
+  },
+  get sans() {
+    return fam("--font-sans", "system-ui, sans-serif");
+  },
+  get mono() {
+    return fam("--font-code", "ui-monospace, Menlo, monospace");
+  },
+  get serif() {
+    return fam("--font-serif", "Georgia, serif");
+  },
+};
+
+// settles with a hint of overshoot instead of a cartoon bounce
+export const easeSoft = (x: number) => 1 + 1.25 * Math.pow(x - 1, 3) + 0.25 * Math.pow(x - 1, 2);
 
 export const skyDome = (top: THREE.ColorRepresentation, mid: THREE.ColorRepresentation, low: THREE.ColorRepresentation, sunDir: THREE.Vector3, sunColor: THREE.ColorRepresentation) => {
   const mat = new THREE.ShaderMaterial({

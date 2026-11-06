@@ -2,23 +2,34 @@
 
 import { type ReactNode } from "react";
 import { Scene3D } from "@/components/scene3d";
-import { SkyShader } from "@/components/sky-shader";
+import { CutVideo } from "@/components/zine-bits";
 
+// The zine cover: colour-blocked paper, real 3D browser cards and pasted-on clippings.
 export function HeroCollage({ children }: { children: ReactNode }) {
   return (
-    <section className="skyx">
-      <SkyShader />
-      <div className="skyx-grid" aria-hidden="true" />
-      <Scene3D kind="hero" mode="card" className="hero-objects" />
-
-      <div className="skyx-note skyx-note-drag" aria-hidden="true">
-        <svg viewBox="0 0 90 60" fill="none">
-          <path d="M6 8c18-6 44-4 62 18 6 8 10 16 12 26M80 54l-7-10m7 10l11-8" />
-        </svg>
-        <span>pick me up</span>
+    <section className="zc" aria-label="Cover">
+      <div className="zc-paper" aria-hidden="true">
+        <i className="zc-block zc-block-red" />
+        <i className="zc-block zc-block-blue" />
+        <i className="zc-dots" />
+        <i className="zc-reg zc-reg-a" />
+        <i className="zc-reg zc-reg-b" />
       </div>
-
-      <div className="skyx-copy">{children}</div>
+      <Scene3D kind="hero" mode="card" className="zc-objects" />
+      <div className="zc-clips" aria-hidden="true">
+        <CutVideo
+          className="zc-rec"
+          src="/assets/video/bh-food.mp4"
+          poster="/assets/video/bh-food.jpg"
+          label="Screen recording of the Buyhatke food compare"
+        />
+        <span className="zc-tape zc-tape-a" />
+        <span className="zc-sticker">
+          <b>p99</b>
+          <span>20ms</span>
+        </span>
+      </div>
+      <div className="zc-copy">{children}</div>
     </section>
   );
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowUpRight } from "@/components/icons";
+import { ArrowRight, ArrowUpRight } from "@/components/icons";
 import { CacheKeyLab } from "@/components/lab-cache-key";
 import { DeadlineLab } from "@/components/lab-deadline";
 import { IdentityLab } from "@/components/lab-identity";
@@ -9,7 +9,8 @@ import { LogStreamLab } from "@/components/lab-logs";
 import { MemcachedLab } from "@/components/lab-memcached";
 import { Reveal } from "@/components/reveal";
 import { SectionHeading } from "@/components/section-heading";
-import { profile } from "@/lib/site";
+import { ChapterHero, Handoff } from "@/components/story";
+import { labItems, profile } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "The lab",
@@ -20,37 +21,40 @@ export const metadata: Metadata = {
 export default function LabPage() {
   return (
     <>
-      <section className="lab-hero">
-        <div className="wrap page-hero-grid">
-          <div className="page-hero-copy">
-            <span className="eyebrow">
-              <span className="dot" />
-              The lab · no product pressure
-            </span>
-            <h1 className="display-1">
-              Small systems, <span className="serif">strange constraints.</span>
-            </h1>
-            <p className="lede">
-              Experiments built to understand a mechanism, not to ship a roadmap. Some
-              are interactive. All of them are allowed to break.
-            </p>
-          </div>
-
-          <div className="page-hero-aside">
+      <ChapterHero
+        id="bench"
+        title={
+          <>
+            Small systems, <span className="serif">strange constraints.</span>
+          </>
+        }
+        lede="The mechanisms from chapter 01, rebuilt small enough to hold in one hand and break on purpose. Some come straight out of a production system. Some I built from scratch to understand properly."
+        aside={
+          <>
             <p>
-              <b>Build, then break.</b> A system you have not stressed is a system you
-              do not understand yet.
+              <b>Build, then break.</b> A system you have not stressed is a system you do not understand yet.
             </p>
-          </div>
-        </div>
-      </section>
+            <p>Every experiment runs in your browser. Simulations are labelled as simulations.</p>
+          </>
+        }
+      >
+        <nav className="bench-index" aria-label="Experiments">
+          {labItems.map((item, i) => (
+            <a href={`#${item.slug}`} key={item.slug}>
+              <b>02.{i + 1}</b>
+              <span>{item.title}</span>
+              <small>{item.detail}</small>
+            </a>
+          ))}
+        </nav>
+      </ChapterHero>
 
       <section className="section-tight" id="cache-key">
         <div className="wrap">
           <Reveal>
             <SectionHeading
               className="head-compact"
-              number="01"
+              number="02.1"
               label="Flights · cache design"
               title={<>Change one thing. Watch the cache decide.</>}
               note="A flight search is expensive. Refining it should not be. Tap the controls: the ones that change the answer miss the cache, the ones that only reshape it never leave the building."
@@ -59,6 +63,7 @@ export default function LabPage() {
           <Reveal>
             <CacheKeyLab />
           </Reveal>
+          <BenchSource slug="flights" title="Flight comparison" />
         </div>
       </section>
 
@@ -67,7 +72,7 @@ export default function LabPage() {
           <Reveal>
             <SectionHeading
               className="head-compact"
-              number="02"
+              number="02.2"
               label="Hotels · stragglers"
               title={<>Average latency is a <span className="serif">liar.</span></>}
               note="Eight partners race. One of them hangs. Drag the time budget and see what the user waits for, with and without a deadline."
@@ -76,6 +81,7 @@ export default function LabPage() {
           <Reveal>
             <DeadlineLab />
           </Reveal>
+          <BenchSource slug="hotels" title="Hotel comparison" />
         </div>
       </section>
 
@@ -84,7 +90,7 @@ export default function LabPage() {
           <Reveal>
             <SectionHeading
               className="head-compact"
-              number="03"
+              number="02.3"
               label="Hotels · identity"
               title={<>Same name is not the <span className="serif">same hotel.</span></>}
               note="Seven partner records around one real hotel, two of them impostors. Move the gates and find the setting that merges the truth and nothing else."
@@ -93,6 +99,7 @@ export default function LabPage() {
           <Reveal>
             <IdentityLab />
           </Reveal>
+          <BenchSource slug="hotels" title="Hotel comparison" />
         </div>
       </section>
 
@@ -101,7 +108,7 @@ export default function LabPage() {
           <Reveal>
             <SectionHeading
               className="head-compact"
-              number="04"
+              number="02.4"
               label="Observability · alerting"
               title={<>Silence is a <span className="serif">signal.</span></>}
               note="A live stream of service logs with threshold, rate and absence alerts. Kill a service and see how long it takes to notice."
@@ -110,6 +117,7 @@ export default function LabPage() {
           <Reveal>
             <LogStreamLab />
           </Reveal>
+          <BenchSource slug="observability" title="OpenObserve platform" />
         </div>
       </section>
 
@@ -118,7 +126,7 @@ export default function LabPage() {
           <Reveal>
             <SectionHeading
               className="head-compact"
-              number="05"
+              number="02.5"
               label="Systems · from scratch"
               title={<>Memcached, <span className="serif">rebuilt.</span></>}
               note="Written in C++ to understand how a cache really works. Type commands into the browser simulation of it and watch keys expire."
@@ -135,7 +143,7 @@ export default function LabPage() {
           <Reveal>
             <SectionHeading
               className="head-compact"
-              number="06"
+              number="02.6"
               label="Build · Go load balancer"
               title={
                 <>
@@ -184,7 +192,7 @@ export default function LabPage() {
           <Reveal>
             <SectionHeading
               className="head-compact"
-              number="07"
+              number="02.7"
               label="Build · VortexVault"
               title={
                 <>
@@ -253,20 +261,20 @@ export default function LabPage() {
         </div>
       </section>
 
-      <section className="section-tight">
-        <div className="wrap">
-          <div className="next-case">
-            <div>
-              <span>Back to the production work</span>
-              <strong>Six comparison systems</strong>
-            </div>
-            <Link className="text-link" href="/systems">
-              Systems index
-              <ArrowUpRight width={13} height={13} />
-            </Link>
-          </div>
-        </div>
-      </section>
+      <Handoff
+        from="bench"
+        lead="The bench is for understanding. The garage is for fun: the same instincts, pointed at things nobody asked me to build."
+      />
     </>
+  );
+}
+
+function BenchSource({ slug, title }: { slug: string; title: string }) {
+  return (
+    <Link className="bench-source" href={`/systems/${slug}`}>
+      <span>From chapter 01 · the system it came from</span>
+      <b>{title}</b>
+      <ArrowRight width={13} height={13} />
+    </Link>
   );
 }

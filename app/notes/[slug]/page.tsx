@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, ArrowUpRight } from "@/components/icons";
+import { ArrowRight } from "@/components/icons";
+import { Handoff, StoryRail } from "@/components/story";
 import { getNextNote, getNote, notes, profile } from "@/lib/site";
 
 type PageProps = {
@@ -33,6 +34,7 @@ export default async function NotePage({ params }: PageProps) {
   if (!note) notFound();
 
   const next = getNextNote(slug);
+  const index = notes.findIndex((n) => n.slug === slug);
 
   const schema = {
     "@context": "https://schema.org",
@@ -46,17 +48,19 @@ export default async function NotePage({ params }: PageProps) {
   return (
     <article className="article" data-note={note.slug}>
       <div className="wrap-narrow">
+        <StoryRail current="notes" className="article-rail" />
         <div className="breadcrumb">
           <Link href="/">Home</Link>
           <span>/</span>
-          <Link href="/notes">Field notes</Link>
+          <Link href="/notes">04 · Notes</Link>
           <span>/</span>
           <span>{note.category}</span>
         </div>
 
         <header className="article-head">
-          <span className="eyebrow">
-            <span className="dot" />
+          <span className="ch-kicker" data-chapter="notes">
+            <b>Chapter 04 · Note {String(index + 1).padStart(2, "0")}</b>
+            <i />
             {note.category}
           </span>
           <h1 className="article-title">{note.title}</h1>
@@ -98,17 +102,13 @@ export default async function NotePage({ params }: PageProps) {
           </Link>
         </footer>
 
-        <Link className="note-next" href={`/notes/${next.slug}`}>
-          <div>
-            <span className="eyebrow">
-              <span className="dot" />
-              Next note
-            </span>
-            <strong>{next.title}</strong>
-          </div>
-          <ArrowUpRight width={18} height={18} />
-        </Link>
       </div>
+
+      <Handoff
+        from="notes"
+        lead="That is one lesson. The person who learned it is the next chapter."
+        side={{ href: `/notes/${next.slug}`, label: "Or the next note", title: next.title }}
+      />
 
       <script
         type="application/ld+json"

@@ -3,56 +3,69 @@ import Link from "next/link";
 import { SystemArtifact } from "@/components/artifacts";
 import { ArrowRight, ArrowUpRight } from "@/components/icons";
 import { Reveal } from "@/components/reveal";
-import { systems } from "@/lib/site";
+import { SectionHeading } from "@/components/section-heading";
+import { ChapterHero, Handoff } from "@/components/story";
+import { getSystem, systems } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Systems",
   description:
-    "Production systems: flights, hotels, food, query categorization, semantic search, cabs, and the company-wide OpenObserver log platform.",
+    "Chapter 01. Production systems: flights, hotels, food, grocery, query categorization, semantic search, cabs, payments and the company-wide OpenObserve log platform.",
 };
+
+type Scar = { slug: string; anchor: string; label: string; kind: string; title: string; body: string };
+
+const scars: Scar[] = [
+  ...systems
+    .filter((s) => s.broke)
+    .map((s) => ({ slug: s.slug, anchor: "broke", label: s.shortTitle, kind: "Postmortem", title: s.broke!.title, body: s.broke!.body })),
+  ...(getSystem("hotels")?.pager
+    ? [{ slug: "hotels", anchor: "hard-part", label: "Hotels", kind: "The tail", title: "The worst compare took four and a half minutes", body: getSystem("hotels")!.pager! }]
+    : []),
+  ...(getSystem("best-way-to-pay")?.flaws ?? [])
+    .slice(0, 3)
+    .map((f) => ({ slug: "best-way-to-pay", anchor: "flaws", label: "Best way to pay", kind: "Still hurts", title: f.title, body: f.body })),
+];
 
 export default function SystemsPage() {
   return (
     <>
-      <section className="page-hero">
-        <div className="wrap page-hero-grid">
-          <div className="page-hero-copy">
-            <span className="eyebrow">
-              <span className="dot" />
-              Systems index · 2025—26
-            </span>
-            <h1 className="display-1">
-              Seven surfaces. <span className="serif">One layer.</span>
-            </h1>
-            <p className="lede">
-              Comparison is a simple promise with a complicated backend. These are the
-              systems I built or own at Buyhatke, documented as engineering work rather
-              than launch announcements.
-            </p>
-          </div>
-
-          <div className="page-hero-aside">
+      <ChapterHero
+        id="systems"
+        title={
+          <>
+            Where the request <span className="serif">goes.</span>
+          </>
+        }
+        lede={`${systems.length} production systems at Buyhatke, each one a different answer to the same promise: many sources, one honest answer, before the person looks away.`}
+        aside={
+          <>
             <p>
-              <b>Production, not prototypes.</b> Every case study here shipped into a
-              live pipeline. The numbers are the ones I can defend.
+              <b>Production, not prototypes.</b> Every case here shipped into a live pipeline. The numbers are the
+              ones I can defend.
             </p>
-            <p>
-              Start with the constraint. That is usually where the interesting decision
-              lives.
-            </p>
-          </div>
-        </div>
-      </section>
+            <p>Each case ends with what broke and what still hurts. The scars are collected at the bottom.</p>
+          </>
+        }
+      />
 
-      <section className="section-tight">
+      <section className="section-tight" id="index">
         <div className="wrap">
+          <Reveal>
+            <SectionHeading
+              className="head-compact"
+              number="01.1"
+              label="The index"
+              title={
+                <>
+                  {systems.length} surfaces. <span className="serif">One layer.</span>
+                </>
+              }
+            />
+          </Reveal>
           <div className="systems-index-grid">
             {systems.map((system) => (
-              <Link
-                className="systems-index-card"
-                href={`/systems/${system.slug}`}
-                key={system.slug}
-              >
+              <Link className="systems-index-card" href={`/systems/${system.slug}`} key={system.slug}>
                 <div className="systems-index-art">
                   <SystemArtifact kind={system.artifact} />
                 </div>
@@ -76,22 +89,44 @@ export default function SystemsPage() {
         </div>
       </section>
 
-      <section className="section-tight">
+      <section className="section scars" id="scars">
         <div className="wrap">
           <Reveal>
-            <div className="next-case">
-              <div>
-                <span>Also in the lab</span>
-                <strong>Go enterprise load balancer</strong>
-              </div>
-              <Link className="text-link" href="/lab">
-                Open the lab
-                <ArrowRight width={13} height={13} />
-              </Link>
-            </div>
+            <SectionHeading
+              number="01.2"
+              label="The scars"
+              title={
+                <>
+                  Not everything <span className="serif">works.</span>
+                </>
+              }
+              note="The numbers above are the good news. These come straight from the postmortems, the dashboards and the case studies."
+            />
           </Reveal>
+
+          <div className="scar-grid">
+            {scars.map((scar) => (
+              <Link className="scar" href={`/systems/${scar.slug}#${scar.anchor}`} key={scar.title}>
+                <span className="scar-k">
+                  <b>{scar.kind}</b>
+                  {scar.label}
+                </span>
+                <strong>{scar.title}</strong>
+                <p>{scar.body}</p>
+                <span className="scar-more">
+                  Read the case
+                  <ArrowRight width={12} height={12} />
+                </span>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
+
+      <Handoff
+        from="systems"
+        lead="Scars come from mechanisms I didn't fully understand yet. So I rebuild them on a bench, where they are allowed to break."
+      />
     </>
   );
 }

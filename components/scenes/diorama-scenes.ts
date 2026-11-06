@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { FBXLoader } from "three/addons/loaders/FBXLoader.js";
-import { canvasTexture, mountScene, smooth, type Built, type Ctx, type Handle } from "./kit";
+import { canvasTexture, easeSoft, font, mountScene, smooth, type Built, type Ctx, type Handle } from "./kit";
 import { card } from "./objects";
 
 type Opts = Pick<Parameters<typeof mountScene>[0], "host" | "mode" | "wrap" | "onProgress" | "loopSeconds">;
@@ -10,7 +10,7 @@ type Opts = Pick<Parameters<typeof mountScene>[0], "host" | "mode" | "wrap" | "o
 const mix = (a: number, b: number, k: number) => a + (b - a) * k;
 const clamp01 = (x: number) => Math.min(Math.max(x, 0), 1);
 const easeOut = (x: number) => 1 - Math.pow(1 - x, 3);
-const easeOutBack = (x: number) => 1 + 2.2 * Math.pow(x - 1, 3) + 1.2 * Math.pow(x - 1, 2);
+const easeOutBack = easeSoft;
 const seg = (p: number, a: number, b: number) => clamp01((p - a) / (b - a));
 
 // frame the composition so nothing is ever cropped, whatever the container's shape
@@ -23,8 +23,8 @@ function fit(ctx: Ctx, aspect: number, halfW = 6.8, halfH = 3.9) {
 }
 
 function lights(ctx: Ctx, z = 12.5) {
-  ctx.scene.add(new THREE.HemisphereLight(0xffffff, 0xfff0e0, 1.7));
-  const key = new THREE.DirectionalLight(0xffffff, 1.3);
+  ctx.scene.add(new THREE.HemisphereLight(0xfffaf0, 0xd9cfbd, 1.25));
+  const key = new THREE.DirectionalLight(0xffffff, 1.2);
   key.position.set(-5, 8, 10);
   ctx.scene.add(key);
   ctx.camera.position.set(0, 0, z);
@@ -45,8 +45,16 @@ function blob(ctx: Ctx, w: number, d: number) {
   return m;
 }
 
-function label(ctx: Ctx, w: number, h: number, draw: (g: CanvasRenderingContext2D, cw: number, ch: number) => void, px = 300) {
+function label(ctx: Ctx, w: number, h: number, draw: (g: CanvasRenderingContext2D, cw: number, ch: number) => void, px = 400) {
   const tex = ctx.track(canvasTexture(Math.round(w * px), Math.round(h * px), draw));
+  document.fonts?.ready.then(() => {
+    const cv = tex.image as HTMLCanvasElement;
+    const g = cv.getContext("2d");
+    if (!g) return;
+    g.clearRect(0, 0, cv.width, cv.height);
+    draw(g, cv.width, cv.height);
+    tex.needsUpdate = true;
+  });
   const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: tex, transparent: true, toneMapped: false }));
   return { m, tex };
 }
@@ -70,6 +78,9 @@ function drawChip(g: CanvasRenderingContext2D, img: HTMLImageElement, x: number,
   g.beginPath();
   g.roundRect(x, y, w, h, Math.min(w, h) * round);
   g.fill();
+  g.strokeStyle = "rgba(18,17,14,0.1)";
+  g.lineWidth = Math.max(1, Math.min(w, h) * 0.015);
+  g.stroke();
   if (img.complete && img.naturalWidth) {
     const iw = w * (1 - pad * 2);
     const ih = h * (1 - pad * 2);
@@ -81,7 +92,7 @@ function drawChip(g: CanvasRenderingContext2D, img: HTMLImageElement, x: number,
   g.restore();
 }
 
-function labelLive(ctx: Ctx, w: number, h: number, draw: (g: CanvasRenderingContext2D, cw: number, ch: number) => void, px = 300) {
+function labelLive(ctx: Ctx, w: number, h: number, draw: (g: CanvasRenderingContext2D, cw: number, ch: number) => void, px = 400) {
   const l = label(ctx, w, h, draw, px);
   const cv = l.tex.image as HTMLCanvasElement;
   const redraw = () => {
@@ -99,79 +110,83 @@ const rrect = (g: CanvasRenderingContext2D, x: number, y: number, w: number, h: 
   g.roundRect(x, y, w, h, r);
 };
 
+// a cream tag with a hairline edge: paper, not a sticker
+const paperTag = (g: CanvasRenderingContext2D, w: number, h: number, r: number, dark = false) => {
+  const lw = Math.max(2, h * 0.012);
+  g.fillStyle = dark ? "#141417" : "#fbf9f3";
+  rrect(g, lw, lw, w - lw * 2, h - lw * 2, r);
+  g.fill();
+  g.strokeStyle = dark ? "rgba(242,239,230,0.14)" : "rgba(18,17,14,0.16)";
+  g.lineWidth = lw;
+  g.stroke();
+};
+
 // ---------- Best way to pay: three offers fly in and settle on one price ----------
 function payBuild(ctx: Ctx): Built {
   const { scene } = ctx;
   lights(ctx);
-  const icici = card(ctx, 3.6, 2.27, 0.08, 0.2, (g, w, h) => {
+  const icici = card(ctx, 3.6, 2.27, 0.03, 0.14, (g, w, h) => {
+    const u = h / 100;
     const grad = g.createLinearGradient(0, 0, w, h);
-    grad.addColorStop(0, "#f7903f");
-    grad.addColorStop(1, "#c2410c");
+    grad.addColorStop(0, "#1b1c22");
+    grad.addColorStop(1, "#2a2b33");
     g.fillStyle = grad;
     g.fillRect(0, 0, w, h);
-    g.fillStyle = "rgba(255,255,255,0.13)";
+    g.fillStyle = "rgba(255,255,255,0.04)";
     g.beginPath();
-    g.arc(w * 0.88, h * 0.05, h * 0.75, 0, Math.PI * 2);
+    g.arc(w * 0.9, 0, h * 0.9, 0, Math.PI * 2);
     g.fill();
-    const cg = g.createLinearGradient(50, 190, 160, 290);
-    cg.addColorStop(0, "#f4d98a");
-    cg.addColorStop(1, "#b8953c");
+    const cg = g.createLinearGradient(0, u * 38, 0, u * 58);
+    cg.addColorStop(0, "#d6caa6");
+    cg.addColorStop(1, "#9a8e6e");
     g.fillStyle = cg;
-    rrect(g, 56, h * 0.36, 130, 98, 18);
+    rrect(g, u * 10, u * 38, u * 22, u * 17, u * 3);
     g.fill();
-    drawChip(g, logoImg("icici", () => (icici.userData.redraw as () => void)()), 50, 40, 420, 100, 0.12, 0.3);
-    g.fillStyle = "#fff";
-    g.font = "600 38px 'Courier New', monospace";
-    g.fillText("•••• •••• •••• 4821", 56, h - 128);
-    drawChip(g, logoImg("amazon", () => (icici.userData.redraw as () => void)()), 56, h - 112, 260, 72, 0.16, 0.3);
-    g.fillStyle = "#fff";
-    g.font = "800 48px system-ui, sans-serif";
-    g.fillText("Pay", 336, h - 60);
-  }, 0xfff1e0);
+    drawChip(g, logoImg("icici", () => (icici.userData.redraw as () => void)()), u * 9, u * 9, u * 50, u * 14, 0.14, 0.24);
+    g.fillStyle = "rgba(242,239,230,0.85)";
+    g.font = `500 ${u * 8}px ${font.mono}`;
+    g.fillText("•••• •••• •••• 4821", u * 10, u * 74);
+    drawChip(g, logoImg("amazon", () => (icici.userData.redraw as () => void)()), u * 10, u * 82, u * 30, u * 10, 0.16, 0.24);
+    g.fillStyle = "#f2efe6";
+    g.font = `600 ${u * 8}px ${font.display}`;
+    g.fillText("Pay", u * 43, u * 90);
+  }, 0x1b1c22);
 
-  const voucher = card(ctx, 3.2, 2, 0.07, 0.2, (g, w, h) => {
-    const grad = g.createLinearGradient(0, 0, w, h);
-    grad.addColorStop(0, "#14857a");
-    grad.addColorStop(1, "#0b4f4a");
-    g.fillStyle = grad;
+  const voucher = card(ctx, 3.2, 2, 0.03, 0.14, (g, w, h) => {
+    const u = h / 100;
+    g.fillStyle = "#f6f3ea";
     g.fillRect(0, 0, w, h);
-    // a small gift icon, not a flag
-    const gx = w - 190;
-    const gy = 44;
-    g.fillStyle = "#f4d98a";
-    rrect(g, gx, gy + 40, 130, 100, 12);
-    g.fill();
-    rrect(g, gx - 8, gy + 20, 146, 40, 10);
-    g.fill();
-    g.fillStyle = "#0b4f4a";
-    g.fillRect(gx + 55, gy + 20, 20, 120);
-    g.beginPath();
-    g.ellipse(gx + 40, gy + 6, 30, 18, -0.4, 0, Math.PI * 2);
-    g.ellipse(gx + 90, gy + 6, 30, 18, 0.4, 0, Math.PI * 2);
-    g.fill();
-    drawChip(g, logoImg("amazon", () => (voucher.userData.redraw as () => void)()), 52, h - 100, 260, 72, 0.16, 0.3);
-    g.fillStyle = "#f4d98a";
-    g.font = "700 38px 'Courier New', monospace";
-    g.fillText("GIFT VOUCHER", 52, 90);
-    g.fillStyle = "#fff";
-    g.font = "800 130px system-ui, sans-serif";
-    g.fillText("₹500", 48, h - 118);
-  }, 0xf6e6c0);
+    g.strokeStyle = "rgba(18,17,14,0.14)";
+    g.lineWidth = u * 0.5;
+    g.setLineDash([u * 1.6, u * 1.6]);
+    g.strokeRect(u * 5, u * 5, w - u * 10, h - u * 10);
+    g.setLineDash([]);
+    g.fillStyle = "rgba(18,17,14,0.55)";
+    g.font = `500 ${u * 7.5}px ${font.mono}`;
+    g.fillText("GIFT VOUCHER", u * 12, u * 22);
+    g.fillStyle = "#12110e";
+    g.font = `600 ${u * 40}px ${font.display}`;
+    g.fillText("₹500", u * 11, u * 66);
+    g.fillStyle = "#e8491d";
+    g.fillRect(u * 12, u * 72, u * 16, u * 0.9);
+    drawChip(g, logoImg("amazon", () => (voucher.userData.redraw as () => void)()), u * 12, u * 78, u * 30, u * 11, 0.16, 0.24);
+  }, 0xe7e1d2);
 
-  const coupon = card(ctx, 3.3, 1.4, 0.06, 0.16, (g, w, h) => {
-    g.fillStyle = "#14110f";
+  const coupon = card(ctx, 3.3, 1.4, 0.03, 0.12, (g, w, h) => {
+    const u = h / 100;
+    g.fillStyle = "#e8491d";
     g.fillRect(0, 0, w, h);
-    g.fillStyle = "#f0b27a";
-    g.font = "800 128px system-ui, sans-serif";
-    g.fillText("EXTRA 5%", 44, h * 0.6);
-    g.fillStyle = "rgba(255,255,255,0.75)";
-    g.font = "700 34px 'Courier New', monospace";
-    g.fillText("COUPON · AT CHECKOUT", 48, h - 40);
-    g.setLineDash([14, 12]);
-    g.strokeStyle = "rgba(255,255,255,0.4)";
-    g.lineWidth = 4;
-    g.strokeRect(20, 20, w - 40, h - 40);
-  }, 0xd8a948);
+    g.fillStyle = "#fff7ee";
+    g.font = `600 ${u * 38}px ${font.display}`;
+    g.fillText("Extra 5%", u * 12, u * 58);
+    g.fillStyle = "rgba(255,247,238,0.8)";
+    g.font = `500 ${u * 9}px ${font.mono}`;
+    g.fillText("COUPON · AT CHECKOUT", u * 13, u * 82);
+    g.setLineDash([u * 2, u * 2]);
+    g.strokeStyle = "rgba(255,247,238,0.4)";
+    g.lineWidth = u * 0.6;
+    g.strokeRect(u * 5, u * 6, w - u * 10, h - u * 12);
+  }, 0xc63d16);
   [icici, voucher, coupon].forEach((o) => scene.add(o));
 
   const tag = label(ctx, 3.9, 1.95, () => {}, 300);
@@ -183,25 +198,28 @@ function payBuild(ctx: Ctx): Built {
     const w = cv.width;
     const h = cv.height;
     g.clearRect(0, 0, w, h);
-    g.fillStyle = "#fffdf6";
-    rrect(g, 6, 6, w - 12, h - 12, 54);
-    g.fill();
-    g.strokeStyle = "#12110e";
-    g.lineWidth = 6;
-    g.stroke();
-    g.fillStyle = "#6b6860";
-    g.font = "700 38px 'Courier New', monospace";
-    g.fillText("CART TOTAL", 58, 88);
+    const u = h / 100;
+    paperTag(g, w, h, u * 12);
+    g.fillStyle = "rgba(18,17,14,0.5)";
+    g.font = `500 ${u * 6.4}px ${font.mono}`;
+    g.fillText("CART TOTAL", u * 10, u * 20);
     const total = mix(159999, 151999.05, k);
     g.fillStyle = "#12110e";
-    g.font = "800 112px system-ui, sans-serif";
-    g.fillText("₹" + Math.round(total).toLocaleString("en-IN"), 56, 220);
-    g.fillStyle = k > 0.98 ? "#1f9d55" : "rgba(31,157,85,0.18)";
-    rrect(g, 56, 262, w - 112, 100, 50);
+    g.font = `600 ${u * 24}px ${font.display}`;
+    g.fillText("₹" + Math.round(total).toLocaleString("en-IN"), u * 9, u * 50);
+    const done = k > 0.98;
+    g.fillStyle = done ? "#12110e" : "rgba(18,17,14,0.06)";
+    rrect(g, u * 10, u * 64, w - u * 20, u * 22, u * 11);
     g.fill();
-    g.fillStyle = k > 0.98 ? "#fff" : "rgba(31,100,60,0.5)";
-    g.font = "800 50px system-ui, sans-serif";
-    g.fillText("You can save ₹7,999.95", 90, 330);
+    g.fillStyle = done ? "#f2efe6" : "rgba(18,17,14,0.35)";
+    g.font = `500 ${u * 9.5}px ${font.sans}`;
+    g.fillText("You can save ₹7,999.95", u * 18, u * 78.5);
+    if (done) {
+      g.fillStyle = "#e8491d";
+      g.beginPath();
+      g.arc(w - u * 20, u * 75, u * 2.2, 0, Math.PI * 2);
+      g.fill();
+    }
     tag.tex.needsUpdate = true;
   };
   paintTag(0);
@@ -326,8 +344,8 @@ function fbxModel(url: string, material: (mesh: THREE.Mesh, index: number) => TH
 
 function groceryBuild(ctx: Ctx): Built {
   const { scene } = ctx;
-  scene.add(new THREE.HemisphereLight(0xfff4e6, 0xc9b391, 0.9));
-  const key = new THREE.DirectionalLight(0xffffff, 2.6);
+  scene.add(new THREE.HemisphereLight(0xfff4e6, 0xb9a585, 0.75));
+  const key = new THREE.DirectionalLight(0xfff6ea, 2.1);
   key.position.set(-5, 9, 7);
   scene.add(key);
   const fill = new THREE.DirectionalLight(0xffd9b0, 0.7);
@@ -344,22 +362,17 @@ function groceryBuild(ctx: Ctx): Built {
   const mkTag = (app: string, logoName: string, pack: string, price: string, x: number) => {
     const t = labelLive(ctx, 3.9, 1.5, (g, w, h) => {
       g.clearRect(0, 0, w, h);
-      g.fillStyle = "#fffdf6";
-      rrect(g, 5, 5, w - 10, h - 10, h * 0.3);
-      g.fill();
-      g.strokeStyle = "#12110e";
-      g.lineWidth = 6;
-      g.stroke();
-      drawChip(g, logoImg(logoName, () => t.redraw()), h * 0.14, h * 0.14, h * 0.72, h * 0.72, 0.1, 0.28);
+      paperTag(g, w, h, h * 0.2);
+      drawChip(g, logoImg(logoName, () => t.redraw()), h * 0.2, h * 0.22, h * 0.56, h * 0.56, 0.12, 0.26);
       g.fillStyle = "#12110e";
-      g.font = `800 ${Math.round(h * 0.24)}px system-ui, sans-serif`;
-      g.fillText(app, h * 1.0, h * 0.4);
-      g.fillStyle = "#6b6860";
-      g.font = `700 ${Math.round(h * 0.18)}px system-ui, sans-serif`;
-      g.fillText(pack, h * 1.0, h * 0.66);
-      g.fillStyle = "#d3281b";
-      g.font = `800 ${Math.round(h * 0.3)}px system-ui, sans-serif`;
-      g.fillText(price, h * 1.0, h * 0.92);
+      g.font = `600 ${Math.round(h * 0.2)}px ${font.display}`;
+      g.fillText(app, h * 0.98, h * 0.36);
+      g.fillStyle = "rgba(18,17,14,0.55)";
+      g.font = `400 ${Math.round(h * 0.15)}px ${font.sans}`;
+      g.fillText(pack, h * 0.98, h * 0.58);
+      g.fillStyle = "#12110e";
+      g.font = `600 ${Math.round(h * 0.24)}px ${font.display}`;
+      g.fillText(price, h * 0.98, h * 0.86);
     }, 300);
     scene.add(t.m);
     tagMeshes.push({ m: t.m, x });
@@ -371,13 +384,8 @@ function groceryBuild(ctx: Ctx): Built {
   // a quiet "matched" badge: light, small, fades in after the match lines draw
   const pill = label(ctx, 5.4, 0.62, (g, w, h) => {
     g.clearRect(0, 0, w, h);
-    g.fillStyle = "#eaf6ee";
-    rrect(g, 3, 3, w - 6, h - 6, (h - 6) / 2);
-    g.fill();
-    g.strokeStyle = "rgba(31,157,85,0.45)";
-    g.lineWidth = 3;
-    g.stroke();
-    g.fillStyle = "#1f9d55";
+    paperTag(g, w, h, h / 2);
+    g.fillStyle = "#1f8a4c";
     g.beginPath();
     g.arc(h * 0.5, h / 2, h * 0.2, 0, Math.PI * 2);
     g.fill();
@@ -391,8 +399,8 @@ function groceryBuild(ctx: Ctx): Built {
     g.lineTo(h * 0.59, h * 0.44);
     g.stroke();
     g.fillStyle = "#12110e";
-    g.font = `700 ${Math.round(h * 0.4)}px system-ui, sans-serif`;
-    g.fillText("Same product: 1 kg = 2 × 500 g", h * 0.9, h * 0.63);
+    g.font = `500 ${Math.round(h * 0.36)}px ${font.sans}`;
+    g.fillText("Same product: 1 kg = 2 × 500 g", h * 0.9, h * 0.62);
   }, 300);
   (pill.m.material as THREE.MeshBasicMaterial).opacity = 0;
   scene.add(pill.m);
@@ -401,7 +409,7 @@ function groceryBuild(ctx: Ctx): Built {
     { x: -1.25, w: 3.1 },
     { x: 3.92, w: 4.2 },
   ].map((l) => {
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(l.w, 0.055), new THREE.MeshBasicMaterial({ color: 0x1f9d55, transparent: true, toneMapped: false }));
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(l.w, 0.03), new THREE.MeshBasicMaterial({ color: 0x12110e, opacity: 0.55, transparent: true, toneMapped: false }));
     scene.add(m);
     return { m, ...l };
   });
@@ -525,7 +533,10 @@ function cabsBuild(ctx: Ctx): Built {
   scene.add(disc);
 
   const R = 4.8;
-  const mapTex = ctx.track(canvasTexture(1024, 1024, (g, w, h) => {
+  const mapTex = ctx.track(canvasTexture(2048, 2048, (g, w, h) => {
+    g.scale(2, 2);
+    w /= 2;
+    h /= 2;
     g.fillStyle = "#11141b";
     g.fillRect(0, 0, w, h);
     // blocks
@@ -563,9 +574,9 @@ function cabsBuild(ctx: Ctx): Built {
     g.bezierCurveTo(300, 380, 640, 600, w, 930);
     g.stroke();
   }));
-  const base = new THREE.Mesh(new THREE.CircleGeometry(R, 96), new THREE.MeshBasicMaterial({ map: mapTex, toneMapped: false }));
+  const base = new THREE.Mesh(new THREE.CircleGeometry(R, 160), new THREE.MeshBasicMaterial({ map: mapTex, toneMapped: false }));
   disc.add(base);
-  const rim = new THREE.Mesh(new THREE.RingGeometry(R, R + 0.07, 96), new THREE.MeshBasicMaterial({ color: 0x8f98e8 }));
+  const rim = new THREE.Mesh(new THREE.RingGeometry(R, R + 0.025, 160), new THREE.MeshBasicMaterial({ color: 0xf2efe6, transparent: true, opacity: 0.5 }));
   disc.add(rim);
 
   const pts: { x: number; y: number }[] = [];
@@ -577,30 +588,30 @@ function cabsBuild(ctx: Ctx): Built {
   });
   const target = pts.length;
   pts.push({ x: 2.3, y: 1.4 });
-  const dots = new THREE.InstancedMesh(new THREE.CircleGeometry(0.12, 20), new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false }), pts.length);
+  const dots = new THREE.InstancedMesh(new THREE.CircleGeometry(0.08, 24), new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false }), pts.length);
   dots.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(pts.length * 3), 3);
   disc.add(dots);
 
   // rider: a steady dot with a pulsing ring
   const dot = new THREE.Mesh(new THREE.CircleGeometry(0.2, 32), new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false }));
   dot.position.z = 0.15;
-  const halo = new THREE.Mesh(new THREE.CircleGeometry(0.34, 32), new THREE.MeshBasicMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.55, toneMapped: false }));
+  const halo = new THREE.Mesh(new THREE.CircleGeometry(0.34, 48), new THREE.MeshBasicMaterial({ color: 0x4a68ff, transparent: true, opacity: 0.4, toneMapped: false }));
   halo.position.z = 0.12;
-  const pulse = new THREE.Mesh(new THREE.RingGeometry(0.95, 1, 64), new THREE.MeshBasicMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.5, toneMapped: false }));
+  const pulse = new THREE.Mesh(new THREE.RingGeometry(0.97, 1, 96), new THREE.MeshBasicMaterial({ color: 0x4a68ff, transparent: true, opacity: 0.5, toneMapped: false }));
   pulse.position.z = 0.1;
   disc.add(dot, halo, pulse);
 
   const walk = new THREE.Line(
     new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0.1), new THREE.Vector3(2.3, 1.4, 0.1)]),
-    new THREE.LineDashedMaterial({ color: 0xf0b27a, dashSize: 0.14, gapSize: 0.1 })
+    new THREE.LineDashedMaterial({ color: 0xe8491d, dashSize: 0.12, gapSize: 0.1 })
   );
   walk.computeLineDistances();
   disc.add(walk);
 
   const carDefs = [
     { name: "Uber", logo: "uber", price: "₹312", sub: "here", ring: 0xffffff, home: [-2.9, 2.2], from: [-4.1, 2.6], bend: 1.0, hot: false },
-    { name: "Ola", logo: "ola", price: "₹298", sub: "here", ring: 0xf6c445, home: [-2.7, -2.3], from: [-4.2, -2.5], bend: -1.0, hot: false },
-    { name: "Rapido", logo: "rapido", price: "₹241", sub: "120 m walk", ring: 0xf6c445, home: [2.9, -1.6], from: [4.2, -2.4], bend: 0.9, hot: true },
+    { name: "Ola", logo: "ola", price: "₹298", sub: "here", ring: 0xf2efe6, home: [-2.7, -2.3], from: [-4.2, -2.5], bend: -1.0, hot: false },
+    { name: "Rapido", logo: "rapido", price: "₹241", sub: "120 m walk", ring: 0xe8491d, home: [2.9, -1.6], from: [4.2, -2.4], bend: 0.9, hot: true },
   ];
   const cars = carDefs.map((d) => {
     const g = new THREE.Group();
@@ -612,32 +623,27 @@ function cabsBuild(ctx: Ctx): Built {
     arrow.closePath();
     const mark = new THREE.Mesh(new THREE.ShapeGeometry(arrow), new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false }));
     mark.position.z = 0.2;
-    const ringMesh = new THREE.Mesh(new THREE.RingGeometry(0.34, 0.4, 40), new THREE.MeshBasicMaterial({ color: d.ring, toneMapped: false }));
+    const ringMesh = new THREE.Mesh(new THREE.RingGeometry(0.34, 0.37, 64), new THREE.MeshBasicMaterial({ color: d.ring, toneMapped: false }));
     ringMesh.position.z = 0.18;
-    const disk = new THREE.Mesh(new THREE.CircleGeometry(0.34, 40), new THREE.MeshBasicMaterial({ color: 0x0b0d12, toneMapped: false }));
+    const disk = new THREE.Mesh(new THREE.CircleGeometry(0.34, 64), new THREE.MeshBasicMaterial({ color: 0x0b0d12, toneMapped: false }));
     disk.position.z = 0.17;
     g.add(disk, ringMesh, mark);
     disc.add(g);
-    const trail = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: 0x8f98e8, transparent: true, opacity: 0.7 }));
+    const trail = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: 0xf2efe6, transparent: true, opacity: 0.35 }));
     disc.add(trail);
     const paintTag = (c: CanvasRenderingContext2D, w: number, h: number) => {
       c.clearRect(0, 0, w, h);
-      c.fillStyle = d.hot ? "#12110e" : "#fffdf6";
-      c.beginPath();
-      c.roundRect(4, 4, w - 8, h - 8, h / 2);
-      c.fill();
-      c.strokeStyle = "#12110e";
-      c.lineWidth = d.hot ? 0 : 6;
-      c.stroke();
-      drawChip(c, logoImg(d.logo, () => repaint()), 22, 22, h - 44, h - 44, 0.12, 0.3);
-      c.fillStyle = d.hot ? "#fff" : "#12110e";
-      c.font = "800 80px system-ui, sans-serif";
-      c.fillText(`${d.name} ${d.price}`, h - 4, 100);
-      c.fillStyle = d.hot ? "#f0b27a" : "#6b6860";
-      c.font = "600 44px system-ui, sans-serif";
-      c.fillText(d.sub, h - 2, 168);
+      paperTag(c, w, h, h / 2, d.hot);
+      drawChip(c, logoImg(d.logo, () => repaint()), h * 0.16, h * 0.16, h * 0.68, h * 0.68, 0.14, 0.5);
+      c.fillStyle = d.hot ? "#f2efe6" : "#12110e";
+      c.font = `600 ${h * 0.32}px ${font.display}`;
+      c.fillText(`${d.name} ${d.price}`, h * 1.02, h * 0.48);
+      c.fillStyle = d.hot ? "#e8491d" : "rgba(18,17,14,0.55)";
+      c.font = `400 ${h * 0.19}px ${font.sans}`;
+      c.fillText(d.sub, h * 1.02, h * 0.76);
     };
-    const tx = ctx.track(canvasTexture(840, 230, paintTag));
+    const tx = ctx.track(canvasTexture(1680, 460, paintTag));
+    document.fonts?.ready.then(() => repaint());
     const repaint = () => {
       const cv = tx.image as HTMLCanvasElement;
       const g2 = cv.getContext("2d");
@@ -665,8 +671,8 @@ function cabsBuild(ctx: Ctx): Built {
         const d = Math.hypot(q.x, q.y) / 4.2;
         const lit = d < sweep;
         const hot = i === target ? smooth(0.5, 0.62, p) : 0;
-        if (hot > 0.02) c.set(0xf0b27a);
-        else c.set(lit ? 0x8f98e8 : 0x3a4152);
+        if (hot > 0.02) c.set(0xe8491d);
+        else c.set(lit ? 0xd9d4c5 : 0x2e3442);
         dots.setColorAt(i, c);
         dm.position.set(q.x, q.y, 0.08);
         dm.scale.setScalar(i === target ? 1 + hot * 1.2 : 1 + (lit ? 0.25 * Math.sin(t * 3 + i) : 0));
@@ -740,10 +746,10 @@ function buildPizza(ctx: Ctx) {
   };
 
   // wooden board with a handle
-  const wood = ctx.track(new THREE.MeshStandardMaterial({ color: 0x4a2e1b, roughness: 0.55 }));
-  const board = new THREE.Mesh(new THREE.CylinderGeometry(3.05, 3.05, 0.16, 64), wood);
+  const wood = ctx.track(new THREE.MeshStandardMaterial({ color: 0x5a3a24, roughness: 0.62, metalness: 0.02 }));
+  const board = new THREE.Mesh(new THREE.CylinderGeometry(3.05, 3.05, 0.1, 96), wood);
   board.position.y = -0.18;
-  const handle = new THREE.Mesh(new RoundedBoxGeometry(1.1, 0.16, 2.4, 3, 0.06), wood);
+  const handle = new THREE.Mesh(new RoundedBoxGeometry(0.9, 0.1, 2.4, 3, 0.04), wood);
   handle.position.set(0, -0.18, 3.8);
   board.userData.keep = true;
   handle.userData.keep = true;
@@ -814,11 +820,11 @@ function buildPizza(ctx: Ctx) {
 
 function foodBuild(ctx: Ctx): Built {
   const { scene, camera } = ctx;
-  scene.add(new THREE.HemisphereLight(0xfff1e0, 0xb88458, 0.75));
-  const key = new THREE.DirectionalLight(0xffffff, 2.7);
+  scene.add(new THREE.HemisphereLight(0xfff1e0, 0xa07a58, 0.6));
+  const key = new THREE.DirectionalLight(0xfff6ea, 2.2);
   key.position.set(-4, 9, 6);
   scene.add(key);
-  const rimLight = new THREE.DirectionalLight(0xffb070, 1.4);
+  const rimLight = new THREE.DirectionalLight(0xffb070, 1.1);
   rimLight.position.set(6, 3, -7);
   scene.add(rimLight);
   camera.position.set(0, 0, 12.5);
@@ -860,36 +866,29 @@ function foodBuild(ctx: Ctx): Built {
   const tags = rows.map((r) => {
     const t = labelLive(ctx, 5.4, 1.25, (g, w, h) => {
       g.clearRect(0, 0, w, h);
-      g.fillStyle = r.hot ? "#12110e" : "#fffdf6";
-      rrect(g, 4, 4, w - 8, h - 8, h / 2);
-      g.fill();
-      if (!r.hot) {
-        g.strokeStyle = "#12110e";
-        g.lineWidth = 5;
-        g.stroke();
-      }
-      drawChip(g, logoImg(r.logo, () => t.redraw()), h * 0.16, h * 0.16, h * 0.68, h * 0.68, 0.12, 0.3);
-      g.fillStyle = r.hot ? "#fff" : "#12110e";
-      g.font = `800 ${Math.round(h * 0.28)}px system-ui, sans-serif`;
-      g.fillText(r.n, h * 1.0, h * 0.46);
-      g.fillStyle = r.hot ? "#f0b27a" : "#6b6860";
-      g.font = `600 ${Math.round(h * 0.19)}px system-ui, sans-serif`;
-      g.fillText(r.sub, h * 1.0, h * 0.76);
-      g.fillStyle = r.hot ? "#f0b27a" : "#12110e";
-      g.font = `800 ${Math.round(h * 0.46)}px system-ui, sans-serif`;
+      paperTag(g, w, h, h * 0.24, r.hot);
+      drawChip(g, logoImg(r.logo, () => t.redraw()), h * 0.18, h * 0.18, h * 0.64, h * 0.64, 0.14, 0.26);
+      g.fillStyle = r.hot ? "#f2efe6" : "#12110e";
+      g.font = `600 ${Math.round(h * 0.25)}px ${font.display}`;
+      g.fillText(r.n, h * 1.02, h * 0.46);
+      g.fillStyle = r.hot ? "rgba(242,239,230,0.6)" : "rgba(18,17,14,0.55)";
+      g.font = `400 ${Math.round(h * 0.17)}px ${font.sans}`;
+      g.fillText(r.sub, h * 1.02, h * 0.74);
+      g.fillStyle = r.hot ? "#f2efe6" : "#12110e";
+      g.font = `600 ${Math.round(h * 0.36)}px ${font.display}`;
       g.fillText(r.price, w - h * 0.5 - g.measureText(r.price).width, h * 0.62);
     }, 300);
     scene.add(t.m);
     return t.m;
   });
-  const badge = label(ctx, 1.9, 0.62, (g, w, h) => {
+  const badge = label(ctx, 1.7, 0.46, (g, w, h) => {
     g.clearRect(0, 0, w, h);
-    g.fillStyle = "#d3281b";
+    g.fillStyle = "#e8491d";
     rrect(g, 0, 0, w, h, h / 2);
     g.fill();
-    g.fillStyle = "#fff";
-    g.font = `800 ${Math.round(h * 0.5)}px system-ui, sans-serif`;
-    g.fillText("Cheapest", h * 0.4, h * 0.7);
+    g.fillStyle = "#fff7ee";
+    g.font = `500 ${Math.round(h * 0.4)}px ${font.mono}`;
+    g.fillText("CHEAPEST", h * 0.45, h * 0.66);
   }, 300);
   scene.add(badge.m);
   const shadow = blob(ctx, 7, 5);
@@ -922,8 +921,8 @@ function foodBuild(ctx: Ctx): Built {
         m.scale.setScalar(Math.max(0.0001, 0.6 + 0.4 * k));
       });
       const kb = seg(p, 0.62, 0.74);
-      badge.m.position.set(5.9, 2.5, 1);
-      badge.m.rotation.z = -0.12;
+      badge.m.position.set(5.2, 2.55, 1);
+      badge.m.rotation.z = 0;
       badge.m.scale.setScalar(Math.max(easeOutBack(kb), 0.0001));
       ctx.setFade(0);
     },

@@ -1,6 +1,6 @@
 import * as THREE from "three";
-import { mountScene, type Built, type Ctx, type Handle } from "./kit";
-import { makeBrowser, roundedRect } from "./objects";
+import { easeSoft, mountScene, type Built, type Ctx, type Handle } from "./kit";
+import { makeBrowser, softShadow } from "./objects";
 
 type Slot = { nx: number; ny: number; s: number; rz: number; ry: number; depth: number };
 type Item = {
@@ -15,7 +15,6 @@ type Item = {
   home: THREE.Vector3;
 };
 
-const easeOutBack = (x: number) => 1 + 2.2 * Math.pow(x - 1, 3) + 1.2 * Math.pow(x - 1, 2);
 
 function heroBuild(ctx: Ctx): Built {
   const { scene, camera, renderer } = ctx;
@@ -24,11 +23,9 @@ function heroBuild(ctx: Ctx): Built {
   key.position.set(-5, 8, 10);
   scene.add(key);
 
-  const shadowMat = ctx.track(new THREE.MeshBasicMaterial({ color: 0x3a1a14, transparent: true, opacity: 0.16, depthWrite: false }));
-
   const mk = (o: THREE.Object3D, w: number, h: number, r: number, wide: Slot, narrow: Slot | null): Item => {
     scene.add(o);
-    const shadow = new THREE.Mesh(ctx.track(roundedRect(w, h, r)), shadowMat);
+    const shadow = softShadow(ctx, w, h);
     shadow.renderOrder = -1;
     scene.add(shadow);
     return { o, w, h, r, wide, narrow, shadow, off: new THREE.Vector2(), home: new THREE.Vector3() };
@@ -37,10 +34,10 @@ function heroBuild(ctx: Ctx): Built {
   const BW = 3.68;
   const BH = 2.63;
   const items: Item[] = [
-    mk(makeBrowser(ctx, "/assets/hero/flight-tracker.jpg", "flight-tracker-gamma-seven.vercel.app"), BW, BH, 0.2, { nx: -0.76, ny: 0.4, s: 0.8, rz: -0.08, ry: 0.28, depth: 0.5 }, { nx: -0.47, ny: 0.62, s: 0.46, rz: -0.1, ry: 0.2, depth: 0.4 }),
-    mk(makeBrowser(ctx, "/assets/video/bh-flights.jpg", "buyhatke.com/flights"), BW, BH, 0.2, { nx: 0.76, ny: 0.42, s: 0.8, rz: 0.07, ry: -0.28, depth: 0.8 }, { nx: 0.47, ny: 0.55, s: 0.46, rz: 0.1, ry: -0.2, depth: 0.6 }),
-    mk(makeBrowser(ctx, "/assets/hero/train-tracker.jpg", "train-tracker-zeta.vercel.app"), BW, BH, 0.2, { nx: -0.76, ny: -0.42, s: 0.8, rz: 0.06, ry: 0.25, depth: 0.6 }, null),
-    mk(makeBrowser(ctx, "/assets/video/bh-hotels.jpg", "buyhatke.com/hotels"), BW, BH, 0.2, { nx: 0.76, ny: -0.44, s: 0.8, rz: -0.06, ry: -0.25, depth: 0.7 }, null),
+    mk(makeBrowser(ctx, "/assets/hero/flight-tracker.jpg", "flight-tracker-gamma-seven.vercel.app"), BW, BH, 0.2, { nx: 0.3, ny: 0.4, s: 0.74, rz: -0.07, ry: 0.2, depth: 0.5 }, { nx: -0.36, ny: -0.6, s: 0.44, rz: -0.08, ry: 0.2, depth: 0.4 }),
+    mk(makeBrowser(ctx, "/assets/video/bh-flights.jpg", "buyhatke.com/flights"), BW, BH, 0.2, { nx: 0.74, ny: 0.2, s: 0.76, rz: 0.06, ry: -0.24, depth: 0.8 }, { nx: 0.36, ny: -0.74, s: 0.44, rz: 0.08, ry: -0.2, depth: 0.6 }),
+    mk(makeBrowser(ctx, "/assets/hero/train-tracker.jpg", "train-tracker-zeta.vercel.app"), BW, BH, 0.2, { nx: 0.36, ny: -0.36, s: 0.7, rz: 0.05, ry: 0.22, depth: 0.6 }, null),
+    mk(makeBrowser(ctx, "/assets/video/bh-hotels.jpg", "buyhatke.com/hotels"), BW, BH, 0.2, { nx: 0.78, ny: -0.56, s: 0.66, rz: -0.05, ry: -0.22, depth: 0.7 }, null),
   ];
 
 
@@ -119,28 +116,28 @@ function heroBuild(ctx: Ctx): Built {
         it.shadow.visible = show;
         if (!slot) return;
         const sc = slot.s * (layout === "mid" ? 0.78 : 1);
-        const k = easeOutBack(Math.min(Math.max((age - i * 0.1) / 0.9, 0), 1));
-        const arrive = Math.min(Math.max((age - i * 0.1) / 0.9, 0), 1);
+        const arrive = Math.min(Math.max((age - i * 0.12) / 1.1, 0), 1);
+        const k = easeSoft(arrive);
         it.home.set(
           slot.nx * hx + (slot.nx > 0 ? 1 : -1) * sy * 1.2 * slot.depth + px * 0.3 * slot.depth,
           slot.ny * hy + sy * (1 + slot.depth) * 1.1 - py * 0.2 * slot.depth + Math.sin(t * 0.8 + i * 1.3) * 0.12,
           sy * 2 * slot.depth
         );
         if (!drag || drag.it !== it) it.off.multiplyScalar(Math.max(0, 1 - dt * 3));
-        const drop = (1 - k) * 7;
+        const drop = (1 - k) * 3.5;
         it.o.position.set(it.home.x + it.off.x, it.home.y + it.off.y + drop, it.home.z + (drag?.it === it ? 1.2 : 0));
         it.o.rotation.set(
-          Math.sin(t * 0.6 + i) * 0.05 + py * 0.1 + (1 - arrive) * 0.9,
+          Math.sin(t * 0.6 + i) * 0.05 + py * 0.1 + (1 - k) * 0.5,
           slot.ry + px * 0.22 + Math.sin(t * 0.5 + i) * 0.08,
-          slot.rz + (1 - arrive) * 1.4 + it.off.x * 0.04
+          slot.rz + (1 - k) * 0.35 + it.off.x * 0.04
         );
-        it.o.scale.setScalar(sc * (0.6 + 0.4 * arrive));
+        it.o.scale.setScalar(sc * (0.8 + 0.2 * k));
 
-        const lift = Math.abs(it.o.position.z) * 0.03 + 0.1;
-        it.shadow.position.set(it.o.position.x + 0.22 * sc + lift, it.o.position.y - 0.3 * sc - lift, -1.2);
+        const lift = Math.abs(it.o.position.z) * 0.04 + 0.12;
+        it.shadow.position.set(it.o.position.x + 0.1 * sc, it.o.position.y - 0.34 * sc - lift, -1.2);
         it.shadow.rotation.z = it.o.rotation.z;
         it.shadow.scale.set(it.o.scale.x * Math.max(Math.abs(Math.cos(it.o.rotation.y)), 0.4), it.o.scale.y, 1);
-        (it.shadow.material as THREE.MeshBasicMaterial).opacity = 0.16 * arrive;
+        (it.shadow.material as THREE.MeshBasicMaterial).opacity = 0.3 * arrive;
       });
 
       ctx.setFade(0);
@@ -155,5 +152,5 @@ function heroBuild(ctx: Ctx): Built {
 }
 
 export function mountHeroScene(opts: Pick<Parameters<typeof mountScene>[0], "host" | "mode" | "wrap" | "onProgress" | "loopSeconds">): Handle | null {
-  return mountScene({ ...opts, fov: 34, exposure: 1, transparent: true, maxDpr: 1.5, build: heroBuild });
+  return mountScene({ ...opts, fov: 34, exposure: 1, transparent: true, maxDpr: 2, minDpr: 2, build: heroBuild });
 }

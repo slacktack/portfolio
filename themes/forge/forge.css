@@ -1,0 +1,3110 @@
+/* Forge: a game lobby. Every rule is scoped to .t-forge or html[data-skin="forge"]. */
+
+.t-forge {
+  --fg-plum: #2e2634;
+  --fg-panel: rgba(46, 38, 52, 0.92);
+  --fg-deep: #18121c;
+  --fg-rust: #c8692a;
+  --fg-rust-hi: #e07f33;
+  --fg-amber: #f2a53a;
+  --fg-ink: #f1e6d8;
+  --fg-soft: #d8cabb;
+  --fg-dim: #a8988a;
+  --fg-hair: rgba(241, 230, 216, 0.1);
+  --fg-hair-2: rgba(241, 230, 216, 0.18);
+  --fg-teko: var(--f-teko), "Arial Narrow", sans-serif;
+  --fg-barlow: var(--f-barlow), "Helvetica Neue", Arial, sans-serif;
+  --fg-mono: var(--f-geist-mono), ui-monospace, monospace;
+  --fg-ease: cubic-bezier(0.2, 0.9, 0.25, 1);
+  --fg-slam: cubic-bezier(0.2, 1.2, 0.3, 1);
+  position: relative;
+  min-height: 100vh;
+  color: var(--fg-ink);
+  font-family: var(--fg-barlow);
+  font-size: 16px;
+  line-height: 1.55;
+  isolation: isolate;
+}
+
+html[data-skin="forge"] body {
+  background: #1a141f;
+}
+
+html[data-skin="forge"] .grain {
+  opacity: 0.05;
+}
+
+html[data-skin="forge"].fg-wheel-open {
+  overflow: hidden;
+}
+
+.t-forge ::selection {
+  background: var(--fg-rust);
+  color: #1d1209;
+}
+
+.t-forge :focus-visible {
+  outline: 2px solid var(--fg-amber);
+  outline-offset: 3px;
+}
+
+.t-forge .fg-skip {
+  position: fixed;
+  left: 16px;
+  top: -60px;
+  z-index: 200;
+  padding: 8px 14px;
+  background: var(--fg-amber);
+  color: #1d1209;
+  font-family: var(--fg-teko);
+  font-size: 18px;
+  text-transform: uppercase;
+}
+
+.t-forge .fg-skip:focus {
+  top: 12px;
+}
+
+/* ---------- world ---------- */
+
+.t-forge .fg-world {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 80% at 50% 110%, #3a2230 0%, transparent 60%),
+    linear-gradient(180deg, #17111b 0%, #211926 45%, #2a1d2a 100%);
+}
+
+.t-forge .fg-smoke i {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform;
+  animation: fg-drift 34s ease-in-out infinite alternate;
+}
+
+.t-forge .fg-smoke .s1 {
+  width: 70vmax;
+  height: 70vmax;
+  left: -22vmax;
+  top: -26vmax;
+  background: radial-gradient(closest-side, rgba(116, 72, 156, 0.42), rgba(116, 72, 156, 0.12) 55%, transparent);
+}
+
+.t-forge .fg-smoke .s2 {
+  width: 62vmax;
+  height: 62vmax;
+  right: -24vmax;
+  top: 8vh;
+  background: radial-gradient(closest-side, rgba(242, 165, 58, 0.22), rgba(200, 105, 42, 0.08) 55%, transparent);
+  animation-duration: 42s;
+  animation-delay: -12s;
+}
+
+.t-forge .fg-smoke .s3 {
+  width: 80vmax;
+  height: 46vmax;
+  left: 10vw;
+  bottom: -24vmax;
+  background: radial-gradient(closest-side, rgba(200, 105, 42, 0.3), rgba(140, 60, 40, 0.1) 55%, transparent);
+  animation-duration: 38s;
+  animation-delay: -20s;
+}
+
+.t-forge .fg-smoke .s4 {
+  width: 40vmax;
+  height: 40vmax;
+  left: 34vw;
+  top: 20vh;
+  background: radial-gradient(closest-side, rgba(150, 96, 170, 0.16), transparent);
+  animation-duration: 50s;
+}
+
+@keyframes fg-drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(4vw, -3vh, 0) scale(1.12);
+  }
+}
+
+.t-forge .fg-ridge {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 34vh;
+}
+
+.t-forge .fg-ridge .r1 {
+  fill: #2a1c2b;
+  opacity: 0.55;
+}
+
+.t-forge .fg-ridge .r2 {
+  fill: #20151f;
+  opacity: 0.8;
+}
+
+.t-forge .fg-ridge .r3 {
+  fill: #160f16;
+}
+
+.t-forge .fg-embers i {
+  position: absolute;
+  bottom: -12px;
+  left: calc(mod(var(--e) * 37 + 7, 100) * 1%);
+  width: calc(2px + mod(var(--e), 3) * 1px);
+  height: calc(2px + mod(var(--e), 3) * 1px);
+  border-radius: 50%;
+  background: #ffd08a;
+  box-shadow: 0 0 6px 1px rgba(242, 165, 58, 0.8);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: fg-rise calc(10s + mod(var(--e) * 7, 9) * 1s) linear infinite;
+  animation-delay: calc(mod(var(--e) * 13, 17) * -1s);
+}
+
+@keyframes fg-rise {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.9;
+  }
+  50% {
+    transform: translate3d(3vw, -50vh, 0);
+  }
+  80% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate3d(-2vw, -105vh, 0);
+    opacity: 0;
+  }
+}
+
+.t-forge .fg-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(8, 5, 10, 0.65) 100%);
+}
+
+/* ---------- hud ---------- */
+
+.t-forge .fg-hud {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 60;
+  height: 68px;
+  padding: 0 clamp(16px, 3vw, 32px);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 24px;
+  background: rgba(22, 16, 26, 0.95);
+  border-bottom: 1px solid rgba(241, 230, 216, 0.06);
+}
+
+.t-forge .fg-hud-id {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.t-forge .fg-hud-crest {
+  width: 36px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  font-family: var(--fg-teko);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1;
+  padding-top: 3px;
+  color: var(--fg-amber);
+  background: linear-gradient(180deg, #4a3a52, #231b29);
+  clip-path: polygon(50% 0, 100% 14%, 96% 62%, 50% 100%, 4% 62%, 0 14%);
+}
+
+.t-forge .fg-hud-name {
+  display: grid;
+  line-height: 1.05;
+}
+
+.t-forge .fg-hud-name b {
+  font-family: var(--fg-teko);
+  font-weight: 500;
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.t-forge .fg-hud-name small {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.t-forge .fg-hud-trail ol {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  font-family: var(--fg-teko);
+  font-size: 17px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.t-forge .fg-hud-trail li {
+  display: flex;
+  gap: 10px;
+  min-width: 0;
+}
+
+.t-forge .fg-hud-trail li + li::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  margin-top: 8px;
+  background: var(--fg-rust);
+  transform: rotate(45deg);
+}
+
+.t-forge .fg-hud-trail a {
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.t-forge .fg-hud-trail a:hover {
+  color: var(--fg-ink);
+}
+
+.t-forge .fg-hud-trail [aria-current] {
+  color: var(--fg-amber);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.t-forge .fg-hud-themes {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 38px;
+  padding: 2px 16px 0 12px;
+  border: 1px solid var(--fg-hair-2);
+  background: rgba(46, 38, 52, 0.85);
+  color: var(--fg-ink);
+  font-family: var(--fg-teko);
+  font-size: 19px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+  transition: background 0.2s, color 0.2s;
+}
+
+.t-forge .fg-hud-themes:hover {
+  background: var(--fg-rust);
+  color: #1d1209;
+}
+
+.t-forge .fg-hud-sw {
+  display: flex;
+  margin-top: -2px;
+}
+
+.t-forge .fg-hud-sw i,
+.t-forge .fg-hub-sw i {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1.5px #2e2634;
+}
+
+.t-forge .fg-hud-sw i + i {
+  margin-left: -4px;
+}
+
+/* ---------- layout ---------- */
+
+.t-forge .fg-main {
+  position: relative;
+  width: min(1240px, 100%);
+  margin: 0 auto;
+  padding: 92px clamp(16px, 3vw, 32px) 40px;
+}
+
+.t-forge .fg-page {
+  display: grid;
+  gap: 20px;
+}
+
+.t-forge .fg-foot {
+  width: min(1240px, 100%);
+  margin: 0 auto;
+  padding: 18px clamp(16px, 3vw, 32px) 130px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  color: var(--fg-dim);
+}
+
+.t-forge .fg-foot a,
+.t-forge .fg-foot button {
+  color: var(--fg-soft);
+  text-decoration: none;
+  border: 0;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  padding: 0;
+  cursor: pointer;
+}
+
+.t-forge .fg-foot button {
+  margin-left: auto;
+  color: var(--fg-amber);
+  text-transform: uppercase;
+}
+
+.t-forge .fg-foot a:hover,
+.t-forge .fg-foot button:hover {
+  color: var(--fg-ink);
+}
+
+/* ---------- panel ---------- */
+
+.t-forge .fg-panel {
+  position: relative;
+  padding: clamp(20px, 3vw, 36px);
+  background: var(--fg-panel);
+  border: 1px solid var(--fg-hair);
+  box-shadow:
+    0 40px 80px -40px rgba(0, 0, 0, 0.75),
+    inset 0 1px 0 rgba(255, 240, 220, 0.05);
+  scroll-margin-top: 130px;
+}
+
+.t-forge .fg-panel::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: -1px;
+  width: 120px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--fg-amber), transparent);
+}
+
+.t-forge .fg-corner {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border: 0 solid rgba(242, 165, 58, 0.55);
+  pointer-events: none;
+}
+
+.t-forge .fg-corner.tl {
+  left: 6px;
+  top: 6px;
+  border-width: 1px 0 0 1px;
+}
+
+.t-forge .fg-corner.tr {
+  right: 6px;
+  top: 6px;
+  border-width: 1px 1px 0 0;
+}
+
+.t-forge .fg-corner.bl {
+  left: 6px;
+  bottom: 6px;
+  border-width: 0 0 1px 1px;
+}
+
+.t-forge .fg-corner.br {
+  right: 6px;
+  bottom: 6px;
+  border-width: 0 1px 1px 0;
+}
+
+.t-forge .fg-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* slam-in */
+.t-forge .fg-slam {
+  animation: fg-slam 0.62s var(--fg-slam) backwards;
+}
+
+.t-forge .fg-d1 {
+  animation-delay: 0.08s;
+}
+.t-forge .fg-d2 {
+  animation-delay: 0.16s;
+}
+.t-forge .fg-d3 {
+  animation-delay: 0.24s;
+}
+.t-forge .fg-d4 {
+  animation-delay: 0.32s;
+}
+.t-forge .fg-d5 {
+  animation-delay: 0.4s;
+}
+
+@keyframes fg-slam {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 34px, 0) scale(0.965);
+    clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+  }
+  55% {
+    opacity: 1;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+  75% {
+    transform: translate3d(0, -3px, 0) scale(1.004);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  .t-forge .fg-reveal {
+    animation: fg-reveal linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 40%;
+  }
+}
+
+@keyframes fg-reveal {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 40px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- type ---------- */
+
+.t-forge .fg-k {
+  display: block;
+  font-family: var(--fg-teko);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg-amber);
+}
+
+.t-forge .fg-dim {
+  color: var(--fg-dim);
+}
+
+.t-forge .fg-amber {
+  color: var(--fg-amber);
+}
+
+.t-forge .fg-small {
+  font-size: 14px;
+}
+
+.t-forge .fg-head {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 22px;
+  max-width: 760px;
+}
+
+.t-forge .fg-title {
+  font-family: var(--fg-teko);
+  font-weight: 500;
+  font-size: clamp(32px, 4vw, 48px);
+  line-height: 0.95;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--fg-ink);
+  text-wrap: balance;
+}
+
+.t-forge .fg-note {
+  color: var(--fg-soft);
+  max-width: 640px;
+  font-size: 16px;
+}
+
+.t-forge .fg-mega {
+  margin-top: 8px;
+  font-family: var(--fg-teko);
+  font-weight: 600;
+  font-size: clamp(54px, 8vw, 112px);
+  line-height: 0.86;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  color: var(--fg-ink);
+  text-wrap: balance;
+  text-shadow: 0 4px 30px rgba(200, 105, 42, 0.25);
+}
+
+.t-forge .fg-mega.is-note {
+  font-size: clamp(46px, 6vw, 88px);
+}
+
+.t-forge .fg-mega.is-mid {
+  font-size: clamp(44px, 5.4vw, 72px);
+}
+
+.t-forge .fg-h3 {
+  font-family: var(--fg-teko);
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 1;
+  text-transform: uppercase;
+  margin: 2px 0 10px;
+}
+
+.t-forge .fg-promise {
+  margin-top: 14px;
+  font-size: clamp(18px, 1.7vw, 22px);
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--fg-amber);
+  max-width: 720px;
+  text-wrap: balance;
+}
+
+.t-forge .fg-lede {
+  margin-top: 12px;
+  color: var(--fg-soft);
+  max-width: 680px;
+}
+
+.t-forge .fg-prose {
+  display: grid;
+  gap: 14px;
+  color: var(--fg-soft);
+  max-width: 64ch;
+}
+
+.t-forge code {
+  font-family: var(--fg-mono);
+  font-size: 0.88em;
+  color: var(--fg-amber);
+}
+
+/* ---------- tabs ---------- */
+
+.t-forge .fg-tabs {
+  position: relative;
+  margin-bottom: 22px;
+  min-width: 0;
+}
+
+.t-forge .fg-tabs.is-sticky {
+  position: sticky;
+  top: 68px;
+  z-index: 40;
+  margin: 0;
+  padding: 8px clamp(16px, 2vw, 24px) 0;
+  background: rgba(30, 23, 35, 0.96);
+  border: 1px solid var(--fg-hair);
+}
+
+.t-forge .fg-tabs-rail {
+  position: relative;
+  display: flex;
+  gap: clamp(14px, 2.4vw, 30px);
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 2px solid #4a4150;
+}
+
+.t-forge .fg-tabs-rail::-webkit-scrollbar {
+  display: none;
+}
+
+.t-forge .fg-tabs-rail > a,
+.t-forge .fg-tabs-rail > button {
+  flex: none;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 6px 0 4px;
+  border: 0;
+  background: none;
+  font-family: var(--fg-teko);
+  font-size: 21px;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #9d8f96;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.t-forge .fg-tabs-rail > a:hover,
+.t-forge .fg-tabs-rail > button:hover {
+  color: var(--fg-ink);
+}
+
+.t-forge .fg-tabs-rail > .on {
+  color: var(--fg-rust-hi);
+}
+
+.t-forge .fg-tabs-rail small {
+  font-family: var(--fg-barlow);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--fg-dim);
+}
+
+.t-forge .fg-tabs-bar {
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  height: 2px;
+  width: var(--w);
+  transform: translateX(var(--x));
+  background: var(--fg-rust-hi);
+  box-shadow: 0 0 10px rgba(224, 127, 51, 0.6);
+  transition:
+    transform 0.4s var(--fg-ease),
+    width 0.4s var(--fg-ease);
+}
+
+/* ---------- plates ---------- */
+
+.t-forge .fg-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 14px;
+  margin-top: 24px;
+}
+
+.t-forge .fg-plate {
+  --cut: polygon(14px 0, 100% 0, calc(100% - 3px) 28%, 100% 52%, calc(100% - 5px) 76%, calc(100% - 12px) 100%, 0 100%, 4px 74%, 0 50%, 5px 24%);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 50px;
+  padding: 0;
+  border: 0;
+  background: linear-gradient(180deg, #e3823d 0%, #c8692a 48%, #a9541f 100%);
+  color: #1d1209;
+  clip-path: var(--cut);
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 0.25s var(--fg-ease),
+    filter 0.25s;
+}
+
+.t-forge .fg-plate::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(100deg, rgba(255, 255, 255, 0.05) 0 2px, transparent 2px 9px),
+    linear-gradient(105deg, transparent 30%, rgba(255, 236, 200, 0.45) 46%, transparent 60%);
+  background-size:
+    auto,
+    250% 100%;
+  background-position:
+    0 0,
+    120% 0;
+  transition: background-position 0.6s var(--fg-ease);
+  pointer-events: none;
+}
+
+.t-forge .fg-plate:hover {
+  transform: translate3d(0, -2px, 0);
+  filter: brightness(1.08);
+}
+
+.t-forge .fg-plate:hover::after {
+  background-position:
+    0 0,
+    -40% 0;
+}
+
+.t-forge .fg-plate:active {
+  transform: translate3d(0, 1px, 0) scale(0.98);
+}
+
+.t-forge .fg-plate:focus-visible {
+  outline: none;
+  filter: brightness(1.15) drop-shadow(0 0 0 #fff);
+  box-shadow: none;
+}
+
+.t-forge .fg-plate:focus-visible .fg-plate-in {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.t-forge .fg-plate-in {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 30px 0 28px;
+  font-family: var(--fg-teko);
+  font-size: 23px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.t-forge .fg-plate-in .fg-arrow {
+  margin-top: -4px;
+}
+
+.t-forge .fg-plate.is-ghost {
+  background: #6d4f3f;
+  color: var(--fg-ink);
+}
+
+.t-forge .fg-plate.is-ghost::before {
+  content: "";
+  position: absolute;
+  inset: 1.5px;
+  background: #2b2231;
+  clip-path: var(--cut);
+}
+
+.t-forge .fg-plate.is-ghost:hover {
+  background: var(--fg-rust);
+}
+
+.t-forge .copy-btn {
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--fg-hair-2);
+  border-radius: 0;
+  background: transparent;
+  color: var(--fg-soft);
+  font-family: var(--fg-teko);
+  font-size: 18px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ---------- shared bits ---------- */
+
+.t-forge .fg-crest {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+}
+
+.t-forge .fg-crest svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.5));
+}
+
+.t-forge .fg-crest b {
+  position: relative;
+  margin-top: 4%;
+  font-family: var(--fg-teko);
+  font-weight: 600;
+  font-size: 2.8em;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--fg-amber);
+  text-shadow: 0 0 22px rgba(242, 165, 58, 0.45);
+}
+
+.t-forge .fg-crest-ribbon {
+  position: absolute;
+  bottom: 4%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 3px 14px 0;
+  background: var(--fg-rust);
+  color: #1d1209;
+  font-family: var(--fg-teko);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  clip-path: polygon(6px 0, calc(100% - 6px) 0, 100% 50%, calc(100% - 6px) 100%, 6px 100%, 0 50%);
+}
+
+.t-forge .fg-pips {
+  display: inline-flex;
+  gap: 3px;
+  vertical-align: middle;
+}
+
+.t-forge .fg-pips i {
+  width: 12px;
+  height: 7px;
+  background: #4a4150;
+  transform: skewX(-20deg);
+}
+
+.t-forge .fg-pips i.on {
+  background: var(--fg-rust-hi);
+  box-shadow: 0 0 6px rgba(224, 127, 51, 0.5);
+}
+
+.t-forge .fg-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.t-forge .fg-chips span {
+  padding: 3px 10px 2px;
+  border: 1px solid var(--fg-hair-2);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg-soft);
+  background: rgba(24, 18, 28, 0.5);
+}
+
+.t-forge .fg-chips.is-big {
+  margin-top: 10px;
+}
+
+.t-forge .fg-chips.is-big span {
+  font-size: 14px;
+  padding: 5px 12px 4px;
+  border-color: rgba(242, 165, 58, 0.3);
+}
+
+.t-forge .fg-meta {
+  display: grid;
+  gap: 0;
+  align-content: start;
+  border-top: 1px solid var(--fg-hair);
+}
+
+.t-forge .fg-meta > div {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--fg-hair);
+}
+
+.t-forge .fg-meta dt {
+  font-family: var(--fg-teko);
+  font-size: 17px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.t-forge .fg-meta dd {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--fg-ink);
+}
+
+.t-forge .fg-meta.is-row {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  margin-top: 16px;
+}
+
+.t-forge .fg-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.t-forge .fg-table th,
+.t-forge .fg-table td {
+  padding: 11px 0;
+  border-bottom: 1px solid var(--fg-hair);
+  text-align: left;
+  vertical-align: baseline;
+}
+
+.t-forge .fg-table tr:first-child > * {
+  border-top: 1px solid var(--fg-hair);
+}
+
+.t-forge .fg-table th {
+  font-weight: 500;
+  color: var(--fg-ink);
+  padding-right: 16px;
+}
+
+.t-forge .fg-table-d {
+  color: var(--fg-dim);
+  font-size: 14px;
+  padding-right: 16px !important;
+}
+
+.t-forge .fg-table-v {
+  text-align: right !important;
+  font-family: var(--fg-teko);
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--fg-amber);
+  white-space: nowrap;
+}
+
+.t-forge .fg-table-v.is-text {
+  font-family: var(--fg-barlow);
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--fg-soft);
+  white-space: normal;
+}
+
+.t-forge .fg-split {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: clamp(24px, 4vw, 56px);
+}
+
+.t-forge .fg-split.is-tight {
+  margin-top: 28px;
+  gap: 32px;
+}
+
+.t-forge .fg-rail {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.t-forge .fg-rail li {
+  position: relative;
+  padding-left: 22px;
+  color: var(--fg-soft);
+}
+
+.t-forge .fg-rail li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 0.62em;
+  width: 8px;
+  height: 8px;
+  background: var(--fg-rust);
+  transform: rotate(45deg);
+}
+
+/* ---------- lobby ---------- */
+
+.t-forge .fg-lobby {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.t-forge .fg-card {
+  grid-row: span 2;
+}
+
+.t-forge .fg-card-body {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+}
+
+.t-forge .fg-name {
+  margin-top: 4px;
+  font-family: var(--fg-teko);
+  font-weight: 600;
+  font-size: clamp(58px, 6.6vw, 96px);
+  line-height: 0.82;
+  text-transform: uppercase;
+  text-shadow: 0 4px 30px rgba(200, 105, 42, 0.3);
+}
+
+.t-forge .fg-tagline {
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--fg-amber);
+}
+
+.t-forge .fg-attrs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 28px;
+  margin-top: 28px;
+}
+
+.t-forge .fg-attrs > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--fg-hair);
+}
+
+.t-forge .fg-attrs > div:last-child {
+  grid-column: 1 / -1;
+}
+
+.t-forge .fg-attrs dt {
+  font-family: var(--fg-teko);
+  font-size: 17px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.t-forge .fg-attrs dd {
+  margin: 0;
+  font-weight: 500;
+  text-align: right;
+}
+
+.t-forge .fg-live {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--fg-amber);
+}
+
+.t-forge .fg-live i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #8fdc7a;
+  box-shadow: 0 0 8px #8fdc7a;
+  animation: fg-pulse 2s ease-in-out infinite;
+}
+
+@keyframes fg-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.t-forge .fg-card-desc {
+  margin-top: 18px;
+  color: var(--fg-soft);
+  max-width: 560px;
+}
+
+.t-forge .fg-lobby-side {
+  display: grid;
+  gap: 20px;
+}
+
+.t-forge .fg-statgrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--fg-hair);
+  border-left: 1px solid var(--fg-hair);
+}
+
+.t-forge .fg-statgrid li {
+  display: grid;
+  gap: 2px;
+  padding: 14px 14px 12px;
+  border-right: 1px solid var(--fg-hair);
+  border-bottom: 1px solid var(--fg-hair);
+}
+
+.t-forge .fg-statgrid b {
+  font-family: var(--fg-teko);
+  font-weight: 500;
+  font-size: clamp(32px, 3vw, 42px);
+  line-height: 0.9;
+  color: var(--fg-amber);
+}
+
+.t-forge .fg-statgrid span {
+  font-size: 13px;
+  color: var(--fg-dim);
+  line-height: 1.3;
+}
+
+.t-forge .fg-continue {
+  display: grid;
+  grid-template-columns: 0.9fr 1fr;
+  gap: 22px;
+  padding: 16px;
+}
+
+.t-forge .fg-continue-art {
+  position: relative;
+  display: block;
+  min-height: 220px;
+  overflow: hidden;
+  background: #120d15;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%);
+}
+
+.t-forge .fg-continue-art img {
+  object-fit: cover;
+  object-position: top;
+  transition: transform 0.8s var(--fg-ease);
+}
+
+.t-forge .fg-continue-art:hover img {
+  transform: scale(1.05);
+}
+
+.t-forge .fg-continue-tag {
+  position: absolute;
+  left: 0;
+  top: 12px;
+  padding: 3px 14px 0 10px;
+  background: var(--fg-amber);
+  color: #1d1209;
+  font-family: var(--fg-teko);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+}
+
+.t-forge .fg-continue-body {
+  padding: 6px 6px 4px 0;
+}
+
+.t-forge .fg-continue-title {
+  font-family: var(--fg-teko);
+  font-weight: 500;
+  font-size: 38px;
+  line-height: 0.95;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.t-forge .fg-continue-body > p {
+  margin-top: 6px;
+  color: var(--fg-soft);
+  font-size: 15px;
+}
+
+.t-forge .fg-rewards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--fg-dim);
+}
+
+.t-forge .fg-rewards b {
+  font-family: var(--fg-teko);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--fg-amber);
+}
+
+.t-forge .fg-queue {
+  margin-top: 12px;
+  border-top: 1px solid var(--fg-hair);
+}
+
+.t-forge .fg-queue a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--fg-hair);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--fg-soft);
+  transition:
+    color 0.2s,
+    padding 0.25s var(--fg-ease);
+}
+
+.t-forge .fg-queue a span {
+  font-family: var(--fg-teko);
+  font-size: 17px;
+  color: var(--fg-rust-hi);
+}
+
+.t-forge .fg-queue a .fg-arrow {
+  margin-left: auto;
+  opacity: 0.5;
+}
+
+.t-forge .fg-queue a:hover {
+  color: var(--fg-ink);
+  padding-left: 6px;
+}
+
+.t-forge .fg-modes {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.t-forge .fg-mode {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 14px;
+  align-items: center;
+  padding: 16px 18px;
+  background: var(--fg-panel);
+  border: 1px solid var(--fg-hair);
+  text-decoration: none;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%);
+  transition:
+    background 0.25s,
+    transform 0.25s var(--fg-ease);
+}
+
+.t-forge .fg-mode-n {
+  grid-row: span 2;
+  font-family: var(--fg-teko);
+  font-size: 46px;
+  font-weight: 500;
+  line-height: 0.8;
+  padding-top: 6px;
+  color: var(--fg-amber);
+}
+
+.t-forge .fg-mode b {
+  font-family: var(--fg-teko);
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.t-forge .fg-mode small {
+  font-size: 13px;
+  color: var(--fg-dim);
+}
+
+.t-forge .fg-mode .fg-arrow {
+  position: absolute;
+  right: 16px;
+  top: 18px;
+  color: var(--fg-rust-hi);
+  transition: transform 0.25s var(--fg-ease);
+}
+
+.t-forge .fg-mode:hover {
+  background: rgba(70, 48, 58, 0.95);
+  transform: translate3d(0, -3px, 0);
+}
+
+.t-forge .fg-mode:hover .fg-arrow {
+  transform: translateX(4px);
+}
+
+.t-forge .fg-objectives {
+  grid-column: 1 / -1;
+  padding-block: 18px;
+}
+
+.t-forge .fg-objectives .fg-panel-head {
+  margin-bottom: 8px;
+}
+
+.t-forge .fg-objectives ul {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.t-forge .fg-objectives li {
+  display: grid;
+  gap: 2px;
+  padding-left: 14px;
+  border-left: 2px solid var(--fg-rust);
+}
+
+.t-forge .fg-objectives li span {
+  font-family: var(--fg-teko);
+  font-size: 16px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.t-forge .fg-objectives li b {
+  font-weight: 500;
+  font-size: 15px;
+}
+
+/* ---------- quests ---------- */
+
+.t-forge .fg-board-head {
+  display: grid;
+  gap: 4px;
+}
+
+.t-forge .fg-quests {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.t-forge .fg-quest {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 18px 16px;
+  background: linear-gradient(180deg, rgba(58, 46, 64, 0.7), rgba(36, 28, 40, 0.7));
+  border: 1px solid var(--fg-hair);
+  text-decoration: none;
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+  transition:
+    transform 0.3s var(--fg-ease),
+    background 0.3s,
+    border-color 0.3s;
+}
+
+.t-forge .fg-quest::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--fg-rust-hi);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s var(--fg-ease);
+}
+
+.t-forge .fg-quest:hover {
+  transform: translate3d(0, -4px, 0);
+  background: linear-gradient(180deg, rgba(86, 60, 70, 0.8), rgba(44, 32, 46, 0.85));
+  border-color: rgba(242, 165, 58, 0.35);
+}
+
+.t-forge .fg-quest:hover::after {
+  transform: none;
+}
+
+.t-forge .fg-quest-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.t-forge .fg-quest-n {
+  font-family: var(--fg-teko);
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 0.8;
+  color: rgba(242, 165, 58, 0.85);
+}
+
+.t-forge .fg-quest-type {
+  font-family: var(--fg-teko);
+  font-size: 15px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  text-align: right;
+  line-height: 1.1;
+}
+
+.t-forge .fg-quest-title {
+  font-family: var(--fg-teko);
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.t-forge .fg-quest-promise {
+  color: var(--fg-soft);
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.t-forge .fg-quest-diff {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 6px;
+  font-family: var(--fg-teko);
+  font-size: 15px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.t-forge .fg-quest-loot {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--fg-hair);
+}
+
+.t-forge .fg-quest-loot span {
+  display: grid;
+  font-size: 12px;
+  line-height: 1.25;
+  color: var(--fg-dim);
+}
+
+.t-forge .fg-quest-loot b {
+  font-family: var(--fg-teko);
+  font-weight: 500;
+  font-size: 25px;
+  line-height: 1;
+  color: var(--fg-amber);
+}
+
+.t-forge .fg-quest-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-end;
+  font-family: var(--fg-teko);
+  font-size: 18px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-rust-hi);
+}
+
+.t-forge .fg-scroll-x {
+  overflow-x: auto;
+}
+
+.t-forge .fg-ledger {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.t-forge .fg-ledger th {
+  font-family: var(--fg-teko);
+  font-weight: 500;
+  font-size: 16px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  text-align: left;
+  padding: 8px 12px 8px 0;
+  border-bottom: 1px solid var(--fg-hair-2);
+}
+
+.t-forge .fg-ledger td {
+  padding: 12px 12px 12px 0;
+  border-bottom: 1px solid var(--fg-hair);
+}
+
+.t-forge .fg-ledger a {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.t-forge .fg-ledger a:hover {
+  color: var(--fg-amber);
+}
+
+.t-forge .fg-ledger-n {
+  font-family: var(--fg-teko);
+  font-size: 20px;
+  color: var(--fg-rust-hi);
+}
+
+.t-forge .fg-ledger b {
+  font-family: var(--fg-teko);
+  font-weight: 500;
+  font-size: 22px;
+}
+
+/* ---------- mission ---------- */
+
+.t-forge .fg-brief-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: clamp(24px, 4vw, 56px);
+  align-items: start;
+}
+
+.t-forge .fg-reward-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  margin-top: 30px;
+  border-top: 1px solid var(--fg-hair-2);
+}
+
+.t-forge .fg-reward-strip li {
+  display: grid;
+  align-content: start;
+  gap: 3px;
+  padding: 16px 16px 4px 0;
+}
+
+.t-forge .fg-reward-strip li + li {
+  padding-left: 16px;
+  border-left: 1px solid var(--fg-hair);
+}
+
+.t-forge .fg-reward-strip b {
+  font-family: var(--fg-teko);
+  font-weight: 500;
+  font-size: clamp(38px, 4vw, 54px);
+  line-height: 0.85;
+  color: var(--fg-amber);
+}
+
+.t-forge .fg-reward-strip span {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.t-forge .fg-reward-strip small {
+  font-size: 12px;
+  color: var(--fg-dim);
+}
+
+.t-forge .fg-rules {
+  display: grid;
+  gap: 0;
+  counter-reset: r;
+}
+
+.t-forge .fg-rules li {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 8px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--fg-hair);
+  color: var(--fg-soft);
+  font-size: 15px;
+}
+
+.t-forge .fg-rules li:first-child {
+  border-top: 1px solid var(--fg-hair);
+}
+
+.t-forge .fg-rules span {
+  font-family: var(--fg-teko);
+  font-size: 19px;
+  line-height: 1.2;
+  color: var(--fg-rust-hi);
+}
+
+.t-forge .fg-route {
+  display: grid;
+  grid-template-columns: repeat(var(--fg-cols), minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 26px;
+}
+
+.t-forge .fg-route li {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  padding: 14px 14px 14px 16px;
+  background: rgba(24, 18, 28, 0.6);
+  border: 1px solid var(--fg-hair);
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%, 10px 50%);
+}
+
+.t-forge .fg-route li:first-child {
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
+}
+
+.t-forge .fg-route li > * {
+  padding-left: 6px;
+}
+
+.t-forge .fg-route-n {
+  font-family: var(--fg-teko);
+  font-size: 16px;
+  color: var(--fg-rust-hi);
+  letter-spacing: 0.1em;
+}
+
+.t-forge .fg-route b {
+  font-family: var(--fg-teko);
+  font-weight: 500;
+  font-size: 23px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.t-forge .fg-route li > span:last-child {
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--fg-dim);
+}
+
+.t-forge .fg-route.is-col {
+  grid-template-columns: 1fr;
+  margin: 0;
+}
+
+.t-forge .fg-route.is-col li {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), 50% 100%, 0 calc(100% - 8px));
+  padding-bottom: 18px;
+}
+
+.t-forge .fg-map-grid {
+  display: grid;
+  grid-template-columns: 1.7fr 1fr;
+  gap: clamp(20px, 3vw, 40px);
+  align-items: start;
+}
+
+.t-forge .fg-artifact {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--fg-hair);
+  background: rgba(18, 13, 21, 0.55);
+  overflow: hidden;
+}
+
+.t-forge .fg-transmission {
+  margin: 22px 0 0;
+  padding: 16px 18px;
+  border-left: 3px solid var(--fg-amber);
+  background: rgba(242, 165, 58, 0.07);
+}
+
+.t-forge .fg-transmission p {
+  margin-top: 6px;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--fg-ink);
+}
+
+.t-forge .fg-phases {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.t-forge .fg-phases.is-four {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 18px;
+}
+
+.t-forge .fg-phases.is-three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.t-forge .fg-phases li {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  padding: 18px;
+  background: linear-gradient(160deg, rgba(90, 46, 36, 0.35), rgba(30, 22, 34, 0.6) 60%);
+  border: 1px solid var(--fg-hair);
+}
+
+.t-forge .fg-phases b {
+  font-family: var(--fg-teko);
+  font-weight: 500;
+  font-size: 25px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.t-forge .fg-phases p {
+  font-size: 15px;
+  color: var(--fg-soft);
+}
+
+.t-forge .fg-defeat {
+  background: linear-gradient(180deg, rgba(64, 28, 30, 0.92), rgba(46, 38, 52, 0.92));
+}
+
+.t-forge .fg-log {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.t-forge .fg-log-tag {
+  padding: 4px 14px 1px;
+  background: #b0402f;
+  color: #fff0e6;
+  font-family: var(--fg-teko);
+  font-size: 19px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+}
+
+.t-forge .fg-log b {
+  display: block;
+  font-family: var(--fg-teko);
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.t-forge .fg-log p {
+  margin-top: 8px;
+  max-width: 70ch;
+  color: var(--fg-soft);
+}
+
+.t-forge .fg-bugs {
+  display: grid;
+  gap: 0;
+}
+
+.t-forge .fg-bugs li {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 16px;
+  padding: 16px 0;
+  border-top: 1px solid var(--fg-hair);
+}
+
+.t-forge .fg-bug-id {
+  font-family: var(--fg-mono);
+  font-size: 12px;
+  color: #e0705a;
+  padding-top: 4px;
+}
+
+.t-forge .fg-bugs b {
+  font-weight: 600;
+}
+
+.t-forge .fg-bugs p {
+  margin-top: 4px;
+  color: var(--fg-soft);
+  font-size: 15px;
+}
+
+.t-forge .fg-stack-col {
+  display: grid;
+  gap: 28px;
+  align-content: start;
+}
+
+.t-forge .fg-next {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px 30px;
+  background: linear-gradient(100deg, rgba(90, 46, 30, 0.9), rgba(46, 38, 52, 0.92) 60%);
+}
+
+.t-forge .fg-next-copy {
+  display: grid;
+  gap: 4px;
+  max-width: 640px;
+}
+
+.t-forge .fg-next-title {
+  font-family: var(--fg-teko);
+  font-weight: 600;
+  font-size: clamp(36px, 4vw, 52px);
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.t-forge .fg-next .fg-actions {
+  margin-top: 0;
+}
+
+/* ---------- loadout ---------- */
+
+.t-forge .fg-loadout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.t-forge .fg-inspect {
+  position: sticky;
+  top: 84px;
+  scroll-margin-top: 84px;
+}
+
+.t-forge .fg-screen {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: #0f0b12;
+  border: 1px solid var(--fg-hair-2);
+  overflow: hidden;
+  animation: fg-swap 0.5s var(--fg-ease);
+}
+
+.t-forge .fg-screen video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.t-forge .fg-screen-tag {
+  position: absolute;
+  left: 0;
+  top: 12px;
+  padding: 3px 14px 0 10px;
+  background: var(--fg-amber);
+  color: #1d1209;
+  font-family: var(--fg-teko);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+}
+
+@keyframes fg-swap {
+  from {
+    clip-path: inset(0 0 0 100%);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+.t-forge .fg-inspect-body {
+  padding-top: 18px;
+}
+
+.t-forge .fg-inspect-title {
+  font-family: var(--fg-teko);
+  font-weight: 600;
+  font-size: clamp(44px, 4.6vw, 64px);
+  line-height: 0.88;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.t-forge .fg-inspect-body .fg-promise {
+  margin-top: 8px;
+}
+
+.t-forge .fg-inspect-body .fg-chips {
+  margin-top: 14px;
+}
+
+.t-forge .fg-inspect-body .fg-small {
+  margin-top: 12px;
+}
+
+.t-forge .fg-inv {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.t-forge .fg-slot-item {
+  position: relative;
+  width: 100%;
+  display: grid;
+  gap: 2px;
+  padding: 8px 8px 10px;
+  border: 1px solid var(--fg-hair);
+  background: rgba(24, 18, 28, 0.6);
+  color: var(--fg-ink);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+  transition:
+    background 0.25s,
+    border-color 0.25s,
+    transform 0.25s var(--fg-ease);
+}
+
+.t-forge .fg-slot-item:hover {
+  background: rgba(70, 48, 58, 0.8);
+  transform: translate3d(0, -2px, 0);
+}
+
+.t-forge .fg-slot-item.on {
+  border-color: var(--fg-rust-hi);
+  background: rgba(110, 56, 30, 0.55);
+  box-shadow: inset 0 0 0 1px var(--fg-rust-hi);
+}
+
+.t-forge .fg-slot-img {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: #0f0b12;
+  margin-bottom: 6px;
+}
+
+.t-forge .fg-slot-img img {
+  object-fit: cover;
+  object-position: top;
+  opacity: 0.82;
+  transition: opacity 0.25s;
+}
+
+.t-forge .fg-slot-item:hover img,
+.t-forge .fg-slot-item.on img {
+  opacity: 1;
+}
+
+.t-forge .fg-slot-n {
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  padding: 1px 6px 0;
+  background: rgba(20, 14, 24, 0.85);
+  font-family: var(--fg-teko);
+  font-size: 15px;
+  color: var(--fg-amber);
+}
+
+.t-forge .fg-slot-item b {
+  font-family: var(--fg-teko);
+  font-weight: 500;
+  font-size: 21px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.t-forge .fg-slot-item small {
+  font-size: 12px;
+  color: var(--fg-dim);
+}
+
+/* ---------- training ---------- */
+
+.t-forge .fg-drill {
+  animation: fg-fade 0.45s var(--fg-ease);
+}
+
+@keyframes fg-fade {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.t-forge .fg-drill-head {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: clamp(20px, 3vw, 48px);
+  margin-bottom: 22px;
+}
+
+.t-forge .fg-drill-head .fg-title {
+  margin: 6px 0 10px;
+}
+
+.t-forge .fg-demo {
+  padding: clamp(12px, 2vw, 20px);
+  background: rgba(18, 13, 21, 0.55);
+  border: 1px solid var(--fg-hair);
+}
+
+/* ---------- codex ---------- */
+
+.t-forge .fg-codex {
+  display: grid;
+  border-top: 1px solid var(--fg-hair-2);
+}
+
+.t-forge .fg-entry {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: 20px;
+  align-items: center;
+  padding: 22px 8px;
+  border-bottom: 1px solid var(--fg-hair);
+  text-decoration: none;
+  transition: background 0.3s;
+}
+
+.t-forge .fg-entry:hover {
+  background: linear-gradient(90deg, rgba(200, 105, 42, 0.16), transparent 70%);
+}
+
+.t-forge .fg-entry-n {
+  font-family: var(--fg-teko);
+  font-size: 62px;
+  font-weight: 500;
+  line-height: 0.8;
+  color: rgba(242, 165, 58, 0.8);
+}
+
+.t-forge .fg-entry-body {
+  display: grid;
+  gap: 4px;
+}
+
+.t-forge .fg-entry-body b {
+  font-family: var(--fg-teko);
+  font-size: clamp(30px, 3vw, 40px);
+  font-weight: 500;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.t-forge .fg-entry-body .fg-dim {
+  max-width: 70ch;
+}
+
+.t-forge .fg-entry-go {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  font-family: var(--fg-teko);
+  font-size: 19px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-rust-hi);
+}
+
+.t-forge .fg-article {
+  max-width: 720px;
+  margin: 0 auto;
+  font-size: 18px;
+  line-height: 1.7;
+  color: var(--fg-soft);
+}
+
+.t-forge .fg-article section {
+  scroll-margin-top: 130px;
+}
+
+.t-forge .fg-article section + section {
+  margin-top: 40px;
+}
+
+.t-forge .fg-article h2 {
+  margin-bottom: 14px;
+  font-family: var(--fg-teko);
+  font-weight: 500;
+  font-size: 38px;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--fg-ink);
+}
+
+.t-forge .fg-article p + p {
+  margin-top: 16px;
+}
+
+.t-forge .fg-article ul {
+  margin-top: 16px;
+  display: grid;
+  gap: 8px;
+}
+
+.t-forge .fg-article li {
+  position: relative;
+  padding-left: 22px;
+}
+
+.t-forge .fg-article li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 0.7em;
+  width: 8px;
+  height: 8px;
+  background: var(--fg-rust);
+  transform: rotate(45deg);
+}
+
+.t-forge .fg-article pre {
+  margin-top: 18px;
+  padding: 18px 20px;
+  overflow-x: auto;
+  background: #140f17;
+  border: 1px solid var(--fg-hair);
+  border-left: 3px solid var(--fg-rust);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.t-forge .fg-article pre code {
+  color: #f1d8b6;
+}
+
+.t-forge .fg-article blockquote {
+  margin: 24px 0 0;
+  padding: 4px 0 4px 22px;
+  border-left: 3px solid var(--fg-amber);
+  font-family: var(--fg-teko);
+  font-size: 32px;
+  line-height: 1.05;
+  text-transform: uppercase;
+  color: var(--fg-amber);
+}
+
+/* ---------- character ---------- */
+
+.t-forge .fg-sheet-grid {
+  display: grid;
+  grid-template-columns: auto 1.4fr 1fr;
+  gap: clamp(20px, 3vw, 44px);
+  align-items: start;
+}
+
+.t-forge .fg-campaign {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0;
+  border-top: 2px solid #4a4150;
+}
+
+.t-forge .fg-campaign li {
+  position: relative;
+  display: grid;
+  gap: 6px;
+  padding: 26px 24px 8px 0;
+}
+
+.t-forge .fg-campaign li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -8px;
+  width: 14px;
+  height: 14px;
+  background: var(--fg-rust);
+  transform: rotate(45deg);
+  box-shadow: 0 0 12px rgba(224, 127, 51, 0.6);
+}
+
+.t-forge .fg-campaign-ch {
+  font-family: var(--fg-teko);
+  font-size: 15px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.t-forge .fg-campaign-y {
+  font-family: var(--fg-teko);
+  font-size: 42px;
+  font-weight: 500;
+  line-height: 0.85;
+  color: var(--fg-amber);
+}
+
+.t-forge .fg-campaign b {
+  font-family: var(--fg-teko);
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.t-forge .fg-campaign p {
+  color: var(--fg-soft);
+  max-width: 46ch;
+}
+
+.t-forge .fg-perks {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.t-forge .fg-perks li {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  padding: 20px;
+  border: 1px solid var(--fg-hair);
+  background: rgba(24, 18, 28, 0.5);
+}
+
+.t-forge .fg-perk-badge {
+  width: 50px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  padding-top: 5px;
+  background: linear-gradient(180deg, #e3823d, #a9541f);
+  color: #1d1209;
+  font-family: var(--fg-teko);
+  font-size: 26px;
+  font-weight: 600;
+  clip-path: polygon(50% 0, 100% 22%, 100% 78%, 50% 100%, 0 78%, 0 22%);
+}
+
+.t-forge .fg-perks b {
+  font-family: var(--fg-teko);
+  font-size: 27px;
+  font-weight: 500;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.t-forge .fg-perks p {
+  color: var(--fg-soft);
+  font-size: 15px;
+}
+
+.t-forge .fg-raven {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 30px;
+  align-items: end;
+  background: linear-gradient(110deg, rgba(46, 38, 52, 0.94), rgba(96, 50, 30, 0.9));
+}
+
+.t-forge .fg-raven-addr {
+  display: block;
+  font-family: var(--fg-teko);
+  font-size: clamp(28px, 3vw, 40px);
+  color: var(--fg-amber);
+  overflow-wrap: anywhere;
+}
+
+.t-forge .fg-raven .fg-actions {
+  margin-top: 12px;
+}
+
+/* ---------- lost ---------- */
+
+.t-forge .fg-lost {
+  min-height: calc(100vh - 260px);
+  align-content: center;
+}
+
+.t-forge .fg-mega.is-lost {
+  font-size: clamp(72px, 12vw, 180px);
+}
+
+.t-forge .fg-lost-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 26px;
+  margin-top: 32px;
+  padding-top: 18px;
+  border-top: 1px solid var(--fg-hair);
+}
+
+.t-forge .fg-lost-list a {
+  text-decoration: none;
+  font-weight: 500;
+  color: var(--fg-soft);
+}
+
+.t-forge .fg-lost-list a:hover {
+  color: var(--fg-amber);
+}
+
+.t-forge .fg-lost-list span {
+  font-family: var(--fg-teko);
+  color: var(--fg-rust-hi);
+}
+
+/* ---------- wheel ---------- */
+
+.t-forge .fg-wheel-btn {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  z-index: 70;
+  width: 74px;
+  height: 74px;
+  margin-left: -37px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, #3e3046, #1d1621 70%);
+  box-shadow:
+    0 0 0 2px rgba(242, 165, 58, 0.55),
+    0 0 0 6px rgba(29, 22, 33, 0.85),
+    0 14px 40px rgba(0, 0, 0, 0.6),
+    0 0 30px rgba(224, 127, 51, 0.25);
+  cursor: pointer;
+  transition: transform 0.35s var(--fg-slam);
+}
+
+.t-forge .fg-wheel-btn svg {
+  position: absolute;
+  inset: 9px;
+  width: calc(100% - 18px);
+  height: calc(100% - 18px);
+  transition: transform 0.6s var(--fg-ease);
+}
+
+.t-forge .fg-wheel-btn path {
+  fill: rgba(241, 230, 216, 0.2);
+}
+
+.t-forge .fg-wheel-btn path.on {
+  fill: var(--fg-rust-hi);
+}
+
+.t-forge .fg-wheel-btn:hover {
+  transform: scale(1.06);
+}
+
+.t-forge .fg-wheel-btn:hover svg {
+  transform: rotate(45deg);
+}
+
+.t-forge .fg-wheel-btn.is-open svg {
+  transform: rotate(180deg);
+}
+
+.t-forge .fg-wheel-btn-k {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -42%);
+  font-family: var(--fg-teko);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-ink);
+}
+
+.t-forge .fg-wheel-btn kbd {
+  position: absolute;
+  right: -6px;
+  top: -4px;
+  min-width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  padding-top: 2px;
+  background: var(--fg-amber);
+  color: #1d1209;
+  font-family: var(--fg-teko);
+  font-size: 14px;
+  font-weight: 600;
+  clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%);
+}
+
+.t-forge .fg-wheel {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: rgba(14, 10, 17, 0.9);
+  animation: fg-fadein 0.25s ease-out;
+}
+
+@keyframes fg-fadein {
+  from {
+    opacity: 0;
+  }
+}
+
+.t-forge .fg-wheel-glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(900px, 140vmin);
+  height: min(900px, 140vmin);
+  transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, rgba(200, 105, 42, 0.22), rgba(116, 72, 156, 0.12) 50%, transparent);
+  pointer-events: none;
+}
+
+.t-forge .fg-wheel-top {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px clamp(16px, 3vw, 32px);
+  font-family: var(--fg-teko);
+  font-size: 19px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.t-forge .fg-wheel-x {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  background: none;
+  color: var(--fg-ink);
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+
+.t-forge .fg-wheel kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  padding: 2px 6px 0;
+  border: 1px solid var(--fg-hair-2);
+  font-family: var(--fg-teko);
+  font-size: 15px;
+  color: var(--fg-soft);
+}
+
+.t-forge .fg-wheel-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+}
+
+.t-forge .fg-wheel-ring {
+  --size: min(600px, 78vmin);
+  position: relative;
+  width: var(--size);
+  height: var(--size);
+  animation: fg-spin-in 0.6s var(--fg-slam);
+}
+
+@keyframes fg-spin-in {
+  from {
+    opacity: 0;
+    transform: rotate(-110deg) scale(0.6);
+  }
+}
+
+.t-forge .fg-wheel-spin {
+  position: absolute;
+  inset: 0;
+  transform: rotate(var(--rot));
+  transition: transform 0.55s var(--fg-slam);
+}
+
+.t-forge .fg-wheel-spin > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.t-forge .fg-wheel-hair {
+  fill: none;
+  stroke: rgba(242, 165, 58, 0.25);
+  stroke-width: 0.4;
+}
+
+.t-forge .fg-wheel-tick {
+  stroke: rgba(241, 230, 216, 0.3);
+  stroke-width: 0.5;
+}
+
+.t-forge .fg-wedge {
+  fill: rgba(46, 38, 52, 0.96);
+  stroke: rgba(241, 230, 216, 0.12);
+  stroke-width: 0.4;
+  transition:
+    transform 0.3s var(--fg-slam),
+    fill 0.2s;
+}
+
+.t-forge .fg-wedge.here {
+  stroke: rgba(242, 165, 58, 0.7);
+  stroke-dasharray: 2 1.5;
+}
+
+.t-forge .fg-wedge.on {
+  fill: url(#fg-w-on);
+  stroke: #f2a53a;
+  stroke-dasharray: none;
+  transform: translate(calc(sin(var(--a)) * 5px), calc(cos(var(--a)) * -5px));
+}
+
+.t-forge .fg-slot {
+  position: absolute;
+  width: 92px;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  transform: translate(-50%, -50%) rotate(calc(var(--rot) * -1));
+  transition:
+    transform 0.55s var(--fg-slam),
+    color 0.2s;
+  color: var(--fg-soft);
+  text-decoration: none;
+  border: 0;
+  background: none;
+  padding: 6px 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+.t-forge .fg-slot svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.t-forge .fg-slot b {
+  font-family: var(--fg-teko);
+  font-size: 21px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.t-forge .fg-slot small {
+  font-family: var(--fg-teko);
+  font-size: 13px;
+  color: var(--fg-dim);
+}
+
+.t-forge .fg-slot.on {
+  color: #1d1209;
+}
+
+.t-forge .fg-slot.on small {
+  color: #3d2210;
+}
+
+.t-forge .fg-slot:focus-visible {
+  outline: none;
+}
+
+.t-forge .fg-wheel-hub {
+  position: absolute;
+  left: 25%;
+  top: 25%;
+  width: 50%;
+  height: 50%;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  text-align: center;
+  padding: 0 8%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 35%, #3b2e43, #1a1420 72%);
+  box-shadow:
+    inset 0 0 0 1px rgba(242, 165, 58, 0.3),
+    0 0 40px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+.t-forge .fg-needle {
+  position: absolute;
+  inset: 0;
+  transform: rotate(var(--fg-n));
+  transition: transform 0.45s var(--fg-slam);
+}
+
+.t-forge .fg-needle::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 4px;
+  width: 16px;
+  height: 12px;
+  margin-left: -8px;
+  background: var(--fg-amber);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  filter: drop-shadow(0 0 6px rgba(242, 165, 58, 0.8));
+}
+
+.t-forge .fg-hub-k {
+  font-family: var(--fg-teko);
+  font-size: 15px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.t-forge .fg-wheel-hub b {
+  font-family: var(--fg-teko);
+  font-size: clamp(36px, 6vmin, 56px);
+  font-weight: 600;
+  line-height: 0.9;
+  text-transform: uppercase;
+  color: var(--fg-amber);
+  animation: fg-pop 0.35s var(--fg-slam);
+}
+
+@keyframes fg-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+.t-forge .fg-hub-sub {
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.3;
+  color: var(--fg-soft);
+  max-width: 180px;
+}
+
+.t-forge .fg-hub-sw {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  font-family: var(--fg-teko);
+  font-size: 15px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.t-forge .fg-hub-sw i:last-of-type {
+  margin-right: 6px;
+}
+
+.t-forge .fg-wheel-keys {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  gap: 26px;
+  padding: 18px 16px 28px;
+  font-family: var(--fg-teko);
+  font-size: 16px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.t-forge .fg-wheel-keys kbd {
+  margin-right: 4px;
+}
+
+/* ---------- sparks ---------- */
+
+.t-forge .fg-sparks {
+  position: fixed;
+  inset: 0;
+  z-index: 2147482500;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.t-forge .fg-sparks i {
+  position: absolute;
+  width: 2px;
+  height: 9px;
+  margin: -4px 0 0 -1px;
+  border-radius: 1px;
+  background: linear-gradient(180deg, #fff1c8, #f2a53a 50%, #c8692a);
+  rotate: var(--r);
+  animation: fg-spark 0.55s cubic-bezier(0.15, 0.8, 0.3, 1) forwards;
+}
+
+@keyframes fg-spark {
+  from {
+    translate: 0 0;
+    scale: 1 1;
+    opacity: 1;
+  }
+  to {
+    translate: var(--dx) var(--dy);
+    scale: 0.6 0.25;
+    opacity: 0;
+  }
+}
+
+/* ---------- cursor ---------- */
+
+html[data-skin="forge"] .cur-dot {
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
+  border-radius: 0;
+  background: #f2a53a;
+  box-shadow: 0 0 6px rgba(242, 165, 58, 0.9);
+}
+
+html[data-skin="forge"] .cur-ring {
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+}
+
+html[data-skin="forge"] .cur-ring::before,
+html[data-skin="forge"] .cur-ring[data-state]::before {
+  --c: #e07f33;
+  border: 0;
+  border-radius: 0;
+  background:
+    linear-gradient(var(--c) 0 0) left top / 8px 2px no-repeat,
+    linear-gradient(var(--c) 0 0) left top / 2px 8px no-repeat,
+    linear-gradient(var(--c) 0 0) right top / 8px 2px no-repeat,
+    linear-gradient(var(--c) 0 0) right top / 2px 8px no-repeat,
+    linear-gradient(var(--c) 0 0) left bottom / 8px 2px no-repeat,
+    linear-gradient(var(--c) 0 0) left bottom / 2px 8px no-repeat,
+    linear-gradient(var(--c) 0 0) right bottom / 8px 2px no-repeat,
+    linear-gradient(var(--c) 0 0) right bottom / 2px 8px no-repeat;
+  transform: skewX(-14deg);
+  rotate: var(--ca, 0rad);
+  scale: 1;
+  transition:
+    scale 0.25s var(--fg-slam, ease),
+    opacity 0.2s;
+}
+
+html[data-skin="forge"] .cur-ring[data-state="link"]::before {
+  --c: #f2a53a;
+  scale: 1.45;
+}
+
+html[data-skin="forge"] .cur-ring[data-state="label"]::before {
+  scale: 0.6;
+  opacity: 0;
+}
+
+html[data-skin="forge"] .cur-ring[data-state="text"]::before {
+  scale: 0.35 1;
+}
+
+html[data-skin="forge"] .cur-ring[data-down]::before {
+  scale: 0.75;
+}
+
+html[data-skin="forge"] .cur-ring span {
+  padding: 3px 10px 0;
+  background: #c8692a;
+  color: #1d1209;
+  font-family: var(--f-teko), sans-serif;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  clip-path: polygon(5px 0, 100% 0, calc(100% - 5px) 100%, 0 100%);
+}
+
+/* ---------- embedded components ---------- */
+
+.t-forge .fg-demo .btn,
+.t-forge .fg-artifact .btn {
+  border-radius: 0;
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 1080px) {
+  .t-forge .fg-quests {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .t-forge .fg-continue {
+    grid-template-columns: 1fr;
+  }
+
+  .t-forge .fg-route {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+
+  .t-forge .fg-route li,
+  .t-forge .fg-route li:first-child {
+    clip-path: none;
+  }
+
+  .t-forge .fg-sheet-grid {
+    grid-template-columns: auto 1fr;
+  }
+
+  .t-forge .fg-sheet-grid .fg-meta {
+    grid-column: 1 / -1;
+  }
+
+  .t-forge .fg-phases.is-four,
+  .t-forge .fg-phases.is-three {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .t-forge .fg-hud-trail {
+    display: none;
+  }
+
+  .t-forge .fg-hud {
+    grid-template-columns: 1fr auto;
+  }
+
+  .t-forge .fg-lobby,
+  .t-forge .fg-split,
+  .t-forge .fg-brief-grid,
+  .t-forge .fg-map-grid,
+  .t-forge .fg-loadout,
+  .t-forge .fg-drill-head,
+  .t-forge .fg-raven {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .t-forge .fg-card {
+    grid-row: auto;
+  }
+
+  .t-forge .fg-modes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .t-forge .fg-objectives ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .t-forge .fg-perks {
+    grid-template-columns: 1fr;
+  }
+
+  .t-forge .fg-inspect {
+    position: relative;
+    top: 0;
+  }
+
+  .t-forge .fg-inv {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .t-forge .fg-main {
+    padding-top: 80px;
+  }
+
+  .t-forge .fg-hud {
+    height: 60px;
+  }
+
+  .t-forge .fg-hud-name small {
+    display: none;
+  }
+
+  .t-forge .fg-tabs.is-sticky {
+    top: 60px;
+  }
+
+  .t-forge .fg-hud-themes {
+    padding: 2px 12px 0 10px;
+    font-size: 17px;
+  }
+
+  .t-forge .fg-card-body {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .t-forge .fg-card-body .fg-crest {
+    width: 96px !important;
+    height: 111px !important;
+  }
+
+  .t-forge .fg-attrs {
+    grid-template-columns: 1fr;
+  }
+
+  .t-forge .fg-statgrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .t-forge .fg-quests,
+  .t-forge .fg-phases.is-four,
+  .t-forge .fg-phases.is-three {
+    grid-template-columns: 1fr;
+  }
+
+  .t-forge .fg-inv {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .t-forge .fg-sheet-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .t-forge .fg-sheet-grid .fg-crest {
+    width: 100px !important;
+    height: 116px !important;
+  }
+
+  .t-forge .fg-entry {
+    grid-template-columns: 44px 1fr;
+    gap: 14px;
+  }
+
+  .t-forge .fg-entry-n {
+    font-size: 40px;
+  }
+
+  .t-forge .fg-entry-go {
+    display: none;
+  }
+
+  .t-forge .fg-reward-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .t-forge .fg-reward-strip li,
+  .t-forge .fg-reward-strip li + li {
+    padding: 14px 10px 6px 0;
+    border-left: 0;
+  }
+
+  .t-forge .fg-bugs li,
+  .t-forge .fg-log {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .t-forge .fg-table-d {
+    display: none;
+  }
+
+  .t-forge .fg-meta > div {
+    grid-template-columns: 92px 1fr;
+  }
+
+  .t-forge .fg-plate {
+    height: 46px;
+  }
+
+  .t-forge .fg-plate-in {
+    font-size: 20px;
+    padding: 4px 24px 0 22px;
+  }
+
+  .t-forge .fg-foot button {
+    margin-left: 0;
+  }
+
+  .t-forge .fg-artifact {
+    aspect-ratio: 4 / 3;
+  }
+
+  .t-forge .fg-wheel-ring {
+    --size: min(94vw, 64vh);
+  }
+
+  .t-forge .fg-slot {
+    width: 64px;
+  }
+
+  .t-forge .fg-slot b {
+    font-size: 16px;
+  }
+
+  .t-forge .fg-slot svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .t-forge .fg-slot small {
+    display: none;
+  }
+
+  .t-forge .fg-wheel-hub b {
+    font-size: 32px;
+  }
+
+  .t-forge .fg-hub-sub {
+    font-size: 11px;
+    max-width: 120px;
+  }
+
+  .t-forge .fg-wheel-keys {
+    display: none;
+  }
+
+  .t-forge .fg-wheel-btn {
+    width: 64px;
+    height: 64px;
+    margin-left: -32px;
+    bottom: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .t-forge *,
+  .t-forge *::before,
+  .t-forge *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0s !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .t-forge .fg-embers {
+    display: none;
+  }
+
+  .t-forge .fg-reveal {
+    animation: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .t-forge .fg-mode {
+    grid-template-columns: 1fr;
+    padding: 14px;
+  }
+
+  .t-forge .fg-mode-n {
+    grid-row: auto;
+    font-size: 34px;
+  }
+
+  .t-forge .fg-mode .fg-arrow {
+    top: 14px;
+    right: 14px;
+  }
+}
+
+@media (max-width: 640px) {
+  .t-forge .fg-wheel {
+    background: rgba(14, 10, 17, 0.97);
+  }
+}
+
+.t-forge .fg-teaser {
+  grid-column: 1 / -1;
+}

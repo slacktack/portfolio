@@ -1,5 +1,38 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Caveat, Instrument_Sans, Instrument_Serif, JetBrains_Mono } from "next/font/google";
+import {
+  Barlow,
+  Bricolage_Grotesque,
+  Caveat,
+  DM_Serif_Display,
+  Doto,
+  Fraunces,
+  Geist_Mono,
+  Hanken_Grotesk,
+  IBM_Plex_Mono,
+  Instrument_Sans,
+  Instrument_Serif,
+  Inter,
+  Inter_Tight,
+  JetBrains_Mono,
+  Manrope,
+  Montserrat,
+  Newsreader,
+  Plus_Jakarta_Sans,
+  Roboto_Serif,
+  Teko,
+  Archivo,
+  Archivo_Black,
+  Space_Grotesk,
+  Space_Mono,
+  Syne,
+  DM_Mono,
+  Unbounded,
+  Sora,
+  Outfit,
+  Chakra_Petch,
+  Rubik,
+  Cormorant_Garamond,
+} from "next/font/google";
 import "./globals.css";
 import "./magic.css";
 import "./journey.css";
@@ -7,6 +40,12 @@ import "./mobile.css";
 import "./pages.css";
 import "./motion.css";
 import "./perf.css";
+import "./zine.css";
+import "./skins.css";
+import "./palette.css";
+import { skinBootScript } from "@/lib/skins";
+import { ThemeFrame } from "@/components/skin";
+import { ThemeModal } from "@/components/theme-palette";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CommandPalette } from "@/components/command-palette";
@@ -47,6 +86,38 @@ const mono = JetBrains_Mono({
   display: "swap",
   variable: "--font-code",
 });
+
+// Skin fonts load only when a skin uses them.
+const fManrope = Manrope({ subsets: ["latin"], display: "swap", preload: false, variable: "--f-manrope" });
+const fNewsreader = Newsreader({ subsets: ["latin"], display: "swap", preload: false, style: ["normal", "italic"], variable: "--f-newsreader" });
+const fPlex = IBM_Plex_Mono({ subsets: ["latin"], display: "swap", preload: false, weight: ["400", "500"], variable: "--f-plex" });
+const fRobotoSerif = Roboto_Serif({ subsets: ["latin"], display: "swap", preload: false, style: ["normal", "italic"], variable: "--f-roboto-serif" });
+const fInter = Inter({ subsets: ["latin"], display: "swap", preload: false, variable: "--f-inter" });
+const fInterTight = Inter_Tight({ subsets: ["latin"], display: "swap", preload: false, variable: "--f-inter-tight" });
+const fDmSerif = DM_Serif_Display({ subsets: ["latin"], display: "swap", preload: false, weight: "400", style: ["normal", "italic"], variable: "--f-dm-serif" });
+const fDoto = Doto({ subsets: ["latin"], display: "swap", preload: false, variable: "--f-doto" });
+const fGeistMono = Geist_Mono({ subsets: ["latin"], display: "swap", preload: false, variable: "--f-geist-mono" });
+const fJakarta = Plus_Jakarta_Sans({ subsets: ["latin"], display: "swap", preload: false, variable: "--f-jakarta" });
+const fFraunces = Fraunces({ subsets: ["latin"], display: "swap", preload: false, style: ["normal", "italic"], variable: "--f-fraunces" });
+const fTeko = Teko({ subsets: ["latin"], display: "swap", preload: false, variable: "--f-teko" });
+const fBarlow = Barlow({ subsets: ["latin"], display: "swap", preload: false, weight: ["400", "500", "600"], variable: "--f-barlow" });
+const fMontserrat = Montserrat({ subsets: ["latin"], display: "swap", preload: false, variable: "--f-montserrat" });
+const fHanken = Hanken_Grotesk({ subsets: ["latin"], display: "swap", preload: false, variable: "--f-hanken" });
+const fArchivoX = Archivo({ subsets: ["latin"], display: "swap", preload: false, axes: ["wdth"], variable: "--f-archivo" });
+const fArchivoBlackX = Archivo_Black({ subsets: ["latin"], display: "swap", preload: false, weight: "400", variable: "--f-archivo-black" });
+const fSpaceGroteskX = Space_Grotesk({ subsets: ["latin"], display: "swap", preload: false, variable: "--f-space-grotesk" });
+const fSpaceMonoX = Space_Mono({ subsets: ["latin"], display: "swap", preload: false, weight: ["400", "700"], variable: "--f-space-mono" });
+const fSyneX = Syne({ subsets: ["latin"], display: "swap", preload: false, variable: "--f-syne" });
+const fDmMonoX = DM_Mono({ subsets: ["latin"], display: "swap", preload: false, weight: ["300", "400", "500"], variable: "--f-dm-mono" });
+const fUnboundedX = Unbounded({ subsets: ["latin"], display: "swap", preload: false, variable: "--f-unbounded" });
+const fSoraX = Sora({ subsets: ["latin"], display: "swap", preload: false, variable: "--f-sora" });
+const fOutfitX = Outfit({ subsets: ["latin"], display: "swap", preload: false, variable: "--f-outfit" });
+const fChakraX = Chakra_Petch({ subsets: ["latin"], display: "swap", preload: false, weight: ["400", "500", "600", "700"], variable: "--f-chakra" });
+const fRubikX = Rubik({ subsets: ["latin"], display: "swap", preload: false, variable: "--f-rubik" });
+const fCormorantX = Cormorant_Garamond({ subsets: ["latin"], display: "swap", preload: false, style: ["normal", "italic"], variable: "--f-cormorant" });
+const skinFonts = [fManrope, fNewsreader, fPlex, fRobotoSerif, fInter, fInterTight, fDmSerif, fDoto, fGeistMono, fJakarta, fFraunces, fTeko, fBarlow, fMontserrat, fHanken, fArchivoX, fArchivoBlackX, fSpaceGroteskX, fSpaceMonoX, fSyneX, fDmMonoX, fUnboundedX, fSoraX, fOutfitX, fChakraX, fRubikX, fCormorantX]
+  .map((f) => f.variable)
+  .join(" ");
 
 export const metadata: Metadata = {
   title: {
@@ -93,7 +164,7 @@ export const viewport: Viewport = {
   themeColor: "#f2efe6",
 };
 
-const themeScript = `(function(){try{var t=localStorage.getItem("tg-theme");if(t!=="day"&&t!=="night"){t="day"}document.documentElement.dataset.theme=t}catch(e){document.documentElement.dataset.theme="day"}})();`;
+const themeScript = skinBootScript;
 
 const personSchema = {
   "@context": "https://schema.org",
@@ -110,7 +181,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       data-theme="day"
-      className={`${sans.variable} ${display.variable} ${serif.variable} ${mono.variable} ${hand.variable}`}
+      data-skin="paper"
+      className={`${sans.variable} ${display.variable} ${serif.variable} ${mono.variable} ${hand.variable} ${skinFonts}`}
       suppressHydrationWarning
     >
       <head>
@@ -127,10 +199,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to content
         </a>
         <SmoothScroll />
-        <ScrollProgress />
-        <SiteHeader />
-        <main id="main">{children}</main>
-        <SiteFooter />
+        <ThemeFrame>
+          <ScrollProgress />
+          <SiteHeader />
+          <main id="main">{children}</main>
+          <SiteFooter />
+        </ThemeFrame>
+        <ThemeModal />
         <CommandPalette />
         <PageTransition />
         <Cursor />
