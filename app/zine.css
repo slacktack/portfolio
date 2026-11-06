@@ -623,32 +623,46 @@ html[data-skin="paper"] .paper-frame {
     color: var(--zn-red);
   }
 
-  /* ---------- journey panel: a pasted caption card ---------- */
+  /* ---------- journey panel: frosted glass over the 3D scene ---------- */
   .journey-copy {
-    border: 2px solid var(--zn-ink);
-    border-radius: 0;
-    background: var(--zn-cream);
-    color: var(--zn-ink);
-    box-shadow: 6px 6px 0 var(--zn-red);
+    max-width: 34rem;
+    padding: clamp(24px, 3vw, 40px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 20px;
+    background: linear-gradient(160deg, rgba(14, 18, 60, 0.62), rgba(14, 18, 60, 0.38));
+    -webkit-backdrop-filter: blur(18px) saturate(1.3);
+    backdrop-filter: blur(18px) saturate(1.3);
+    color: #f6f1e4;
+    box-shadow: 0 30px 80px -30px rgba(4, 6, 30, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.14);
   }
   .journey-copy h2 {
+    margin: 14px 0 16px;
     font-family: var(--zn-display);
-    font-variation-settings: "wdth" 66;
+    font-variation-settings: "wdth" 72;
     font-weight: 900;
+    font-size: clamp(2.2rem, 4.4vw, 4.2rem);
+    line-height: 0.92;
     text-transform: uppercase;
-    letter-spacing: 0;
-    color: var(--zn-ink);
+    letter-spacing: -0.005em;
+    color: #fff8ec;
+    text-wrap: balance;
   }
   .journey-copy p {
-    color: color-mix(in srgb, var(--zn-ink) 78%, transparent);
+    max-width: 30rem;
+    font-size: clamp(1rem, 1.25vw, 1.15rem);
+    line-height: 1.5;
+    color: rgba(246, 241, 228, 0.78);
   }
   .journey-k {
-    color: var(--zn-red);
+    color: var(--zn-butter);
+    letter-spacing: 0.16em;
   }
   .journey-m {
-    background: var(--zn-butter);
-    color: var(--zn-ink);
-    border-color: var(--zn-ink);
+    margin-top: 22px;
+    background: var(--zn-red);
+    color: #fff;
+    border: 0;
+    box-shadow: 0 10px 24px -10px var(--zn-red);
   }
 
   /* ---------- shared section header ---------- */
