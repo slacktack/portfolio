@@ -56,8 +56,26 @@ function Sec({ k, title, children, className }: { k: string; title: string; chil
 const chart = systems.map((s, i) => {
   const a = i * 2.39996;
   const r = 18 + ((i * 37) % 26);
-  return { s, x: 50 + Math.cos(a) * r * 1.5, y: 50 + Math.sin(a) * r * 0.78 };
+  return { s, x: Math.min(78, Math.max(6, 44 + Math.cos(a) * r * 1.2)), y: Math.min(88, Math.max(10, 50 + Math.sin(a) * r * 0.9)) };
 });
+
+export function SystemsChart() {
+  return (
+      <div className="ne-chart" role="group" aria-label="Systems star chart">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        {chart.slice(1).map((p, i) => (
+          <line key={p.s.slug} x1={chart[i].x} y1={chart[i].y} x2={p.x} y2={p.y} />
+        ))}
+      </svg>
+      {chart.map((p, i) => (
+        <Link key={p.s.slug} href={`/systems/${p.s.slug}`} className="ne-chart-star" style={{ left: `${p.x}%`, top: `${p.y}%`, ["--ne-d" as string]: `${i * 60}ms` }}>
+          <i aria-hidden="true" />
+          <span>{p.s.shortTitle}</span>
+        </Link>
+      ))}
+    </div>
+  );
+}
 
 export function SystemsView() {
   return (
@@ -71,19 +89,7 @@ export function SystemsView() {
         }
         lede={`${systems.length} systems, each a star you can open. Every case explains the problem, the constraints, what broke, and what I would change.`}
       />
-      <div className="ne-chart" role="group" aria-label="Systems star chart">
-        <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-          {chart.slice(1).map((p, i) => (
-            <line key={p.s.slug} x1={chart[i].x} y1={chart[i].y} x2={p.x} y2={p.y} />
-          ))}
-        </svg>
-        {chart.map((p, i) => (
-          <Link key={p.s.slug} href={`/systems/${p.s.slug}`} className="ne-chart-star" style={{ left: `${p.x}%`, top: `${p.y}%`, ["--ne-d" as string]: `${i * 60}ms` }}>
-            <i aria-hidden="true" />
-            <span>{p.s.shortTitle}</span>
-          </Link>
-        ))}
-      </div>
+      <SystemsChart />
       <ol className="ne-syslist">
         {systems.map((s) => (
           <li key={s.slug}>

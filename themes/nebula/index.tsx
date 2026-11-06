@@ -2,47 +2,62 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent as RKE } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent as RKE, type ReactNode } from "react";
 import { openThemes } from "@/components/skin";
 import { ThemeTeaser } from "@/components/theme-palette";
-import { profile, stage, systems } from "@/lib/site";
+import { currently, notes, profile, stage, systems } from "@/lib/site";
 import type { Route, ThemeAppProps, View } from "../types";
-import { Cosmos, hasWebGL, type HoverInfo } from "./cosmos";
-import { cosmosItems, stageHref } from "./data";
-import { AboutView, CaseView, LabView, MissingView, NoteView, NotesView, ProjectsView, SystemsView } from "./views";
+import { StarChart, type ChartHover } from "./chart";
+import { chartItems, coords, stageHref } from "./data";
+import { AboutView, CaseView, LabView, MissingView, NoteView, NotesView, ProjectsView, SystemsChart, SystemsView } from "./views";
 import "./nebula.css";
 
-type Mode = "" | "live" | "static";
-
-function useMode(): Mode {
-  const [mode, setMode] = useState<Mode>("");
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const set = () => setMode(mq.matches || !hasWebGL() ? "static" : "live");
-    set();
-    mq.addEventListener("change", set);
-    return () => mq.removeEventListener("change", set);
-  }, []);
-  return mode;
-}
-
 const stars: { view: View | "themes"; href?: string; label: string; x: number; y: number }[] = [
-  { view: "home", href: "/", label: "Origin", x: 14, y: 74 },
-  { view: "systems", href: "/systems", label: "Systems", x: 30, y: 34 },
-  { view: "projects", href: "/projects", label: "Projects", x: 54, y: 16 },
-  { view: "lab", href: "/lab", label: "Lab", x: 66, y: 50 },
-  { view: "notes", href: "/notes", label: "Notes", x: 88, y: 28 },
-  { view: "about", href: "/about", label: "About", x: 48, y: 82 },
+  { view: "home", href: "/", label: "Atlas", x: 10, y: 74 },
+  { view: "systems", href: "/systems", label: "Systems", x: 28, y: 32 },
+  { view: "projects", href: "/projects", label: "Works", x: 52, y: 12 },
+  { view: "lab", href: "/lab", label: "Lab", x: 64, y: 50 },
+  { view: "notes", href: "/notes", label: "Notes", x: 88, y: 26 },
+  { view: "about", href: "/about", label: "About", x: 46, y: 84 },
   { view: "themes", label: "Themes", x: 84, y: 78 },
 ];
 
 const group: Partial<Record<View, View>> = { system: "systems", note: "notes" };
 
+const plates: Record<View, string> = {
+  home: "I",
+  systems: "II",
+  system: "II",
+  projects: "III",
+  notes: "IV",
+  note: "IV",
+  about: "V",
+  lab: "VI",
+  missing: "∅",
+};
+
+const names: Record<View, string> = {
+  home: "The atlas",
+  systems: "Systems",
+  system: "Systems",
+  projects: "Works",
+  notes: "Notes",
+  note: "Notes",
+  about: "About",
+  lab: "Lab",
+  missing: "Uncharted",
+};
+
 function Constellation({ view }: { view: View }) {
   const [open, setOpen] = useState(false);
+  const [seen, setSeen] = useState(view);
   const box = useRef<HTMLDivElement>(null);
   const btn = useRef<HTMLButtonElement>(null);
   const active = group[view] ?? view;
+  if (seen !== view) {
+    setSeen(view);
+    setOpen(false);
+  }
 
   useEffect(() => {
     if (!open) return;
@@ -54,19 +69,13 @@ function Constellation({ view }: { view: View }) {
     return () => document.removeEventListener("pointerdown", down);
   }, [open]);
 
-  const [seen, setSeen] = useState(view);
-  if (seen !== view) {
-    setSeen(view);
-    setOpen(false);
-  }
-
   const keys = (e: RKE) => {
     const items = [...(box.current?.querySelectorAll<HTMLElement>("[data-star]") ?? [])];
     const i = items.indexOf(document.activeElement as HTMLElement);
     if (e.key === "Escape") {
       setOpen(false);
       btn.current?.focus();
-    } else if (["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"].includes(e.key)) {
+    } else if (open && ["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"].includes(e.key)) {
       e.preventDefault();
       const d = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : -1;
       items[(i + d + items.length) % items.length]?.focus();
@@ -75,318 +84,374 @@ function Constellation({ view }: { view: View }) {
 
   return (
     <nav className="ne-nav" aria-label="Constellation" onKeyDown={keys}>
-      <button ref={btn} type="button" className="ne-nav-btn" aria-expanded={open} aria-controls="ne-constellation" onClick={() => setOpen((o) => !o)}>
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M4 17 9 7l6 5 5-7" />
-          <circle cx="4" cy="17" r="1.8" />
-          <circle cx="9" cy="7" r="1.8" />
-          <circle cx="15" cy="12" r="1.8" />
-          <circle cx="20" cy="5" r="1.8" />
-        </svg>
-        <span>{open ? "Close" : "Navigate"}</span>
-      </button>
       <button type="button" className="ne-nav-themes" onClick={openThemes} aria-label="Themes: change the whole site">
         <i aria-hidden="true" />
         Themes
       </button>
-      <div id="ne-constellation" ref={box} className="ne-const" data-open={open || undefined} hidden={!open}>
-        <span className="ne-const-k">Choose a star</span>
-        <div className="ne-const-map">
-        <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-          {stars.slice(1).map((s, i) => (
-            <line key={s.label} x1={stars[i].x} y1={stars[i].y} x2={s.x} y2={s.y} style={{ ["--ne-d" as string]: `${i * 70}ms` }} />
-          ))}
+      <button ref={btn} type="button" className="ne-nav-btn" aria-expanded={open} aria-controls="ne-constellation" onClick={() => setOpen((o) => !o)}>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 17 9 7l6 5 5-7" />
+          <circle cx="4" cy="17" r="1.6" />
+          <circle cx="9" cy="7" r="1.6" />
+          <circle cx="15" cy="12" r="1.6" />
+          <circle cx="20" cy="5" r="1.6" />
         </svg>
-        {stars.map((s, i) => {
-          const style = { left: `${s.x}%`, top: `${s.y}%`, ["--ne-d" as string]: `${i * 60}ms` };
-          if (s.view === "themes")
+        <span>{open ? "Close" : "Index"}</span>
+      </button>
+      <div id="ne-constellation" ref={box} className="ne-const" hidden={!open}>
+        <span className="ne-const-k">Constellation · choose a star</span>
+        <div className="ne-const-map">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            {stars.slice(1).map((s, i) => (
+              <line key={s.label} x1={stars[i].x} y1={stars[i].y} x2={s.x} y2={s.y} />
+            ))}
+          </svg>
+          {stars.map((s) => {
+            const style = { left: `${s.x}%`, top: `${s.y}%` };
+            if (s.view === "themes")
+              return (
+                <button
+                  key={s.label}
+                  type="button"
+                  data-star
+                  className="ne-star ne-star-themes"
+                  style={style}
+                  onClick={() => {
+                    setOpen(false);
+                    openThemes();
+                  }}
+                >
+                  <i aria-hidden="true" />
+                  <span>{s.label}</span>
+                </button>
+              );
             return (
-              <button key={s.label} type="button" data-star className="ne-star ne-star-themes" style={style} onClick={() => { setOpen(false); openThemes(); }}>
+              <Link key={s.label} href={s.href!} data-star className="ne-star" style={style} aria-current={active === s.view ? "page" : undefined}>
                 <i aria-hidden="true" />
                 <span>{s.label}</span>
-              </button>
+              </Link>
             );
-          return (
-            <Link key={s.label} href={s.href!} data-star className="ne-star" style={style} aria-current={active === s.view ? "page" : undefined}>
-              <i aria-hidden="true" />
-              <span>{s.label}</span>
-            </Link>
-          );
-        })}
+          })}
         </div>
+        <span className="ne-const-f">Arrow keys move · Esc closes</span>
       </div>
     </nav>
   );
 }
 
-function Comet() {
-  const host = useRef<HTMLDivElement>(null);
+function Pointer() {
+  const el = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (!window.matchMedia("(pointer: fine)").matches || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const el = host.current!;
-    const dots = [...el.children] as HTMLElement[];
-    const pts = dots.map(() => ({ x: -100, y: -100 }));
-    let x = -100;
-    let y = -100;
-    let raf = 0;
+    if (!window.matchMedia("(pointer: fine)").matches) return;
+    const d = el.current!;
+    d.dataset.on = "1";
     const move = (e: PointerEvent) => {
-      x = e.clientX;
-      y = e.clientY;
-      const t = (e.target as Element | null)?.closest?.("a, button, [data-star], canvas");
-      el.dataset.hot = t && (t.tagName !== "CANVAS" || (t as HTMLElement).style.cursor === "pointer") ? "1" : "";
-    };
-    const loop = () => {
-      raf = requestAnimationFrame(loop);
-      pts.forEach((p, i) => {
-        const lead = i === 0 ? { x, y } : pts[i - 1];
-        const k = i === 0 ? 1 : 0.42;
-        p.x += (lead.x - p.x) * k;
-        p.y += (lead.y - p.y) * k;
-        dots[i].style.transform = `translate3d(${p.x}px, ${p.y}px, 0) scale(${1 - i / dots.length})`;
-      });
+      d.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+      const t = (e.target as Element | null)?.closest?.("a, button, [data-star]");
+      const c = e.target instanceof HTMLCanvasElement && e.target.style.cursor === "pointer";
+      d.dataset.hot = t || c ? "1" : "";
     };
     window.addEventListener("pointermove", move);
-    raf = requestAnimationFrame(loop);
-    el.dataset.on = "1";
-    return () => {
-      window.removeEventListener("pointermove", move);
-      cancelAnimationFrame(raf);
-    };
+    return () => window.removeEventListener("pointermove", move);
   }, []);
   return (
-    <div className="ne-comet" ref={host} aria-hidden="true">
-      {Array.from({ length: 9 }, (_, i) => (
-        <i key={i} />
-      ))}
+    <div className="ne-pointer" ref={el} aria-hidden="true">
+      <svg viewBox="0 0 20 20">
+        <path d="M10 1 11.6 8.4 19 10 11.6 11.6 10 19 8.4 11.6 1 10 8.4 8.4Z" />
+      </svg>
     </div>
   );
 }
 
-function Sky({ route, mode, onFocusRef }: { route: Route; mode: Mode; onFocusRef: (fn: ((id: string) => void) | null) => void }) {
+function Observatory() {
   const canvas = useRef<HTMLCanvasElement>(null);
-  const hud = useRef<HTMLDivElement>(null);
-  const gauge = useRef<HTMLSpanElement>(null);
-  const cosmos = useRef<Cosmos | null>(null);
+  const chart = useRef<StarChart | null>(null);
+  const [hover, setHover] = useState<ChartHover>(null);
   const router = useRouter();
-  const panel = route.view !== "home";
 
   useEffect(() => {
-    if (mode !== "live" || !canvas.current) return;
+    const c = canvas.current;
+    if (!c) return;
     let dead = false;
-    const el = canvas.current;
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     document.fonts.ready.then(() => {
       if (dead) return;
-      cosmos.current = new Cosmos(el, cosmosItems, {
-        onHover: (h: HoverInfo) => {
-          const d = hud.current;
-          if (!d) return;
-          if (!h) {
-            d.dataset.on = "";
-            return;
-          }
-          d.dataset.on = "1";
-          d.style.transform = `translate3d(${h.x}px, ${h.y}px, 0)`;
-          d.querySelector("b")!.textContent = h.title;
-          d.querySelector("small")!.textContent = h.sub;
-        },
-        onSelect: (item) => router.push(item.href),
-        onTravel: (t) => {
-          if (gauge.current) gauge.current.textContent = t.toFixed(1).padStart(5, "0");
-        },
-      });
-      onFocusRef((id) => cosmos.current?.focus(id));
+      chart.current = new StarChart(c, chartItems, still, { onHover: setHover, onSelect: (i) => router.push(i.href) });
     });
     return () => {
       dead = true;
-      onFocusRef(null);
-      cosmos.current?.dispose();
-      cosmos.current = null;
+      chart.current?.dispose();
     };
-  }, [mode, router, onFocusRef]);
+  }, [router]);
 
-  useEffect(() => {
-    const c = cosmos.current;
-    if (!c) return;
-    c.setDim(panel);
-    if (route.view === "system" && route.slug) c.focus(`metric:${route.slug}`);
-    if (route.view === "projects") {
-      const w = new URLSearchParams(window.location.search).get("work");
-      if (w) c.focus(`tile:${w}`);
-    }
-  }, [route.view, route.slug, route.path, panel]);
+  const mark = (id: string | null) => chart.current?.highlight(id);
 
-  useEffect(() => {
-    if (mode !== "live" || panel) return;
-    const key = (e: KeyboardEvent) => {
-      const t = e.target as HTMLElement;
-      if (t.closest("input, textarea, .ne-const, [role=dialog]")) return;
-      const map: Record<string, number> = { ArrowDown: 3, PageDown: 8, " ": 6, ArrowUp: -3, PageUp: -8 };
-      if (map[e.key] !== undefined) {
-        e.preventDefault();
-        cosmos.current?.nudge(map[e.key]);
-      }
-    };
-    window.addEventListener("keydown", key);
-    return () => window.removeEventListener("keydown", key);
-  }, [mode, panel]);
-
-  if (mode !== "live") return null;
   return (
-    <>
-      <canvas ref={canvas} className="ne-canvas" aria-label="A field of work: scroll or drag to fly, click a tile to open it" />
-      <div className="ne-hud" ref={hud} aria-hidden="true">
-        <span className="ne-hud-ring" />
-        <span className="ne-hud-card">
-          <b />
-          <small />
-        </span>
+    <figure className="ne-obs">
+      <div className="ne-port">
+        <svg className="ne-ticks" viewBox="0 0 200 200" aria-hidden="true">
+          <circle cx="100" cy="100" r="99" />
+          <circle cx="100" cy="100" r="93" />
+          {Array.from({ length: 72 }, (_, i) => {
+            const a = (i * Math.PI) / 36;
+            const l = i % 6 ? 96 : 93;
+            return <line key={i} x1={100 + Math.cos(a) * l} y1={100 + Math.sin(a) * l} x2={100 + Math.cos(a) * 99} y2={100 + Math.sin(a) * 99} />;
+          })}
+          {["0°", "90°", "180°", "270°"].map((t, i) => (
+            <text key={t} x={100 + Math.cos((i * Math.PI) / 2 - Math.PI / 2) * 86} y={100 + Math.sin((i * Math.PI) / 2 - Math.PI / 2) * 86 + 2}>
+              {t}
+            </text>
+          ))}
+        </svg>
+        <canvas ref={canvas} aria-label="Star map of the work. Hover to identify, click to open. The same objects are listed beside it." />
+        {hover && (
+          <div className="ne-tip" style={{ left: hover.x, top: hover.y }} aria-hidden="true">
+            <small>No. {String(hover.item.no).padStart(2, "0")}</small>
+            <b>{hover.item.title}</b>
+            <span>{hover.item.sub}</span>
+          </div>
+        )}
       </div>
-      {!panel && (
-        <div className="ne-gauge" aria-hidden="true">
-          <span>Depth</span>
-          <span ref={gauge}>000.0</span>
-          <span>Scroll · drag · arrows to fly</span>
-        </div>
-      )}
-    </>
+      <figcaption>
+        <span className="ne-k">Fig. 1 · The works, charted</span>
+        <p>Squares are screen recordings; crosses are the systems, marked by their biggest number. Hover to identify, click to open.</p>
+        <ol className="ne-legend">
+          {chartItems.map((it) => (
+            <li key={it.id}>
+              <Link href={it.href} onPointerEnter={() => mark(it.id)} onPointerLeave={() => mark(null)} onFocus={() => mark(it.id)} onBlur={() => mark(null)}>
+                <span>{String(it.no).padStart(2, "0")}</span>
+                {it.title}
+                <i aria-hidden="true">{it.kind === "tile" ? "□" : "+"}</i>
+              </Link>
+            </li>
+          ))}
+        </ol>
+      </figcaption>
+    </figure>
   );
 }
 
-function Home({ mode, focus }: { mode: Mode; focus: (id: string) => void }) {
+function PlateHead({ no, title, k, more }: { no: string; title: string; k: string; more?: ReactNode }) {
   return (
-    <div className="ne-home" data-lenis-prevent={mode === "static" ? "" : undefined}>
-      <section className="ne-intro">
-        <span className="ne-k">
-          <i aria-hidden="true">✦</i> {profile.role} · {profile.location}
-        </span>
-        <h1>
-          <span>{profile.name}</span>
-          <em>A cosmos of work.</em>
-        </h1>
-        <p>{profile.description}</p>
-        <div className="ne-intro-cta">
-          <Link href="/systems" className="ne-btn">
-            Open the star chart
-          </Link>
-          <Link href="/about" className="ne-btn ne-btn-ghost">
-            About me
-          </Link>
+    <div className="ne-plate-head">
+      <span className="ne-plate-no">Plate {no}</span>
+      <h2>{title}</h2>
+      <span className="ne-coord">{k}</span>
+      {more}
+    </div>
+  );
+}
+
+function Home() {
+  return (
+    <>
+      <section className="ne-hero">
+        <div className="ne-hero-copy">
+          <span className="ne-k">
+            Plate I · {profile.role} · {profile.location}
+          </span>
+          <h1>
+            {profile.name}
+            <em>an atlas of the work.</em>
+          </h1>
+          <p className="ne-lede">{profile.description}</p>
+          <div className="ne-cta">
+            <Link href="/systems" className="ne-btn">
+              Open the star chart
+            </Link>
+            <Link href="/projects" className="ne-btn ne-btn-ghost">
+              See the works
+            </Link>
+          </div>
+          <dl className="ne-specs">
+            <div>
+              <dt>Systems catalogued</dt>
+              <dd>{systems.length}</dd>
+            </div>
+            <div>
+              <dt>Recordings</dt>
+              <dd>{stage.length}</dd>
+            </div>
+            <div>
+              <dt>Field notes</dt>
+              <dd>{notes.length}</dd>
+            </div>
+          </dl>
         </div>
+        <Observatory />
       </section>
 
-      {mode === "live" ? (
-        <nav className="ne-sr" aria-label="Everything in this field">
-          <p>Each link flies to its object, then opens it.</p>
-          <ul>
-            {cosmosItems.map((it) => (
-              <li key={it.id}>
-                <Link href={it.href} onFocus={() => focus(it.id)}>
-                  {it.title}: {it.sub}
+      <section className="ne-plate">
+        <PlateHead no="II" title="Systems" k={coords("systems")} more={<Link href="/systems" className="ne-more">Full chart →</Link>} />
+        <div className="ne-split">
+          <SystemsChart />
+          <ol className="ne-cat">
+            {systems.map((s) => (
+              <li key={s.slug}>
+                <Link href={`/systems/${s.slug}`}>
+                  <span className="ne-num">{s.index}</span>
+                  <b>{s.title}</b>
+                  <small>{s.category}</small>
+                  <strong>{s.metrics[0]?.value}</strong>
                 </Link>
               </li>
             ))}
-          </ul>
-        </nav>
-      ) : (
-        <div className="ne-grid">
-          {stage.map((s) => (
-            <Link key={s.slug} href={stageHref(s.slug)} className="ne-gtile">
-              <img src={s.poster} alt="" />
-              <span>
-                <b>{s.title}</b>
-                <small>{s.tag}</small>
-              </span>
-            </Link>
-          ))}
-          {systems.map((s) => (
-            <Link key={s.slug} href={`/systems/${s.slug}`} className="ne-gmetric">
-              <strong>{s.metrics[0]?.value}</strong>
-              <span>{s.metrics[0]?.label}</span>
-              <small>{s.title}</small>
+          </ol>
+        </div>
+      </section>
+
+      <section className="ne-plate">
+        <PlateHead no="III" title="Selected works" k={coords("works")} more={<Link href="/projects" className="ne-more">All works →</Link>} />
+        <div className="ne-works">
+          {stage.map((s, i) => (
+            <Link key={s.slug} href={stageHref(s.slug)} className="ne-wcard">
+              <span className="ne-wcard-no">No. {String(i + 1).padStart(2, "0")}</span>
+              <img src={s.poster} alt="" loading="lazy" />
+              <b>{s.title}</b>
+              <small>
+                {s.tag} · {s.tagline}
+              </small>
             </Link>
           ))}
         </div>
-      )}
-      <div className="ne-teaser">
-        <ThemeTeaser />
-      </div>
-    </div>
+      </section>
+
+      <section className="ne-plate">
+        <PlateHead no="IV" title="Field notes" k={coords("notes")} more={<Link href="/notes" className="ne-more">All notes →</Link>} />
+        <ol className="ne-noterow">
+          {notes.map((n) => (
+            <li key={n.slug}>
+              <Link href={`/notes/${n.slug}`}>
+                <span className="ne-k">
+                  {n.date} · {n.readTime}
+                </span>
+                <b>{n.title}</b>
+                <span>{n.dek}</span>
+              </Link>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section className="ne-plate">
+        <PlateHead no="V" title="The observer" k={coords("about")} more={<Link href="/about" className="ne-more">About →</Link>} />
+        <div className="ne-split ne-split-even">
+          <div className="ne-observer">
+            <p className="ne-big">{profile.tagline}</p>
+            <p>{profile.availability}. {profile.availabilityDetail}.</p>
+            <a className="ne-mail" href={`mailto:${profile.email}`}>
+              {profile.email}
+            </a>
+          </div>
+          <dl className="ne-now">
+            {currently.map((c) => (
+              <div key={c.label}>
+                <dt>{c.label}</dt>
+                <dd>{c.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </section>
+
+      <section className="ne-plate">
+        <PlateHead no="VI" title="Other atlases" k="The same work, bound differently" />
+        <div className="ne-teaser">
+          <ThemeTeaser />
+        </div>
+      </section>
+    </>
   );
 }
 
 const noop = () => () => {};
 const readWork = () => new URLSearchParams(window.location.search).get("work") ?? undefined;
 
-function Panel({ route }: { route: Route }) {
-  const router = useRouter();
-  const ref = useRef<HTMLDivElement>(null);
+function Plate({ route }: { route: Route }) {
   const work = useSyncExternalStore(noop, readWork, () => undefined);
-  useEffect(() => {
-    ref.current?.scrollTo({ top: 0 });
-  }, [route.path]);
-  useEffect(() => {
-    const key = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !document.querySelector(".ne-const[data-open]") && !document.querySelector(".themes-modal, [aria-modal=true]")) router.push("/");
-    };
-    window.addEventListener("keydown", key);
-    return () => window.removeEventListener("keydown", key);
-  }, [router]);
   const v = route.view;
-  const crumb = { systems: "Systems", system: "Systems", projects: "Projects", lab: "Lab", notes: "Notes", note: "Notes", about: "About", missing: "Uncharted", home: "" }[v];
   const parent = v === "system" ? "/systems" : v === "note" ? "/notes" : null;
   return (
-    <section className="ne-panel" data-view={v} aria-label={crumb}>
-      <div className="ne-panel-bar">
+    <div className="ne-sheet">
+      <div className="ne-strip">
         <p className="ne-crumb">
-          <Link href="/">Origin</Link>
-          <i aria-hidden="true">✦</i>
-          {parent ? <Link href={parent}>{crumb}</Link> : <span>{crumb}</span>}
+          <Link href="/">Atlas</Link>
+          <i aria-hidden="true">/</i>
+          {parent ? <Link href={parent}>{names[v]}</Link> : <span>{names[v]}</span>}
           {route.slug && v !== "missing" && (
             <>
-              <i aria-hidden="true">✦</i>
+              <i aria-hidden="true">/</i>
               <span>{route.slug}</span>
             </>
           )}
         </p>
-        <Link href="/" className="ne-close" aria-label="Close panel and return to the cosmos">
-          <span aria-hidden="true">×</span>
-        </Link>
+        <span className="ne-plate-no">Plate {plates[v]}</span>
+        <span className="ne-coord">{coords(route.path)}</span>
       </div>
-      <div className="ne-panel-scroll" ref={ref} data-lenis-prevent key={route.path}>
-        <div className="ne-panel-in">
-          {v === "systems" && <SystemsView />}
-          {v === "system" && <CaseView slug={route.slug ?? ""} />}
-          {v === "projects" && <ProjectsView work={work} />}
-          {v === "lab" && <LabView />}
-          {v === "notes" && <NotesView />}
-          {v === "note" && <NoteView slug={route.slug ?? ""} />}
-          {v === "about" && <AboutView />}
-          {v === "missing" && <MissingView />}
-        </div>
-      </div>
-    </section>
+      <article className="ne-card" data-view={v}>
+        {v === "systems" && <SystemsView />}
+        {v === "system" && <CaseView slug={route.slug ?? ""} />}
+        {v === "projects" && <ProjectsView work={work} />}
+        {v === "lab" && <LabView />}
+        {v === "notes" && <NotesView />}
+        {v === "note" && <NoteView slug={route.slug ?? ""} />}
+        {v === "about" && <AboutView />}
+        {v === "missing" && <MissingView />}
+      </article>
+    </div>
   );
 }
 
 export default function App({ route }: ThemeAppProps) {
-  const mode = useMode();
-  const focusFn = useRef<((id: string) => void) | null>(null);
-  const setFocus = useCallback((fn: ((id: string) => void) | null) => {
-    focusFn.current = fn;
-  }, []);
-  const focus = useCallback((id: string) => focusFn.current?.(id), []);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [route.path]);
   return (
-    <div className="t-nebula" data-view={route.view} data-mode={mode || undefined}>
-      <div className="ne-sky" aria-hidden="true" />
-      <Sky route={route} mode={mode} onFocusRef={setFocus} />
-      <div className="ne-veil" aria-hidden="true" />
-      <Link href="/" className="ne-brand" aria-label={`${profile.name}, home`}>
-        <i aria-hidden="true" />
-        <span>{profile.shortName}</span>
-      </Link>
-      <Constellation view={route.view} />
-      {route.view === "home" ? <Home mode={mode} focus={focus} /> : <Panel route={route} />}
-      <Comet />
+    <div className="t-nebula" data-view={route.view}>
+      <div className="ne-frame" aria-hidden="true">
+        <i />
+        <i />
+        <i />
+        <i />
+      </div>
+      <header className="ne-top">
+        <Link href="/" className="ne-brand">
+          <svg viewBox="0 0 20 20" aria-hidden="true">
+            <path d="M10 1 11.6 8.4 19 10 11.6 11.6 10 19 8.4 11.6 1 10 8.4 8.4Z" />
+          </svg>
+          <span>{profile.name}</span>
+          <small>Observatory atlas</small>
+        </Link>
+        <span className="ne-top-mid">
+          Plate {plates[route.view]} · {names[route.view]}
+        </span>
+        <Constellation view={route.view} />
+      </header>
+      <div className="ne-page" key={route.path}>
+        {route.view === "home" ? <Home /> : <Plate route={route} />}
+      </div>
+      <footer className="ne-foot">
+        <div>
+          <span className="ne-k">End of catalogue</span>
+          <p>
+            {profile.name} · {profile.role} · {profile.location}
+          </p>
+        </div>
+        <nav aria-label="Footer">
+          <Link href="/systems">Systems</Link>
+          <Link href="/projects">Works</Link>
+          <Link href="/lab">Lab</Link>
+          <Link href="/notes">Notes</Link>
+          <Link href="/about">About</Link>
+          <button type="button" onClick={openThemes}>
+            Themes
+          </button>
+        </nav>
+        <a href={`mailto:${profile.email}`} className="ne-mail">
+          {profile.email}
+        </a>
+      </footer>
+      <Pointer />
     </div>
   );
 }
