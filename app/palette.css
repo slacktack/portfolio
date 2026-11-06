@@ -804,3 +804,27 @@
     padding-top: 22px;
   }
 }
+
+/* the picker always uses the real cursor, whatever the theme draws */
+html.themes-open .themes-modal,
+html.themes-open .themes-modal * {
+  cursor: auto !important;
+}
+
+html.themes-open .themes-modal button,
+html.themes-open .themes-modal .pchip {
+  cursor: pointer !important;
+}
+
+html.themes-open .themes-modal .roul {
+  cursor: grab !important;
+}
+
+html.themes-open .themes-modal .roul:active {
+  cursor: grabbing !important;
+}
+
+html.themes-open .cur-dot,
+html.themes-open .cur-ring {
+  display: none !important;
+}

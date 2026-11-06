@@ -65,7 +65,7 @@ export function PaletteFan({ onPick, first = false }: { onPick?: () => void; fir
   const [sel, setSel] = useState(startIdx);
   const ring = useRef<HTMLDivElement>(null);
   const chips = useRef<(HTMLButtonElement | null)[]>([]);
-  const st = useRef({ a: -startIdx * step, t: -startIdx * step, drag: false, x: 0, moved: 0, snapT: 0 });
+  const st = useRef({ a: -startIdx * step, t: -startIdx * step, drag: false, x: 0, moved: 0, snapT: 0, lastDrag: 0 });
   const shown = skins[sel];
   const kickRef = useRef(() => {});
 
@@ -120,6 +120,7 @@ export function PaletteFan({ onPick, first = false }: { onPick?: () => void; fir
       kick();
     };
     const onDown = (e: PointerEvent) => {
+      if (e.button !== 0) return;
       s.drag = true;
       s.x = e.clientX;
       s.moved = 0;
@@ -136,6 +137,7 @@ export function PaletteFan({ onPick, first = false }: { onPick?: () => void; fir
     const onUp = () => {
       if (!s.drag) return;
       s.drag = false;
+      if (s.moved > 6) s.lastDrag = Date.now();
       snap();
     };
     el.addEventListener("wheel", onWheel, { passive: false });
@@ -182,8 +184,9 @@ export function PaletteFan({ onPick, first = false }: { onPick?: () => void; fir
       } else if (e.key === "ArrowLeft") {
         e.preventDefault();
         spinRef.current((((Math.round(-st.current.t) - 1) % n) + n) % n);
-      } else if (e.key === "Enter" && !(e.target as HTMLElement | null)?.closest?.("button")) {
-        enterRef.current(selRef.current);
+      } else if (e.key === "Enter" && !(e.target as HTMLElement | null)?.closest?.(".themes-actions")) {
+        e.preventDefault();
+        enterRef.current((((Math.round(-st.current.t) % n) + n) % n));
       }
     };
     window.addEventListener("keydown", onWinKey);
@@ -209,7 +212,7 @@ export function PaletteFan({ onPick, first = false }: { onPick?: () => void; fir
             data-current={s.id === current || undefined}
             aria-label={`${s.name}: ${s.story}. Navigation: ${s.nav}`}
             onClick={() => {
-              if (st.current.moved > 6) return;
+              if (Date.now() - st.current.lastDrag < 250) return;
               if (i === sel) enter(i);
               else spinTo(i);
             }}
