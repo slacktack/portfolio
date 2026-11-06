@@ -2,6 +2,9 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { ArrowRight } from "@/components/icons";
 import { chapter, chapters, nextChapter, type ChapterId } from "@/components/chapters";
+import { Who } from "@/components/visitor";
+import { StickerBand } from "@/components/zine-bits";
+import { marqueeMetrics } from "@/lib/site";
 
 export function StoryRail({ current, className = "" }: { current: ChapterId | null; className?: string }) {
   const at = current ? chapters.findIndex((c) => c.id === current) : -1;
@@ -57,6 +60,9 @@ export function ChapterHero({ id, title, lede, aside, kicker, crumbs, className 
         ) : null}
         <div className="ch-hero-grid">
           <div className="ch-hero-copy">
+            <span className="ch-hey">
+              <Who fallback="Hey there" suffix="," /> this is chapter {c.n}.
+            </span>
             <span className="ch-kicker">
               <b>Chapter {c.n}</b>
               <i />
@@ -85,6 +91,7 @@ export function Handoff({ from, lead, side, nextHref }: HandoffProps) {
   const next = nextChapter(from);
   return (
     <section className="handoff" aria-label={`Next chapter: ${next.name}`}>
+      <StickerBand items={marqueeMetrics} tone="blue" tilt={-1.4} />
       <div className="wrap">
         <div className="handoff-top">
           <span>
