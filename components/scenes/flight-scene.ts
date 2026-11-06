@@ -51,7 +51,7 @@ function buildPlane(): THREE.Group {
   paint(fg, (x, y, z, c) => {
     const ny = y / Math.max(Math.hypot(x, y), 0.001);
     c.copy(cream);
-    if (ny < -0.42) c.copy(cream).lerp(cobalt, smooth(-0.42, -0.7, ny));
+    if (ny < -0.55) c.copy(cream).lerp(new THREE.Color(0xb8bcc6), smooth(-0.55, -0.85, ny));
     if (ny > -0.06 && ny < 0.04 && z > -13 && z < 17.6) c.copy(verm);
     if (z < -20.2) c.copy(graphite);
   });
@@ -152,11 +152,17 @@ function buildPlane(): THREE.Group {
   }
   plane.add(wins);
   const glassMat = new THREE.MeshStandardMaterial({ color: 0x101218, roughness: 0.06, metalness: 0.85, side: THREE.DoubleSide });
+  // four cockpit panes wrapped onto the nose curve
   [-1, 1].forEach((s) => {
-    const pane = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.22), glassMat);
-    pane.position.set(s * 0.46, 1.12, 18.95);
-    pane.rotation.set(-0.95, s * 0.5, 0);
-    plane.add(pane);
+    [0.22, 0.62].forEach((ox, j) => {
+      const pane = new THREE.Mesh(new THREE.PlaneGeometry(0.38, 0.26), glassMat);
+      const ang = s * (0.18 + j * 0.42);
+      const r = 1.32;
+      pane.position.set(Math.sin(ang) * r * 0.92, 0.86, 18.55 - j * 0.12);
+      pane.rotation.set(-0.62, ang * 0.9, 0);
+      void ox;
+      plane.add(pane);
+    });
   });
 
   return plane;
@@ -287,6 +293,8 @@ function flightBuild(ctx: Ctx): Built {
       const k2 = (1 - p2) * (1 - p2);
       ahead.set(lateral * k2 * 0.9, 22 * k2 + 3.2 * smooth(0.5, 1, p2), -d2);
       plane.lookAt(ahead.clone().multiplyScalar(2).sub(pos));
+      // three-quarter view so the long 777 fuselage reads, not a nose-on ball
+      plane.rotateY(0.3);
       plane.rotateZ(Math.sin(p * 5.4) * 0.4 * (1 - p) + ctx.pointer.x * 0.05);
       // the camera follows the flyover with its eyes
       const f = smooth(0.52, 0.96, p);
