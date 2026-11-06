@@ -38,7 +38,7 @@ export function LayoutMap({ layout }: { layout: Skin["layout"] }) {
 }
 
 // The roulette: chips ride a ring; wheel, drag or arrow keys spin it, the top chip is picked.
-export function PaletteFan({ onPick }: { onPick?: () => void }) {
+export function PaletteFan({ onPick, first = false }: { onPick?: () => void; first?: boolean }) {
   const current = useSkinId();
   const n = skins.length;
   const step = 1;
@@ -224,7 +224,7 @@ export function PaletteFan({ onPick }: { onPick?: () => void }) {
           ))}
         </span>
         <button type="button" className="pfan-go" onClick={() => enter(sel)}>
-          {shown.id === current ? `You are in ${shown.name}` : `Enter ${shown.name}`} <span aria-hidden="true">→</span>
+          {shown.id === current && !first ? `You are in ${shown.name}` : `Enter ${shown.name}`} <span aria-hidden="true">→</span>
         </button>
       </div>
     </div>
@@ -285,7 +285,7 @@ export function ThemeModal() {
 
   return (
     <div
-      className="themes-modal"
+      className={`themes-modal${first ? " is-first" : ""}`}
       role="dialog"
       aria-modal="true"
       aria-label="Choose a website"
@@ -296,7 +296,7 @@ export function ThemeModal() {
         <div className="themes-head">
           <div>
             <span className="themes-k">
-              {first ? "Before you scroll" : "The palette"}
+              {first ? "Welcome · pick your website" : "The palette"}
             </span>
             <h2>
               {skins.length} themes. <em>{skins.length} different websites.</em>
@@ -306,11 +306,26 @@ export function ThemeModal() {
               type and motion. Same systems, same real numbers.
             </p>
           </div>
-          <button type="button" className="themes-close" onClick={close}>
-            {first ? "Skip, show me the default" : "Close"}
-          </button>
+          <div className="themes-actions">
+            {first ? (
+              <button
+                type="button"
+                className="themes-surprise"
+                onClick={() => {
+                  setOpen(false);
+                  const pool = skins.filter((k) => k.ready);
+                  applySkin(pool[Math.floor(Math.random() * pool.length)].id);
+                }}
+              >
+                Surprise me
+              </button>
+            ) : null}
+            <button type="button" className="themes-close" onClick={close}>
+              {first ? "Skip" : "Close"}
+            </button>
+          </div>
         </div>
-        <PaletteFan onPick={() => setOpen(false)} />
+        <PaletteFan first={first} onPick={() => setOpen(false)} />
       </div>
     </div>
   );

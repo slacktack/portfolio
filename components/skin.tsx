@@ -39,6 +39,7 @@ function commit(skin: Skin) {
   delete d.dataset.first;
   try {
     localStorage.setItem("tg-skin", skin.id);
+    localStorage.setItem("tg-picked", "1");
     localStorage.setItem("tg-theme", skin.mode);
   } catch {
     // storage blocked
