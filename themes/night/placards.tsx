@@ -276,7 +276,7 @@ function LabPlacard({ slug, onPick }: { slug: string; onPick: (kind: "project" |
   const next = labItems[(i + 1) % labItems.length];
   return (
     <article className="nt-plac">
-      <Head code={`LAB·${String(i + 1).padStart(2, "0")} · ${copy?.k ?? l.detail}`} title={copy?.t ?? l.title} lede={copy?.note} rows={[["Instrument", l.title], ["Dated", l.year]]} />
+      <Head code={`LAB·${String(i + 1).padStart(2, "0")} · ${copy?.k ?? l.detail}`} title={l.title} lede={copy ? `${copy.t} ${copy.note}` : l.detail} rows={[["Detail", l.detail], ["Dated", l.year]]} />
       {slug === "vortex-vault" ? (
         <div className="nt-pcol nt-pcol-solo">
           <p className="nt-summary">Most vector database projects pick a language and inherit its assumptions. VortexVault implements the same engine twice — once in C++, once in Rust — behind a shared segment format and a shared benchmark harness.</p>
