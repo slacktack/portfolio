@@ -157,7 +157,7 @@ export function createWorld(o: WorldOpts): World {
   const markSites = sites.filter((s) => s.mark);
 
   function heightAt(d: THREE.Vector3) {
-    let h = (fbm(d) - 0.47) * 2.4;
+    let h = (fbm(d) - 0.42) * 2.4;
     for (const s of markSites) {
       const ang = Math.acos(THREE.MathUtils.clamp(d.dot(s.dir), -1, 1));
       const w = smooth(s.flat + 0.09, s.flat, ang);
@@ -230,7 +230,7 @@ export function createWorld(o: WorldOpts): World {
   const planet = new THREE.Mesh(pg, new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.92 }));
   scene.add(planet);
 
-  const waterMat = new THREE.MeshStandardMaterial({ color: "#38bdf8", transparent: true, opacity: 0.8, roughness: 0.2, metalness: 0.05, flatShading: true });
+  const waterMat = new THREE.MeshStandardMaterial({ color: "#38bdf8", roughness: 0.2, metalness: 0.05, flatShading: true });
   const water = new THREE.Mesh(new THREE.IcosahedronGeometry(R + 0.02, 14), waterMat);
   scene.add(water);
 
@@ -619,7 +619,7 @@ export function createWorld(o: WorldOpts): World {
     const k = aspect < 0.8 ? 1.45 : aspect < 1.2 ? 1.15 : 1;
     if (mode === "overview") {
       if (!dragging) ovDir.applyAxisAngle(UP, dt * 0.05);
-      const dist = aspect < 0.8 ? 46 : 31;
+      const dist = aspect < 0.8 ? 58 : 40;
       outPos.copy(ovDir).multiplyScalar(dist);
       outLook.set(0, 0, 0);
       outUp.copy(UP);
@@ -942,8 +942,8 @@ export function createWorld(o: WorldOpts): World {
     camera.lookAt(camLook);
     const fog = scene.fog as THREE.Fog;
     const camDist = camPos.length();
-    fog.near = Math.max(4, camDist - 4);
-    fog.far = camDist + R * 2.6;
+    fog.near = mode === "overview" ? camDist : Math.max(4, camDist - 2);
+    fog.far = camDist + R * (mode === "overview" ? 5 : 3.2);
     for (const c of cloudParts) {
       const d = c.g.getWorldPosition(tmpP).distanceTo(camPos);
       c.m.opacity = 0.95 * smooth(1.8, 4.2, d);
