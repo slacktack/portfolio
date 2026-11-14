@@ -523,3 +523,11 @@ html[data-skin="orbit"] {
   --font-sans: var(--f-rubik); --font-display: var(--f-chakra); --font-serif: var(--f-chakra); --font-code: var(--f-dm-mono);
   --skin-label: var(--f-chakra);
 }
+html[data-skin="retro"] {
+  --paper: #f3efe0; --paper-2: #ebe6d3; --surface: #fbf9f1; --surface-2: #e4def0;
+  --ink: #17142e; --ink-soft: #2f2a52; --muted: #66617d; --muted-2: #8f8aa3;
+  --line: #ddd7c4; --line-strong: #c3bca6; --accent: #4b3ce0; --accent-soft: #e2deff; --accent-ink: #fff;
+  --data: #dd8517; --data-soft: #f8e3c6; --grid-line: rgba(23, 20, 46, 0.06); --radius: 6px; --radius-lg: 12px;
+  --font-sans: var(--f-geist-mono); --font-display: var(--f-doto); --font-serif: var(--f-doto); --font-code: var(--f-geist-mono);
+  --skin-label: var(--f-geist-mono);
+}

@@ -54,6 +54,7 @@ const glyphs: Record<string, string> = {
   solar: "12",
   nebula: "✦",
   orbit: "◉",
+  retro: "▤",
 };
 
 // The roulette: chips ride a ring; wheel, drag or arrow keys spin it, the top chip is picked.

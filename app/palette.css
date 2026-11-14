@@ -612,6 +612,7 @@
 [data-chip="solar"] .pchip-glyph { font: 800 70px/1 var(--f-unbounded), sans-serif; color: #141210; }
 [data-chip="nebula"] .pchip-glyph { font: 300 64px/1 var(--f-sora), sans-serif; color: #fff; text-shadow: 0 0 24px #f472b6, 0 0 48px #8b5cf6; }
 [data-chip="orbit"] .pchip-glyph { font: 400 68px/1 var(--f-chakra), sans-serif; color: #fff; text-shadow: 0 8px 0 #fb923c; }
+[data-chip="retro"] .pchip-glyph { font: 800 64px/1 var(--f-doto), monospace; color: #f3efe0; text-shadow: 0 4px 0 #dd8517; }
 
 .pchip-foot b {
   font-family: var(--f-syne), sans-serif;
@@ -633,6 +634,7 @@
 [data-chip="solar"] .pchip-foot b { font-family: var(--f-unbounded), sans-serif; font-size: 14px; }
 [data-chip="nebula"] .pchip-foot b { font-family: var(--f-sora), sans-serif; font-weight: 300; }
 [data-chip="orbit"] .pchip-foot b { font-family: var(--f-chakra), sans-serif; text-transform: uppercase; }
+[data-chip="retro"] .pchip-foot b { font-family: var(--f-geist-mono), monospace; text-transform: uppercase; font-size: 13px; }
 
 /* ---- picker upgrade: aura, themed detail, phone layout ---- */
 .themes-sheet {
@@ -703,6 +705,7 @@
 .pfan-wrap[data-sel="solar"] .pfan-detail > b { font-family: var(--f-unbounded), sans-serif; font-weight: 800; color: #ffd400; }
 .pfan-wrap[data-sel="nebula"] .pfan-detail > b { font-family: var(--f-sora), sans-serif; font-weight: 300; text-shadow: 0 0 30px #f472b6; }
 .pfan-wrap[data-sel="orbit"] .pfan-detail > b { font-family: var(--f-chakra), sans-serif; text-transform: uppercase; color: #7dd3fc; }
+.pfan-wrap[data-sel="retro"] .pfan-detail > b { font-family: var(--f-doto), monospace; font-weight: 800; text-transform: uppercase; color: #cfc9ff; }
 
 .pchip {
   transition: box-shadow 0.25s, filter 0.3s;

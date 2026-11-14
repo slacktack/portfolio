@@ -18,6 +18,7 @@ export const themeApps: Partial<Record<string, LazyExoticComponent<ComponentType
   solar: lazy(() => import("./solar")),
   nebula: lazy(() => import("./nebula")),
   orbit: lazy(() => import("./orbit")),
+  retro: lazy(() => import("./retro")),
 };
 
 export const hasThemeApp = (id: string) => id in themeApps;

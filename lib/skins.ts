@@ -1,4 +1,4 @@
-export type SkinId = "paper" | "night" | "summit" | "aurora" | "ember" | "signal" | "moss" | "forge" | "abyss" | "grid" | "crimson" | "graphite" | "onyx" | "solar" | "nebula" | "orbit";
+export type SkinId = "paper" | "night" | "summit" | "aurora" | "ember" | "signal" | "moss" | "forge" | "abyss" | "grid" | "crimson" | "graphite" | "onyx" | "solar" | "nebula" | "orbit" | "retro";
 
 export type Skin = {
   id: SkinId;
@@ -322,6 +322,25 @@ export const skins: Skin[] = [
       { name: "Grass", hex: "#4ADE80" },
     ],
     curtain: "linear-gradient(180deg,#38bdf8 0%,#7dd3fc 45%,#fdba74 80%,#fb923c 100%)",
+  },
+  {
+    id: "retro",
+    layout: "dock",
+    ready: true,
+    app: true,
+    nav: "Dashboard toolbar",
+    story: "A live ops dashboard",
+    name: "Retro",
+    line: "Cream stock, indigo ink, live readouts. The portfolio as an ops board.",
+    mode: "day",
+    threeD: false,
+    type: "Doto · Geist Mono",
+    swatches: [
+      { name: "Cream", hex: "#F3EFE0" },
+      { name: "Indigo", hex: "#4B3CE0" },
+      { name: "Signal", hex: "#DD8517" },
+    ],
+    curtain: "linear-gradient(140deg,#f3efe0 0%,#cfc9ff 42%,#4b3ce0 100%)",
   },
 ];
 
